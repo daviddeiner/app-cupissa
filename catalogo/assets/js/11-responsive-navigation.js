@@ -30,7 +30,6 @@ function openProfileModal() {
     closeCartModal();
     closeFavoritesModal();
     closeCheckoutFormModal();
-    closePortalModal();
     closeOptionsModal();
     closeMobileFilters();
 
@@ -62,12 +61,6 @@ function closeProfileModal() {
 
 window.addEventListener('message', event => {
     if (event.origin !== window.location.origin || !event.data) return;
-    if (event.data.type === 'CUPISSA_PORTAL_GOOGLE_TOP_LEVEL') {
-        const target = new URL(event.data.url, window.location.origin);
-        if (target.origin !== window.location.origin || target.pathname !== '/portal-pagos/' || target.searchParams.get('cupissa_google_popup') !== 'login') return;
-        window.location.assign(target.toString());
-        return;
-    }
     if (event.data.type === 'CUPISSA_GOOGLE_TOP_LEVEL') {
         const target = new URL(event.data.url, window.location.origin);
         if (target.origin !== window.location.origin || target.pathname !== '/perfil/' || !['login', 'register'].includes(target.searchParams.get('cupissa_google_popup'))) return;
@@ -92,7 +85,6 @@ window.addEventListener('message', event => {
         }
         return;
     }
-    if (event.data.type === 'CUPISSA_PROFILE_AUTH_CHANGED') cupissaShareProfileSessionToPortal();
     if (event.data.type === 'CUPISSA_PROFILE_CLOSE') closeProfileModal();
     if (event.data.type === 'CUPISSA_PROFILE_CHECKOUT') {
         closeProfileModal();
@@ -100,63 +92,12 @@ window.addEventListener('message', event => {
     }
 });
 
-/** Perfil y Portal usan la misma sesión de Supabase en este dominio.
- * No copiar ni volver a establecer tokens: ambos clientes leen la sesión
- * existente y el Portal valida la identidad antes de mostrar los créditos. */
-function cupissaShareProfileSessionToPortal() {
-    const portalWindow = document.getElementById('portal-frame')?.contentWindow;
-    if (!portalWindow) return;
-    try {
-        if (typeof portalWindow.cupissaPortalScheduleRestore === 'function') {
-            portalWindow.cupissaPortalScheduleRestore();
-        } else {
-            portalWindow.postMessage({ type: 'CUPISSA_PORTAL_REFRESH' }, location.origin);
-        }
-    } catch (error) {
-        console.warn('[CUPISSA] No se pudo avisar al Portal:', error);
-    }
-}
-
-/** Abre el Portal de Pagos dentro del catálogo, sin cambiar la página actual. */
-function openPortalModal() {
-    closeProfileModal();
-    closeCartModal();
-    closeFavoritesModal();
-    closeCheckoutFormModal();
-
-    const modal = document.getElementById('modal-portal');
-    const frame = document.getElementById('portal-frame');
-    if (!modal || !frame) return;
-
-    if (!frame.getAttribute('src')) {
-        frame.addEventListener('load', cupissaShareProfileSessionToPortal, { once: true });
-        frame.setAttribute('src', frame.dataset.src || '/portal-pagos');
-    } else {
-        cupissaShareProfileSessionToPortal();
-    }
-    modal.classList.remove('hidden');
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('portal-open');
-    setMobileNavSection('portal');
-}
-
-/** Cierra el Portal y devuelve al catálogo sin recargarlo. */
-function closePortalModal() {
-    const modal = document.getElementById('modal-portal');
-    if (!modal) return;
-    modal.classList.add('hidden');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('portal-open');
-    setMobileNavSection('home');
-}
-
 /** Inicio conserva la página viva y solo cierra paneles para volver al catálogo. */
 function goToCatalogHome() {
     setMobileNavSection('home');
     closeProfileModal();
     closeCartModal();
     closeFavoritesModal();
-    closePortalModal();
     closeOptionsModal();
     closeMobileFilters();
     const target = document.getElementById('catalog-main');
@@ -167,7 +108,6 @@ function toggleMobileFilters() {
     closeProfileModal();
     closeCartModal();
     closeFavoritesModal();
-    closePortalModal();
     const isOpen = document.body.classList.toggle('mobile-filters-open');
     const toggle = document.getElementById('mobile-filter-toggle');
     if (toggle) toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
@@ -198,7 +138,6 @@ window.addEventListener('keydown', event => {
     if (event.key === 'Escape') {
             closeMobileFilters();
             closeProfileModal();
-            closePortalModal();
             closeCartModal();
             closeFavoritesModal();
         }
@@ -215,11 +154,3 @@ if ('ResizeObserver' in window) {
     if (banner) new ResizeObserver(updateCatalogStickyOffset).observe(banner);
 }
 
-// Después de Google, recuperar el Portal integrado sin alterar la navegación móvil.
-window.addEventListener('load', () => {
-    const url = new URL(window.location.href);
-    if (url.searchParams.get('cupissa_open_portal') !== '1') return;
-    url.searchParams.delete('cupissa_open_portal');
-    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
-    openPortalModal();
-});

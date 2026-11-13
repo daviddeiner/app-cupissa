@@ -260,7 +260,7 @@
     .catalog-title-row { margin: 0 2px 4px; }
     .catalog-title-row h1 { font-size: 15px; }
 
-    /* Los cinco accesos inferiores permanecen visibles también sobre carrito y favoritos. */
+    /* Los cuatro accesos inferiores ocupan el ancho completo. */
     #mobile-app-nav {
         display: block;
         position: fixed;
@@ -276,7 +276,7 @@
     }
     .mobile-filter-row {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         align-items: center;
         margin-bottom: 2px;
     }
@@ -299,7 +299,7 @@
     #mobile-filter-toggle:active { background: #be185d; }
     .mobile-nav-actions {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         align-items: stretch;
         gap: 1px;
     }

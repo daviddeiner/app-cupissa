@@ -92,11 +92,6 @@
                         <span>Perfil</span>
                     </button>
 
-                    <a href="/portal-pagos" class="hidden md:flex items-center space-x-1.5 px-4 py-2 bg-pink-50 hover:bg-pink-100 fuchsia-text font-bold rounded-full text-xs transition-colors" aria-label="Ir al Portal de Pagos">
-                        <i class="fa-solid fa-wallet"></i>
-                        <span>Portal de pagos</span>
-                    </a>
-
                     <!-- FAVORITOS -->
                     <button onclick="openFavoritesModal()" class="relative p-1.5 sm:p-2.5 text-slate-600 hover:text-pink-600 transition-colors">
                         <i class="fa-regular fa-heart text-lg sm:text-xl"></i>
@@ -273,24 +268,8 @@
             <button type="button" class="mobile-nav-item" data-mobile-section="profile" onclick="openProfileModal()" aria-label="Abrir Perfil" title="Abrir Perfil aquí mismo">
                 <i class="fa-regular fa-user"></i><span>Perfil</span>
             </button>
-            <button type="button" class="mobile-nav-item mobile-nav-portal" data-mobile-section="portal" onclick="openPortalModal()" aria-label="Portal de Pagos" title="Abrir Portal de Pagos aquí mismo">
-                <i class="fa-solid fa-wallet"></i><span>Portal</span>
-            </button>
         </div>
     </nav>
-
-    <!-- PORTAL DE PAGOS: se muestra sobre el catálogo sin navegar a otra página. -->
-    <div id="modal-portal" class="portal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="portal-overlay-title">
-        <div class="portal-overlay-shell">
-            <div class="portal-overlay-header">
-                <div class="flex items-center gap-2 min-w-0">
-                    <i class="fa-solid fa-wallet fuchsia-text"></i>
-                    <strong id="portal-overlay-title" class="truncate">Portal de pagos</strong>
-                </div>
-            </div>
-            <iframe id="portal-frame" title="Portal de pagos" data-src="/portal-pagos?embedded=1" loading="lazy"></iframe>
-        </div>
-    </div>
 
     <!-- PERFIL DE CLIENTE: ventana integrada en móvil, sin salir del catálogo. -->
     <div id="modal-profile" class="profile-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="profile-overlay-title">

@@ -9,7 +9,6 @@ function openFavoritesModal() {
             // Permite alternar entre Favoritos y Carrito con la barra inferior
             // siempre visible y operativa, sin dejar dos paneles abiertos.
             closeCartModal();
-            closePortalModal();
             const container = document.getElementById('favorites-items-container');
             container.innerHTML = '';
             if (favorites.length === 0) {

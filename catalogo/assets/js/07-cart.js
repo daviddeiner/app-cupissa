@@ -9,7 +9,6 @@ function openCartModal() {
             // Cambiar directamente al carrito: evita que Favoritos u otro panel
             // quede superpuesto y bloquee los botones inferiores.
             closeFavoritesModal();
-            closePortalModal();
             renderCartItems();
             document.getElementById('modal-cart').classList.remove('hidden');
             document.getElementById('modal-cart').setAttribute('aria-hidden', 'false');

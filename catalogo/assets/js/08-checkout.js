@@ -19,7 +19,6 @@ function checkoutCart() {
 
     closeCartModal();
     closeFavoritesModal();
-    closePortalModal();
     if (typeof closeProfileModal === 'function') closeProfileModal();
 
     // El perfil conserva el catálogo en móvil y vuelve a checkout tras autenticarse.

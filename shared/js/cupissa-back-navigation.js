@@ -25,7 +25,7 @@
   function closeCatalogPanels() {
     [
       'closeProfileModal', 'closeCartModal', 'closeFavoritesModal',
-      'closePortalModal', 'closeCheckoutFormModal', 'closeOptionsModal',
+      'closeCheckoutFormModal', 'closeOptionsModal',
       'closeFullImageModal', 'closeMobileFilters'
     ].forEach(name => {
       try { if (typeof window[name] === 'function') window[name](); } catch (_) {}
@@ -40,7 +40,6 @@
     closeCatalogPanels();
     const url = new URL(window.location.href);
     url.searchParams.delete('producto');
-    url.searchParams.delete('cupissa_open_portal');
     const cleanUrl = CATALOG_PATH + (url.searchParams.toString() ? `?${url.searchParams}` : '') + (url.hash || '');
     try {
       history.pushState({ ...(history.state || {}), cupissaCustomerBackGuard:true, cupissaCustomerBackGuardPath:CATALOG_PATH }, '', window.location.href);
