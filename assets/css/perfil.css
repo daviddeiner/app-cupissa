@@ -1,0 +1,52 @@
+* { font-family: Inter, system-ui, sans-serif; }
+.profile-topbar { min-height: 62px; padding: 10px max(16px, calc((100vw - 1024px)/2)); background: #fff; border-bottom: 1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between; gap:12px; position:sticky; top:0; z-index:20; }
+.profile-back-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; background:#fce7f3; color:#be185d; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800; white-space:nowrap; }
+.profile-icon { width:58px; height:58px; margin:0 auto 14px; display:grid; place-items:center; border-radius:19px; background:#fce7f3; color:#db2777; font-size:25px; }
+.profile-avatar { width:56px; height:56px; flex:0 0 56px; border-radius:18px; background:#db2777; color:#fff; display:grid; place-items:center; font-size:18px; font-weight:900; }
+.auth-tab { padding:12px; border-radius:12px; color:#64748b; font-size:12px; font-weight:800; }
+.auth-tab.active { background:#fff; color:#be185d; box-shadow:0 1px 5px #0f172a12; }
+.profile-label { display:block; margin-bottom:6px; color:#475569; font-size:10px; line-height:1.3; font-weight:900; letter-spacing:.07em; text-transform:uppercase; }
+.profile-input { width:100%; min-height:42px; padding:10px 12px; border:1px solid #e2e8f0; border-radius:12px; outline:none; background:#fff; color:#0f172a; font-size:13px; font-weight:600; }
+.profile-input:focus { border-color:#ec4899; box-shadow:0 0 0 3px #fce7f3; }
+.profile-primary { display:flex; align-items:center; justify-content:center; gap:10px; padding:14px; border-radius:13px; color:#fff; background:#db2777; font-size:13px; font-weight:900; }
+.profile-primary:hover { background:#be185d; }
+.profile-message { padding:11px 12px; border-radius:12px; font-size:12px; font-weight:700; }
+.profile-message.error { background:#fff1f2; border:1px solid #fecdd3; color:#be123c; }
+.profile-message.success { background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; }
+.captcha-panel { padding:13px; border:1px solid #fbcfe8; border-radius:15px; background:#fff7fb; display:grid; gap:9px; }
+#profile-captcha-canvas { width:100%; max-width:260px; height:76px; border:1px solid #f9a8d4; border-radius:10px; background:#fff; }
+.profile-field { min-width:0; padding:12px 13px; border-radius:13px; background:#f8fafc; }
+.profile-field span { display:block; color:#94a3b8; text-transform:uppercase; font-size:9px; letter-spacing:.06em; font-weight:900; margin-bottom:5px; }
+.profile-field strong { display:block; color:#1e293b; font-size:13px; overflow-wrap:anywhere; }
+.profile-order-card { width:100%; text-align:left; background:#fff; border:1px solid #e2e8f0; border-radius:18px; padding:14px; box-shadow:0 3px 12px #0f172a08; }
+.profile-order-card:hover { border-color:#f9a8d4; }
+.profile-order-photo { width:62px; height:62px; border-radius:11px; object-fit:cover; background:#f1f5f9; }
+.profile-status { display:inline-flex; align-items:center; padding:5px 9px; border-radius:999px; background:#fce7f3; color:#9d174d; font-size:9px; font-weight:900; text-transform:uppercase; }
+.profile-order-modal { position:fixed; inset:0; padding:16px; z-index:60; background:#0f172a99; display:flex; align-items:center; justify-content:center; }
+.profile-order-modal-card { width:min(100%,700px); max-height:90vh; display:flex; flex-direction:column; overflow:hidden; border-radius:22px; background:#fff; box-shadow:0 20px 70px #0f172a55; }
+@media (max-width:640px) { .profile-topbar { min-height:58px; padding:9px 12px; } .profile-back-button { padding:9px 10px; font-size:11px; } .profile-order-modal { padding:0; } .profile-order-modal-card { width:100%; height:100%; max-height:100%; border-radius:0; } }
+
+.profile-embedded .profile-topbar { display:flex; position:sticky; top:0; z-index:30; }
+.profile-embedded .profile-topbar > a { display:none; }
+.profile-embedded .profile-back-button { display:inline-flex; }
+.profile-embedded .profile-topbar { display:none!important; }
+
+
+/* Nota visible del equipo CUPISSA en el historial del cliente. */
+.profile-order-sticky-note{position:relative;max-width:100%;padding:12px 14px 13px 16px;border:1px solid #f4d58a;border-radius:14px;background:linear-gradient(135deg,#fff9e8 0%,#fff3ce 100%);box-shadow:0 5px 14px rgba(146,104,22,.08);color:#72521a;overflow-wrap:anywhere}
+.profile-order-sticky-note:before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 4px 4px 0;background:#e9b949}
+.profile-order-sticky-note>span{display:flex;align-items:center;gap:7px;margin-bottom:6px;color:#966b18;font-size:9px;font-weight:900;letter-spacing:.09em;text-transform:uppercase}
+.profile-order-sticky-note p{margin:0;color:#624b24;font-size:12px;line-height:1.6;white-space:pre-wrap}
+.profile-order-sticky-note-detail{padding:15px 17px}
+.profile-order-sticky-note-detail p{font-size:13px}
+
+/* CUPISSA 2026 | Comprobante privado de entrega */
+.cupissa-delivery-client-button{display:block;width:100%;margin:9px 0 16px;padding:13px 16px;border:1px solid #f9a8d4;border-radius:13px;background:#fdf2f8;color:#9d174d;font-size:12px;font-weight:900;text-align:center;cursor:pointer}
+.cupissa-delivery-client-overlay{position:fixed;z-index:99999;inset:0;background:#0f0614cc;padding:13px;display:grid;place-items:center;overflow-y:auto}
+.cupissa-delivery-client-panel{width:min(100%,465px);max-height:93dvh;overflow-y:auto;background:#fff;border-radius:20px;padding:22px;box-shadow:0 20px 65px #0004;color:#191322}
+.cupissa-delivery-client-panel h2{font-size:20px;font-weight:900}.cupissa-delivery-client-panel h3{font-size:12px;font-weight:900;margin:16px 0 8px}.cupissa-delivery-client-panel p{font-size:11px;color:#8b7486;margin:5px 0}
+.cupissa-delivery-client-panel img{max-width:100%;width:100%;max-height:280px;object-fit:contain;border-radius:13px;border:1px solid #eadce5;background:#fafafa}
+.cupissa-delivery-client-close{float:right;background:#fdf2f8;color:#9d174d;border-radius:11px;padding:9px;font-size:12px;font-weight:900}
+
+.cupissa-delivery-client-button{display:flex!important;align-items:center;justify-content:center;gap:9px;min-height:46px;margin:8px 0 16px!important;background:#fce7f3!important;border:1px solid #f9a8d4;color:#9d174d!important;box-shadow:0 4px 16px #be185d13}
+.cupissa-delivery-proof-notice{font-size:12px;color:#8b5a70;padding:10px;margin:8px 0}

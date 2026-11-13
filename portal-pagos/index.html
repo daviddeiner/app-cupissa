@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <meta charset="UTF-8">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Consulta tus créditos, cuotas y pagos de Crédito Cupissa. Inicia sesión desde tu Perfil con tu correo electrónico para acceder a tu información.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Portal de Pagos | Crédito Cupissa">
+    <meta property="og:description" content="Consulta tus créditos, cuotas y pagos. Accede desde tu Perfil con tu correo electrónico.">
+    <link rel="canonical" href="https://cupissa.com/portal-pagos/">
+    <script>
+        // El portal se integra dentro del catálogo únicamente en la versión celular.
+        // En esa presentación se oculta el acceso independiente "Ver Catálogo".
+        if (new URLSearchParams(window.location.search).get('embedded') === '1') {
+            document.documentElement.classList.add('portal-embedded');
+        }
+    </script>
+    <title>Portal de Pagos | Crédito Cupissa</title>
+    
+    <link rel="shortcut icon" href="/catalogo/assets/images/favicon.png" type="image/png">
+    <link rel="icon" href="/catalogo/assets/images/logo.png" type="image/x-icon">
+    <link rel="icon" href="/catalogo/assets/images/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/catalogo/assets/images/favicon.png">
+    
+    <script src="/portal-pagos/assets/js/00-tailwind-setup.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/portal-pagos/assets/js/01-tailwind-config.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://checkout.wompi.co/widget.js"></script>
+    
+
+    <link rel="stylesheet" href="/portal-pagos/assets/css/portal.css">
+<script>
+(function(){
+  var path=window.location.pathname;
+  if(/\/index\.html$/i.test(path)){
+    var clean=path.replace(/index\.html$/i,'');
+    window.history.replaceState(null,document.title,clean+window.location.search+window.location.hash);
+  }
+})();
+</script>
+</head>
+<body class="h-full flex flex-col bg-slate-50 text-slate-800 font-sans relative">
+
+    <!-- VENTANA FLOTANTE (TOAST) TEMPORAL -->
+    <div id="toast-notification" class="fixed top-6 right-6 z-50 hidden max-w-sm bg-white border border-pink-100 shadow-2xl rounded-2xl p-4 flex items-center space-x-3 toast-animation">
+        <div id="toast-icon-container" class="w-10 h-10 rounded-xl bg-pink-100 fuchsia-text flex items-center justify-center font-bold text-lg flex-shrink-0">
+            <i id="toast-icon" class="fa-solid fa-circle-check"></i>
+        </div>
+        <div>
+            <h4 id="toast-title" class="text-xs font-bold uppercase tracking-wider text-slate-900">Notificación de pago</h4>
+            <p id="toast-message" class="text-xs text-slate-600 font-medium mt-0.5">Tu pago ha sido procesado con éxito</p>
+        </div>
+    </div>
+
+    <header class="bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center space-x-6">
+                    <a href="/portal-pagos">
+                        <img src="/catalogo/assets/images/logo.png" alt="CUPISSA" class="h-12 w-auto object-contain">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- Acceso unificado: el Portal solo consulta la sesión iniciada desde Perfil. -->
+        <section id="client-login-card" class="cupissa-portal-access-card" aria-live="polite">
+          <div class="cupissa-portal-access-icon"><i class="fa-solid fa-lock"></i></div>
+          <p class="cupissa-portal-access-kicker">Mi portal</p>
+          <h2>Tu información, en un solo lugar</h2>
+          <p>Inicia sesión desde <strong>Perfil</strong> para consultar aquí tus créditos, cuotas y pagos de forma segura.</p>
+          <button type="button" id="cupissa-portal-open-profile" class="cupissa-portal-profile-action"><i class="fa-regular fa-user"></i> Ir a Perfil</button>
+          <p class="cupissa-portal-access-help">Una vez ingreses a tu cuenta, vuelve al Portal para ver tu información.</p>
+        </section>
+        <style>
+          .cupissa-portal-access-card{width:min(100%,430px);margin:clamp(24px,6vh,65px) auto;padding:35px 23px;text-align:center;background:#fff;border:1px solid #f8d7e7;border-radius:28px;box-shadow:0 14px 32px #9f447010;box-sizing:border-box;color:#161225}
+          .cupissa-portal-access-card.hidden{display:none!important}
+          .cupissa-portal-access-icon{display:grid;place-items:center;width:68px;height:68px;margin:0 auto 15px;background:#fff0f7;color:#d81572;border-radius:22px;font-size:25px}
+          .cupissa-portal-access-kicker{font-size:11px;letter-spacing:2px;font-weight:800;color:#e31878;margin:0 0 6px}
+          .cupissa-portal-access-card h2{font-size:clamp(21px,5vw,27px);line-height:1.15;font-weight:900;margin:0 0 15px}
+          .cupissa-portal-access-card>p:not(.cupissa-portal-access-kicker){font-size:14px;line-height:1.65;color:#586174;margin:0 0 22px}
+          .cupissa-portal-profile-action{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#e41379;color:white;border:0;border-radius:15px;padding:14px 28px;font-weight:800;font-size:14px;cursor:pointer;min-height:49px}
+          .cupissa-portal-access-card .cupissa-portal-access-help{font-size:12px!important;margin:19px 0 0!important;color:#8992a5!important}
+        </style>
+        <script>
+        document.addEventListener('DOMContentLoaded',function(){
+          document.getElementById('cupissa-portal-open-profile')?.addEventListener('click',function(){
+            if(window.parent!==window){
+              try{window.parent.setMobileNavSection?.('profile');window.parent.openProfileModal?.();return;}catch(e){}
+              window.parent.postMessage({type:'CUPISSA_OPEN_PROFILE'},window.location.origin);
+            }else{window.location.href='/perfil/';}
+          });
+        });
+        </script>
+
+        <!-- DASHBOARD CLIENTE -->
+        <div id="client-dashboard" class="hidden space-y-6">
+            
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <div id="client-avatar" class="w-14 h-14 rounded-2xl fuchsia-bg text-white flex items-center justify-center text-xl font-black shadow-md">
+                        --
+                    </div>
+                    <div>
+                        <h2 id="client-name" class="text-2xl font-black text-slate-900">Hola</h2>
+                        <div class="flex items-center space-x-3 text-xs font-bold mt-1">
+                            <span id="client-phone" class="fuchsia-text"><i class="fa-solid fa-phone text-[10px] mr-1"></i></span>
+                            <span id="client-email" class="text-slate-400 font-normal"></span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="handleLogout()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors flex items-center space-x-2 self-start sm:self-center">
+                    <i class="fa-solid fa-right-from-bracket fuchsia-text"></i>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Cupo Disponible</span>
+                    <div id="val-cupo-disponible" class="text-3xl font-black fuchsia-text mt-2">$ 0</div>
+                    <a href="https://wa.me/573147671380?text=Hola%20CUPISSA%2C%20deseo%20solicitar%20un%20cr%C3%A9dito%20Cupissa.%20Por%20favor%2C%20ind%C3%ADquenme%20los%20requisitos." target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 mt-4 px-4 py-2.5 rounded-xl bg-pink-50 border border-pink-100 text-pink-700 text-xs font-black hover:bg-pink-100 transition-colors">
+                        <i class="fa-brands fa-whatsapp"></i><span>Solicitar crédito</span>
+                    </a>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Deuda Actual Total</span>
+                    <div id="val-deuda-total" class="text-3xl font-black fuchsia-text mt-2">$ 0</div>
+                    <div class="mt-2 text-xs text-slate-500">
+                        Créditos Activos: <span id="val-creditos-count" class="bg-pink-100 fuchsia-text px-2 py-0.5 rounded-full font-bold text-[11px]">0 Créditos Activos</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Próximo Vencimiento</span>
+                    <div id="val-proximo-vencimiento" class="text-2xl font-black text-slate-900 mt-2">N/A</div>
+                    <div class="mt-2 text-[11px] font-medium text-amber-800 bg-amber-50 border border-amber-200 p-2.5 rounded-xl flex items-start space-x-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5"></i>
+                        <div>
+                            <strong>Nota sobre Mora:</strong> Se aplicará un incremento del <strong>4% sobre la cuota</strong> por cada 5 días de retraso tras la fecha límite.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-4">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-base font-black text-slate-900">Estado de tus cuotas</h3>
+                        <p class="text-xs text-slate-400 mt-1">Consulta las fechas, valores y pagos registrados de tus créditos.</p>
+                    </div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-pink-600 bg-pink-50 rounded-full px-3 py-1">En tiempo real</span>
+                </div>
+                <div id="client-installments-list" class="overflow-x-auto">
+                    <p class="py-6 text-center text-xs text-slate-400">Cargando cuotas...</p>
+                </div>
+            </section>
+
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-6">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-credit-card fuchsia-text"></i>
+                        <span>Realizar Pago de Crédito</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Selecciona la modalidad para abonar a tu deuda.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label id="opt-min-card" onclick="selectPaymentOption('min')" class="p-5 rounded-2xl border-2 fuchsia-border bg-pink-50/20 cursor-pointer flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold uppercase tracking-wider fuchsia-text">Pagar Cuota Mínima Próxima</span>
+                                <input type="radio" name="paymentType" id="radio-min" checked class="accent-pink-600">
+                            </div>
+                            <div id="opt-val-min" class="text-2xl font-black text-slate-900 mt-2">$ 0</div>
+                            <div id="opt-mora-detail-min" class="text-[11px] font-bold text-red-600 mt-1 hidden"></div>
+                        </div>
+                        <div class="mt-3 bg-pink-100/60 p-2 rounded-xl text-[11px] fuchsia-text font-semibold flex items-center space-x-1">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>Fecha Máx: <strong id="opt-fecha-min">N/A</strong></span>
+                        </div>
+                    </label>
+
+                    <label id="opt-tot-card" onclick="selectPaymentOption('tot')" class="p-5 rounded-2xl border-2 border-slate-200 bg-white cursor-pointer flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-600">Pagar Deuda Total</span>
+                                <input type="radio" name="paymentType" id="radio-tot" class="accent-pink-600">
+                            </div>
+                            <div id="opt-val-tot" class="text-2xl font-black text-slate-900 mt-2">$ 0</div>
+                        </div>
+                        <div class="mt-3 bg-slate-100 p-2 rounded-xl text-[11px] text-slate-600 font-medium">
+                            Cancela el 100% de la deuda acumulada
+                        </div>
+                    </label>
+                </div>
+
+                <button type="button" onclick="openPaymentGateway()" class="w-full py-4 fuchsia-btn font-black rounded-2xl shadow-md transition-all text-sm flex items-center justify-center space-x-2 text-center">
+                    <i class="fa-solid fa-lock text-xs"></i>
+                    <span id="btn-pay-text">Pagar Cuota Mínima</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-80"></i>
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+
+    
+    <!-- Configuración de conexión y estado del portal -->
+    <script src="/shared/js/supabase-config.js"></script>
+<script src="/portal-pagos/assets/js/02-supabase-config-state.js"></script>
+<script src="/shared/js/cupissa-auth.js?v=20261110-auth-real-7"></script>
+
+    <!-- Servicio Wompi modular: respetar el orden de dependencias -->
+    <script src="/portal-pagos/services/wompi/02-date-and-late-fees.js"></script>
+    <script src="/portal-pagos/services/wompi/04-checkout.js?v=20261105-1"></script>
+    <script src="/portal-pagos/services/wompi/03-payment-service.js?v=20261107-otp-auth"></script>
+
+    <!-- Funcionalidades del portal -->
+    <script src="/portal-pagos/assets/js/03-notifications.js"></script>
+    <script src="/portal-pagos/assets/js/04-session.js?v=20261107-portal-restauracion-simple-v4"></script>
+    <script src="/portal-pagos/assets/js/05-authentication.js?v=20261107-portal-login-error-guard-v5"></script>
+    <script src="/portal-pagos/assets/js/06-client-dashboard.js?v=20261107-cuotas-v3"></script>
+    <script src="/portal-pagos/assets/js/07-payment-options.js"></script>
+    <script src="/portal-pagos/assets/js/08-payment-gateway.js?v=20261106-2"></script>
+    <script src="/portal-pagos/assets/js/09-formatters.js"></script>
+    <script src="/shared/js/security-console-notice.js?v=20261107-security-1"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,702 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+    <meta name="robots" content="noindex,nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ec4899">
+  <title>Confirmación de pago | CUPISSA</title>
+
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: #fff5fa;
+      color: #29212a;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 510px;
+      padding: 36px 25px;
+      background: white;
+      border-radius: 22px;
+      box-shadow: 0 15px 45px rgba(190, 24, 93, .10);
+      text-align: center;
+    }
+
+    .logo {
+      color: #db2777;
+      font-size: 27px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      margin-bottom: 30px;
+    }
+
+    .icon {
+      width: 82px;
+      height: 82px;
+      margin: auto auto 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #fce7f3;
+      color: #db2777;
+      font-size: 34px;
+    }
+
+    .icon.success {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .icon.error {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 4px solid #fce7f3;
+      border-top-color: #db2777;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    p {
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.7;
+      margin: 0 0 18px;
+    }
+
+    .order {
+      display: none;
+      padding: 16px;
+      margin: 22px 0;
+      background: #fdf2f8;
+      border: 1px solid #fbcfe8;
+      border-radius: 14px;
+      text-align: left;
+    }
+
+    .order strong {
+      display: block;
+      color: #9d174d;
+      margin-bottom: 8px;
+    }
+
+    .order-list {
+      color: #29212a;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.8;
+      overflow-wrap: anywhere;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      border: 0;
+    }
+
+    .primary {
+      color: white;
+      background: #db2777;
+    }
+
+    .secondary {
+      color: #9d174d;
+      background: #fce7f3;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .reference {
+      margin-top: 20px;
+      font-size: 11px;
+      color: #94a3b8;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <div class="logo">CUPISSA</div>
+
+    <div id="status-icon" class="icon">
+      <div class="spinner"></div>
+    </div>
+
+    <h1 id="status-title">Verificando tu pago</h1>
+
+    <p id="status-message">
+      Estamos confirmando tu transacción con Wompi.
+      No cierres esta página.
+    </p>
+
+    <section id="order-box" class="order">
+      <strong>Tu pedido quedó registrado</strong>
+      <div id="order-list" class="order-list"></div>
+    </section>
+
+    <div class="actions">
+      <a
+        id="profile-button"
+        class="button primary hidden"
+        href="/perfil#tus-pedidos">
+        Ver mis pedidos
+      </a>
+
+      <button
+        id="retry-button"
+        class="button primary hidden"
+        type="button">
+        Consultar pago nuevamente
+      </button>
+
+      <a
+        id="catalog-button"
+        class="button secondary"
+        href="/catalogo">
+        Volver al catálogo
+      </a>
+    </div>
+
+    <div id="reference" class="reference"></div>
+  </main>
+
+<script>
+(() => {
+  'use strict';
+
+  const SESSION_KEY = 'cupissa_client_session';
+  const PENDING_KEY = 'cupissa_pending_web_payment';
+  const PENDING_PREFIX = 'cupissa_pending_web_payment_';
+  const LAST_PENDING_KEY = 'cupissa_last_pending_web_payment';
+
+  /*
+    IMPORTANTE:
+    Se utiliza el mismo nombre de función del checkout principal.
+    El código compartido invoca swift-endpoint.
+  */
+  const EDGE_FUNCTION = 'swift-endpoint';
+
+  const $ = id => document.getElementById(id);
+
+  let pending = null;
+  let session = null;
+  let transactionId = '';
+  let checking = false;
+  let attempts = 0;
+
+  const MAX_ATTEMPTS = 15;
+  const RETRY_DELAY = 2500;
+
+  function readJson(key) {
+    try {
+      return JSON.parse(localStorage.getItem(key) || 'null');
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function getPending(reference) {
+    if (reference) {
+      return readJson(
+        PENDING_PREFIX + encodeURIComponent(reference)
+      );
+    }
+
+    const lastReference = localStorage.getItem(
+      LAST_PENDING_KEY
+    );
+
+    if (lastReference) {
+      const stored = readJson(
+        PENDING_PREFIX + encodeURIComponent(lastReference)
+      );
+
+      if (stored) return stored;
+    }
+
+    return readJson(PENDING_KEY);
+  }
+
+  function getSession() {
+    return readJson(SESSION_KEY);
+  }
+
+  function savePending(data) {
+    if (!data?.reference) return;
+
+    try {
+      const serialized = JSON.stringify(data);
+
+      localStorage.setItem(
+        PENDING_PREFIX + encodeURIComponent(data.reference),
+        serialized
+      );
+
+      localStorage.setItem(
+        LAST_PENDING_KEY,
+        data.reference
+      );
+
+      localStorage.setItem(
+        PENDING_KEY,
+        serialized
+      );
+    } catch (error) {
+      console.warn(
+        '[CUPISSA] No se pudo actualizar el pago pendiente:',
+        error
+      );
+    }
+  }
+
+  function removePending(reference) {
+    if (!reference) return;
+
+    const key =
+      PENDING_PREFIX + encodeURIComponent(reference);
+
+    try {
+      localStorage.removeItem(key);
+
+      if (
+        localStorage.getItem(LAST_PENDING_KEY) === reference
+      ) {
+        localStorage.removeItem(LAST_PENDING_KEY);
+      }
+
+      const legacy = readJson(PENDING_KEY);
+
+      if (
+        legacy &&
+        String(legacy.reference || '') === String(reference)
+      ) {
+        localStorage.removeItem(PENDING_KEY);
+      }
+    } catch (error) {
+      console.warn(
+        '[CUPISSA] No se pudo limpiar el pago:',
+        error
+      );
+    }
+  }
+
+  function setLoading(title, message) {
+    $('status-icon').className = 'icon';
+
+    $('status-icon').innerHTML =
+      '<div class="spinner"></div>';
+
+    $('status-title').textContent = title;
+    $('status-message').textContent = message;
+
+    $('retry-button').classList.add('hidden');
+  }
+
+  function setError(title, message) {
+    $('status-icon').className = 'icon error';
+
+    $('status-icon').innerHTML =
+      '<i class="fa-solid fa-circle-exclamation"></i>';
+
+    $('status-title').textContent = title;
+    $('status-message').textContent = message;
+  }
+
+  function setSuccess(result) {
+    const orders = Array.isArray(result.orders) &&
+      result.orders.length
+        ? result.orders
+        : result.order
+          ? [result.order]
+          : [];
+
+    if (!orders.length) {
+      setError(
+        'Pago aprobado, pedido por verificar',
+        'Wompi aprobó la transacción, pero el servidor todavía no devolvió los pedidos registrados. Conservamos la referencia para continuar la verificación.'
+      );
+
+      $('retry-button').classList.remove('hidden');
+      return;
+    }
+
+    $('status-icon').className = 'icon success';
+
+    $('status-icon').innerHTML =
+      '<i class="fa-solid fa-circle-check"></i>';
+
+    $('status-title').textContent =
+      '¡Tu pago fue aprobado!';
+
+    $('status-message').textContent =
+      'Tu pedido quedó registrado correctamente en CUPISSA. Ya puedes consultarlo desde tu perfil.';
+
+    $('order-list').innerHTML = '';
+
+    orders.forEach(order => {
+      const code =
+        order.codigo ||
+        order.numero_pedido ||
+        order.id ||
+        'Registrado';
+
+      const item = document.createElement('div');
+      item.textContent = 'Pedido ' + code;
+
+      $('order-list').appendChild(item);
+    });
+
+    $('order-box').style.display = 'block';
+
+    const firstOrder = orders[0];
+
+    $('profile-button').href =
+      firstOrder?.id
+        ? '/perfil?pedidoId=' +
+          encodeURIComponent(firstOrder.id) +
+          '#tus-pedidos'
+        : '/perfil#tus-pedidos';
+
+    $('profile-button').classList.remove('hidden');
+
+    $('retry-button').classList.add('hidden');
+
+    removePending(pending.reference);
+
+    /*
+      Solo limpiamos el carrito después de que el servidor
+      confirma que los pedidos quedaron registrados.
+    */
+    localStorage.setItem('cupissa_cart', '[]');
+
+    try {
+      localStorage.setItem(
+        'cupissa_last_confirmed_order',
+        JSON.stringify(orders)
+      );
+    } catch (_) {}
+  }
+
+  function showTerminalFailure(status) {
+    setError(
+      'El pago no fue aprobado',
+      'Wompi informó el estado ' + status +
+      '. No se confirmó tu pedido. Puedes regresar al catálogo.'
+    );
+
+    removePending(pending.reference);
+  }
+
+  async function confirmPayment() {
+    if (checking) return;
+
+    if (!pending?.reference) {
+      setError(
+        'No encontramos tu pago',
+        'No encontramos una referencia de pago guardada en este navegador. No realices otro pago si Wompi ya descontó el dinero.'
+      );
+      return;
+    }
+
+    session = getSession();
+
+    const clientId =
+      pending.clientId ||
+      session?.id ||
+      '';
+
+    const clientPassword =
+      session?.password ||
+      '';
+
+    if (!clientId || !clientPassword) {
+      setError(
+        'No pudimos validar tu sesión',
+        'No encontramos la sesión del cliente necesaria para consultar el pedido. Ingresa nuevamente a tu perfil y vuelve a consultar esta transacción.'
+      );
+
+      $('retry-button').classList.remove('hidden');
+      return;
+    }
+
+    if (!transactionId) {
+      transactionId =
+        pending.transaction?.id || '';
+    }
+
+    if (!transactionId) {
+      setError(
+        'No encontramos la transacción',
+        'Wompi no devolvió un identificador de transacción. Conservamos la referencia para poder verificarla.'
+      );
+
+      $('retry-button').classList.remove('hidden');
+      return;
+    }
+
+    checking = true;
+
+    setLoading(
+      'Verificando tu pago',
+      'Estamos consultando la transacción y registrando tu pedido.'
+    );
+
+    try {
+      const supabaseUrl =
+        window.SUPABASE_URL ||
+        window.supabaseUrl ||
+        '';
+
+      const anonKey =
+        window.SUPABASE_ANON_KEY ||
+        window.supabaseAnonKey ||
+        '';
+
+      if (!supabaseUrl) {
+        throw new Error(
+          'No está disponible la configuración del servidor de CUPISSA.'
+        );
+      }
+
+      const baseUrl = supabaseUrl.replace(/\/+$/, '');
+
+      const response = await fetch(
+        baseUrl + '/functions/v1/' + EDGE_FUNCTION,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(anonKey
+              ? {
+                  apikey: anonKey,
+                  Authorization: 'Bearer ' + anonKey
+                }
+              : {})
+          },
+          body: JSON.stringify({
+            action: 'confirm_web_payment',
+            clientId: String(clientId),
+            clientPassword: String(clientPassword),
+            reference: String(pending.reference),
+            transactionId: String(transactionId)
+          })
+        }
+      );
+
+      let result;
+
+      try {
+        result = await response.json();
+      } catch (_) {
+        throw new Error(
+          'El servidor devolvió una respuesta que no pudimos interpretar.'
+        );
+      }
+
+      if (!response.ok && response.status !== 202) {
+        throw new Error(
+          result?.error ||
+          result?.message ||
+          'No fue posible confirmar la transacción.'
+        );
+      }
+
+      if (result?.error) {
+        throw new Error(String(result.error));
+      }
+
+      const status = String(
+        result?.status ||
+        result?.transaction?.status ||
+        ''
+      ).toUpperCase();
+
+      if (
+        status === 'APPROVED' &&
+        (result.order || result.orders?.length)
+      ) {
+        setSuccess(result);
+        return;
+      }
+
+      if (
+        ['DECLINED', 'ERROR', 'VOIDED'].includes(status)
+      ) {
+        showTerminalFailure(status);
+        return;
+      }
+
+      pending.transaction = {
+        id: transactionId,
+        status: status || 'PENDING'
+      };
+
+      savePending(pending);
+
+      attempts++;
+
+      if (attempts < MAX_ATTEMPTS) {
+        setLoading(
+          'Confirmando tu pedido',
+          'El pago está siendo verificado. Estamos consultando nuevamente para registrar tu pedido.'
+        );
+
+        setTimeout(() => {
+          checking = false;
+          confirmPayment();
+        }, RETRY_DELAY);
+
+        return;
+      }
+
+      setError(
+        'Tu pago está siendo verificado',
+        'No realizaremos otro cobro. Conservamos tu transacción y puedes consultar nuevamente su estado.'
+      );
+
+      $('retry-button').classList.remove('hidden');
+
+    } catch (error) {
+      console.error(
+        '[CUPISSA] Error confirmando transacción:',
+        error
+      );
+
+      attempts++;
+
+      if (attempts < MAX_ATTEMPTS) {
+        setLoading(
+          'Verificando transacción',
+          'Estamos intentando recuperar la confirmación del pago.'
+        );
+
+        setTimeout(() => {
+          checking = false;
+          confirmPayment();
+        }, RETRY_DELAY);
+
+        return;
+      }
+
+      setError(
+        'No pudimos completar la verificación',
+        'No vuelvas a pagar. Tu referencia sigue guardada. Puedes consultar nuevamente el estado de la transacción.'
+      );
+
+      $('retry-button').classList.remove('hidden');
+
+    } finally {
+      checking = false;
+    }
+  }
+
+  function initialize() {
+    const params = new URLSearchParams(
+      window.location.search
+    );
+
+    transactionId =
+      params.get('id') ||
+      params.get('transaction_id') ||
+      params.get('transactionId') ||
+      '';
+
+    const reference =
+      params.get('reference') ||
+      '';
+
+    pending = getPending(reference);
+
+    $('reference').textContent =
+      pending?.reference
+        ? 'Referencia: ' + pending.reference
+        : '';
+
+    if (!pending) {
+      setError(
+        'No encontramos la referencia del pago',
+        'No se encontró el registro de esta transacción en el navegador. No realices otro pago si ya hubo un débito.'
+      );
+      return;
+    }
+
+    if (transactionId) {
+      pending.transaction = {
+        id: transactionId,
+        status: 'PENDING'
+      };
+
+      savePending(pending);
+    }
+
+    $('retry-button').addEventListener(
+      'click',
+      () => {
+        attempts = 0;
+        confirmPayment();
+      }
+    );
+
+    confirmPayment();
+  }
+
+  document.addEventListener(
+    'DOMContentLoaded',
+    initialize
+  );
+
+})();
+</script>
+    <script src="/shared/js/security-console-notice.js?v=20261107-security-1"></script>
+
+</body>
+</html>
+```

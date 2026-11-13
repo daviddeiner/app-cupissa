@@ -1,0 +1,37 @@
+.fuchsia-btn { background-color: #db2777; color: white; }
+        .fuchsia-btn:hover { background-color: #be185d; }
+        .fuchsia-bg { background-color: #db2777; }
+        .fuchsia-text { color: #db2777; }
+        .fuchsia-border { border-color: #db2777; }
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #f0abfc; border-radius: 9999px; }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast-animation { animation: slideIn 0.3s ease-out forwards; }
+
+
+/* Oculta "Ver Catálogo" solamente cuando el Portal de Pagos está embebido en el catálogo móvil. */
+.portal-embedded .portal-catalog-link { display: none !important; }
+
+
+/* Notificaciones coherentes con la identidad visual de CUPISSA. */
+#toast-notification {
+    border-color: #f5c2d9 !important;
+    box-shadow: 0 18px 48px rgba(131, 24, 67, .16) !important;
+}
+#toast-notification #toast-icon-container {
+    background: #fce7f3 !important;
+    color: #be185d !important;
+}
+@media (max-width: 640px) {
+    #toast-notification {
+        top: 12px !important;
+        right: 12px !important;
+        left: 12px !important;
+        width: auto !important;
+        max-width: none !important;
+    }
+}

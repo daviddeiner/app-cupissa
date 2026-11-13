@@ -1,0 +1,40 @@
+Options -MultiViews
+DirectoryIndex index.html
+RewriteEngine On
+
+# Redirecciones permanentes para eliminar rutas antiguas con carpetas o index.html.
+RewriteRule ^(portal-pagos|credito-cupissa|terminos-y-condiciones|politica-de-datos-personales|politica-de-compras-y-garantias|politica-y-condiciones-de-alquileres)/index\.html$ /$1 [R=301,END,NC]
+RewriteRule ^PERFIL(?:/index\.html)?/?$ /perfil [R=301,END,NC]
+RewriteRule ^catalogo\.html$ /catalogo/ [R=301,END,NC]
+RewriteRule ^index\.html$ /catalogo/ [R=301,END,NC]
+RewriteRule ^catalogo/?$ /catalogo/ [R=301,END,NC]
+RewriteRule ^terminos-credito\.html$ /terminos-credito/ [R=301,END,NC]
+RewriteRule ^politicas-anticipos\.html$ /politicas-anticipos/ [R=301,END,NC]
+RewriteRule ^tratamiento-datos\.html$ /tratamiento-datos/ [R=301,END,NC]
+
+# Secciones principales: URL corta sin .html ni carpetas con espacios.
+RewriteRule ^catalogo$ /catalogo/ [R=301,END,NC]
+RewriteRule ^checkout$ /checkout/ [R=301,END,NC]
+RewriteRule ^checkout/?$ checkout/index.html [END,NC]
+RewriteRule ^perfil$ /perfil/ [R=301,END,NC]
+RewriteRule ^perfil/?$ perfil/index.html [END,NC]
+RewriteRule ^portal-pagos/?$ portal-pagos/index.html [END,NC]
+RewriteRule ^credito-cupissa/?$ credito-cupissa/index.html [END,NC]
+
+# Documentos legales.
+RewriteRule ^terminos-y-condiciones/?$ terminos-y-condiciones/index.html [END,NC]
+RewriteRule ^politica-de-datos-personales/?$ politica-de-datos-personales/index.html [END,NC]
+RewriteRule ^politica-de-compras-y-garantias/?$ politica-de-compras-y-garantias/index.html [END,NC]
+RewriteRule ^politica-y-condiciones-de-alquileres/?$ politica-y-condiciones-de-alquileres/index.html [END,NC]
+RewriteRule ^terminos-credito$ /terminos-credito/ [R=301,END,NC]
+RewriteRule ^politicas-anticipos$ /politicas-anticipos/ [R=301,END,NC]
+RewriteRule ^tratamiento-datos$ /tratamiento-datos/ [R=301,END,NC]
+
+# Redirigir las antiguas rutas internas a sus direcciones limpias.
+RewriteRule ^PORTAL(?:%20| )DE(?:%20| )PAGOS(?:/index\.html)?/?$ /portal-pagos/ [R=301,END,NC]
+RewriteRule ^catalogo/catalogo\.html$ /catalogo/ [R=301,END,NC]
+RewriteRule ^catalogo/legal/terminos-credito\.html$ /terminos-credito/ [R=301,END,NC]
+RewriteRule ^catalogo/legal/politicas-anticipos\.html$ /politicas-anticipos/ [R=301,END,NC]
+RewriteRule ^catalogo/legal/tratamiento-datos\.html$ /tratamiento-datos/ [R=301,END,NC]
+RewriteRule ^checkout\.html$ /checkout/ [R=301,END,NC]
+RewriteRule ^perfil\.html$ /perfil/ [R=301,END,NC]

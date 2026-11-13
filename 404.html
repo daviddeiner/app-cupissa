@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Página no encontrada | CUPISSA</title>
+  <script>
+    (() => {
+      let path = location.pathname;
+      try { path = decodeURIComponent(path); } catch (_) {}
+      path = path.replace(/\\+/g, '/').replace(/\/{2,}/g, '/');
+      const legacy = new Map([
+        ['/CATALOGO/catalogo.html', '/catalogo/'],
+        ['/CATALOGO/', '/catalogo/'],
+        ['/PORTAL DE PAGOS/index.html', '/portal-pagos/'],
+        ['/PORTAL DE PAGOS/', '/portal-pagos/'],
+        ['/terminos-credito.html', '/terminos-credito/'],
+        ['/politicas-anticipos.html', '/politicas-anticipos/'],
+        ['/tratamiento-datos.html', '/tratamiento-datos/'],
+        ['/checkout.html', '/checkout/'],
+        ['/perfil.html', '/perfil/'],
+        ['/index.html', '/catalogo/']
+      ]);
+      // Si todavía no se ha generado la ficha HTML del producto, conservar
+      // el enlace y abrir su ficha de compra directamente en el catálogo.
+      const missingProduct = path.match(/^\/producto\/([A-Za-z0-9_-]{1,90})\/?(?:index\.html)?$/i);
+      if (missingProduct) {
+        location.replace('/catalogo/?producto=' + encodeURIComponent(missingProduct[1]));
+        return;
+      }
+      const destination = legacy.get(path);
+      if (destination) {
+        location.replace(destination + location.search + location.hash);
+        return;
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        const link = document.getElementById('home-link');
+        if (link) link.href = '/catalogo/';
+      });
+    })();
+  </script>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#fff8fb;color:#292331;font-family:Arial,sans-serif;text-align:center;padding:24px;box-sizing:border-box}
+    main{max-width:460px;background:#fff;border:1px solid #f5dce8;border-radius:24px;padding:36px;box-shadow:0 16px 50px #7b23401a}
+    h1{margin:0 0 10px;color:#be185d;font-size:30px}p{line-height:1.6;color:#6b6470}a{display:inline-block;margin-top:12px;padding:12px 20px;background:#be185d;color:#fff;border-radius:12px;text-decoration:none;font-weight:700}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Esta página no está disponible</h1>
+    <p>Es posible que la dirección haya cambiado. Regresa al catálogo CUPISSA para continuar.</p>
+    <a id="home-link" href="/catalogo/">Ir al catálogo</a>
+  </main>
+    <script src="/shared/js/security-console-notice.js?v=20261107-security-1"></script>
+
+</body>
+</html>

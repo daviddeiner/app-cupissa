@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es" class="min-h-full bg-slate-50">
+<head>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  <meta charset="UTF-8">
+    <meta name="robots" content="noindex,nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#db2777">
+  <title>Finalizar compra | CUPISSA</title>
+  <link rel="canonical" href="https://cupissa.com/checkout/">
+  <link rel="shortcut icon" href="/catalogo/assets/images/favicon.png" type="image/png">
+  <link rel="icon" href="/catalogo/assets/images/favicon.png" taype="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="/assets/css/checkout.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://checkout.wompi.co/widget.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+<script>
+(function(){
+  var path=window.location.pathname;
+  if(/\/index\.html$/i.test(path)){
+    var clean=path.replace(/index\.html$/i,'');
+    window.history.replaceState(null,document.title,clean+window.location.search+window.location.hash);
+  }
+})();
+</script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800">
+  <header class="checkout-header">
+    <a href="/catalogo" class="flex items-center gap-3 min-w-0" aria-label="Regresar a CUPISSA">
+      <img src="/catalogo/assets/images/logo.png" alt="CUPISSA" class="h-9 w-auto object-contain">
+      <span class="hidden sm:inline text-xs font-bold text-slate-500">Finalizar compra</span>
+    </a>
+    <a href="/catalogo" class="checkout-back"><i class="fa-solid fa-arrow-left"></i><span>Volver al catálogo</span></a>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-6 sm:px-6 sm:py-9">
+    <div class="mb-6">
+      <p class="text-[10px] font-black uppercase tracking-[.18em] text-pink-600">Compra segura CUPISSA</p>
+      <h1 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">Finaliza tu pedido</h1>
+      <p class="text-sm text-slate-500 mt-2">Completa tus datos, selecciona la fecha correspondiente y elige cómo deseas pagar.</p>
+    </div>
+
+    <div id="checkout-alert" class="hidden checkout-alert" role="alert"></div>
+
+    <div id="checkout-workflow" class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_310px] gap-5 items-start">
+      <section class="min-w-0">
+        <div class="checkout-steps mb-4">
+          <div id="step-indicator-1" class="checkout-step active"><span>1</span><div><strong>Datos y entrega</strong><small>Información del pedido</small></div></div>
+          <div class="checkout-step-line"></div>
+          <div id="step-indicator-2" class="checkout-step"><span>2</span><div><strong>Pago</strong><small>Resumen y forma de pago</small></div></div>
+        </div>
+
+        <section id="checkout-step-1" class="checkout-card space-y-5">
+          <div>
+            <h2 class="text-lg font-black text-slate-900">Datos para tu pedido</h2>
+            <p class="text-xs text-slate-500 mt-1">Todos los campos son obligatorios para agendar la entrega.</p>
+          </div>
+          <form id="customer-details-form" class="space-y-4" novalidate>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div><label class="checkout-label" for="customer-first-name">Nombres *</label><input id="customer-first-name" class="checkout-input" autocomplete="given-name" required maxlength="100" autocapitalize="characters"></div>
+              <div><label class="checkout-label" for="customer-last-name">Apellidos *</label><input id="customer-last-name" class="checkout-input" autocomplete="family-name" required maxlength="100" autocapitalize="characters"></div>
+              <div><label class="checkout-label" for="customer-email">Correo electrónico *</label><input id="customer-email" class="checkout-input" type="email" autocapitalize="none" autocomplete="email" required maxlength="180"></div>
+              <div><label class="checkout-label" for="customer-phone">Teléfono *</label><input id="customer-phone" class="checkout-input" type="tel" inputmode="tel" autocomplete="tel" required minlength="7" maxlength="20"></div>
+              <div class="sm:col-span-2"><label class="checkout-label" for="customer-address">Dirección exacta *</label><input id="customer-address" class="checkout-input" autocomplete="street-address" placeholder="Calle, carrera, número, apartamento, indicaciones" required maxlength="220" autocapitalize="characters"></div>
+              <div class="relative">
+                <label class="checkout-label" for="customer-city">Ciudad / municipio *</label>
+                <input id="customer-city" class="checkout-input" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="customer-city-suggestions" required maxlength="100" placeholder="Escribe o selecciona una ciudad" autocapitalize="characters">
+                <div id="customer-city-suggestions" class="checkout-autocomplete-menu hidden" role="listbox" aria-label="Opciones de ciudad"></div>
+              </div>
+              <div id="customer-city-other-wrap" class="hidden">
+                <label class="checkout-label" for="customer-city-other">Especifica la ciudad / municipio *</label>
+                <input id="customer-city-other" class="checkout-input" maxlength="100" placeholder="Escribe la ciudad o municipio" autocapitalize="characters">
+              </div>
+              <div class="relative">
+                <label class="checkout-label" for="customer-neighborhood">Barrio / sector *</label>
+                <input id="customer-neighborhood" class="checkout-input" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="customer-neighborhood-suggestions" required maxlength="100" placeholder="Escribe o selecciona tu barrio" autocapitalize="characters">
+                <div id="customer-neighborhood-suggestions" class="checkout-autocomplete-menu hidden" role="listbox" aria-label="Opciones de barrio"></div>
+              </div>
+              <div id="customer-neighborhood-other-wrap" class="hidden">
+                <label class="checkout-label" for="customer-neighborhood-other">Especifica el barrio / sector *</label>
+                <input id="customer-neighborhood-other" class="checkout-input" maxlength="100" placeholder="Escribe el barrio o sector" autocapitalize="characters">
+              </div>
+              <div id="sale-date-field" class="sm:col-span-2"><label class="checkout-label" for="delivery-date">Fecha de entrega de la compra *</label><input id="delivery-date" class="checkout-input" type="text" placeholder="Selecciona una fecha disponible" readonly></div>
+              <div id="rental-date-field" class="sm:col-span-2 hidden"><label class="checkout-label" for="rental-date">Fecha del alquiler *</label><input id="rental-date" class="checkout-input" type="text" placeholder="Selecciona la fecha del evento" readonly></div>
+              <div id="rental-days-field" class="sm:col-span-2 hidden"><label class="checkout-label" for="rental-days">Cantidad de días para el alquiler *</label><select id="rental-days" class="checkout-input"><option value="1">1 día — valor inicial</option><option value="2">2 días — +50%</option><option value="3">3 días — +100%</option><option value="4">4 días — +150%</option><option value="5">5 días — +200%</option></select><p class="text-[11px] text-slate-500 mt-1">Cada día adicional incrementa el valor inicial del alquiler en un 50%. Máximo 5 días.</p></div>
+            </div>
+            <div id="delivery-fee-note" class="checkout-info" aria-live="polite"><i class="fa-solid fa-truck-fast"></i><span>Selecciona tu ciudad y barrio para calcular el domicilio.</span></div>
+            <div id="delivery-date-note" class="checkout-info"><i class="fa-regular fa-calendar-check"></i><span>Calculando el tiempo mínimo de producción…</span></div>
+            <div id="rental-date-note" class="checkout-info hidden"><i class="fa-regular fa-calendar-check"></i><span>El alquiler es por 24 horas. Solicita tu pedido para un día antes de la fecha del evento.</span></div>
+            <div class="flex flex-col sm:flex-row gap-2 pt-1">
+              <button type="submit" id="continue-to-payment" class="checkout-primary w-full">Continuar <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+          </form>
+        </section>
+
+        <section id="checkout-step-2" class="checkout-card hidden space-y-5">
+          <div class="flex items-start justify-between gap-3">
+            <div><h2 class="text-lg font-black text-slate-900">Resumen de tu pedido</h2><p class="text-xs text-slate-500 mt-1">Revisa los productos y escoge cómo deseas pagar.</p></div>
+            <button type="button" id="edit-details" class="checkout-edit"><i class="fa-solid fa-pen"></i> Editar datos</button>
+          </div>
+          <div id="checkout-customer-summary" class="checkout-customer-summary"></div>
+          <div>
+            <h3 class="text-sm font-black text-slate-900 mb-3">Productos</h3>
+            <div id="checkout-product-summary" class="space-y-3"></div>
+          </div>
+          <div class="border-t border-slate-100 pt-4 space-y-2">
+            <div class="checkout-total-row"><span>Productos</span><strong id="checkout-subtotal">$ 0</strong></div>
+            <div class="checkout-total-row hidden" id="checkout-refund-deposit-row"><span>Depósito reembolsable</span><strong id="checkout-refund-deposit">$ 0</strong></div>
+            <div class="checkout-total-row"><span>Domicilio / envío</span><strong id="checkout-shipping">Por confirmar</strong></div>
+            <div class="checkout-total-row total"><span>Total del pedido</span><strong id="checkout-grand-total">$ 0</strong></div>
+            <div class="checkout-total-row advance"><span>Anticipo disponible</span><strong id="checkout-advance">$ 0</strong></div>
+            <p id="checkout-shipping-disclaimer" class="text-[10px] text-slate-400 leading-relaxed">El domicilio local se calcula con el tarifario y se suma al total del pedido. Los envíos nacionales se cotizan y se cobran al recibir.</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <button type="button" id="pay-total-button" class="checkout-pay-option" aria-pressed="false"><span class="checkout-pay-icon"><i class="fa-solid fa-credit-card"></i></span><span class="text-left flex-1"><strong>Pagar total pedido</strong><small id="pay-total-value">$ 0</small><small class="checkout-pay-hint">Recomendado para envíos nacionales</small></span></button>
+            <button type="button" id="pay-advance-button" class="checkout-pay-option secondary" aria-pressed="false"><span class="checkout-pay-icon"><i class="fa-solid fa-wallet"></i></span><span class="text-left flex-1"><strong>Pagar anticipo</strong><small id="pay-advance-value">$ 0</small></span></button>
+          </div>
+          <p id="split-orders-note" class="hidden text-xs text-pink-700 bg-pink-50 border border-pink-100 rounded-xl p-3">Tu compra y tu alquiler se registrarán como dos pedidos independientes. Completa el pago para confirmar ambos.</p>
+          <button type="button" id="go-to-payment-button" class="checkout-primary w-full" disabled>Ir a pagar</button>
+        </section>
+      </section>
+
+      <aside class="checkout-card order-aside">
+        <h2 class="text-sm font-black text-slate-900">Tu carrito</h2>
+        <p class="text-xs text-slate-400 mt-1" id="cart-item-count">0 productos</p>
+        <div id="checkout-mini-cart" class="space-y-3 mt-4"></div>
+        <div class="border-t border-slate-100 mt-4 pt-4 flex justify-between items-center"><span class="text-xs font-bold text-slate-500">Total estimado</span><strong id="checkout-mini-total" class="text-lg font-black text-slate-900">$ 0</strong></div>
+        <div class="mt-4 rounded-xl bg-pink-50 border border-pink-100 p-3 text-[11px] text-pink-800 font-semibold leading-relaxed"><i class="fa-solid fa-shield-heart mr-1"></i> Tu pedido quedará registrado en CUPISSA una vez se confirme el pago.</div>
+      </aside>
+    </div>
+
+    <section id="payment-result" class="hidden checkout-card max-w-2xl mx-auto text-center py-10 sm:py-14">
+      <div id="payment-result-icon" class="result-icon"><i class="fa-solid fa-circle-check"></i></div>
+      <h2 id="payment-result-title" class="text-2xl font-black text-slate-900 mt-5">Su pago ha sido registrado</h2>
+      <p id="payment-result-message" class="text-sm text-slate-500 mt-2">Tu pedido ya está disponible en tu perfil CUPISSA.</p>
+      <p id="payment-result-order" class="text-sm font-black text-pink-600 mt-4"></p>
+      <a id="view-order-profile" href="/perfil" class="checkout-primary inline-flex mt-6">Ver pedido en mi perfil <i class="fa-solid fa-arrow-right"></i></a>
+      <a id="back-catalog-after-payment" href="/catalogo" class="block text-xs font-bold text-slate-500 underline mt-4">Volver al catálogo</a>
+    </section>
+  </main>
+
+  <div id="payment-processing" class="checkout-processing hidden" role="status" aria-live="polite">
+    <div class="processing-card"><div class="processing-spinner"></div><h2 class="font-black text-slate-900 mt-4">Verificando tu pago</h2><p class="text-xs text-slate-500 mt-2">Estamos verificando la confirmación de tu pago. No cierres esta página.</p></div>
+  </div>
+
+  <script src="/shared/js/supabase-config.js"></script>
+  <script src="/catalogo/assets/js/00-config-state.js"></script>
+  <script src="/portal-pagos/services/wompi/04-checkout.js?v=20261109-soledad-12000-v4"></script>
+  <script src="/assets/js/checkout.js?v=20261110-deposito-2"></script>
+    <script src="/shared/js/security-console-notice.js?v=20261107-security-1"></script>
+
+</body>
+</html>

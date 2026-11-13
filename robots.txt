@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://cupissa.com/sitemap.xml

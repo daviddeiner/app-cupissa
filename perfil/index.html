@@ -1,0 +1,1167 @@
+
+<!DOCTYPE html>
+<html lang="es" class="min-h-full bg-slate-50">
+<head>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  <meta charset="UTF-8">
+    <meta name="robots" content="noindex,nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#be185d">
+  <title>Mi perfil</title>
+
+  <link rel="canonical" href="https://cupissa.com/perfil/">
+  <link rel="shortcut icon" href="/catalogo/assets/images/favicon.png" type="image/png">
+  <link rel="icon" href="/catalogo/assets/images/favicon.png" type="image/png">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="/assets/css/perfil.css?v=20261112-entregas-v1">
+
+  <style>
+    body { font-family: Inter, sans-serif; }
+    .profile-flow-panel { display: none; }
+    .profile-flow-panel.active { display: block; }
+    .profile-otp-input {
+      letter-spacing: .45em;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 900;
+    }
+    .profile-secondary {
+      width: 100%;
+      padding: .85rem 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: .85rem;
+      font-size: .8rem;
+      font-weight: 800;
+      color: #475569;
+      background: white;
+    }
+    .profile-secondary:hover { background: #f8fafc; }
+    .profile-google-button {
+      width: 100%;
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .65rem;
+      padding: .75rem 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: .85rem;
+      background: white;
+      color: #334155;
+      font-size: .85rem;
+      font-weight: 800;
+    }
+    .profile-google-button:hover { background: #f8fafc; }
+    .profile-flow-note {
+      padding: .8rem;
+      border-radius: .8rem;
+      background: #fdf2f8;
+      border: 1px solid #fbcfe8;
+      color: #9d174d;
+      font-size: .75rem;
+      line-height: 1.5;
+    }
+    .profile-flow-error {
+      display: none;
+      padding: .8rem;
+      border-radius: .8rem;
+      color: #9f1239;
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      font-size: .8rem;
+      font-weight: 700;
+    }
+    .profile-flow-success {
+      display: none;
+      padding: .8rem;
+      border-radius: .8rem;
+      color: #166534;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      font-size: .8rem;
+      font-weight: 700;
+    }
+  </style>
+
+  <script>
+    (function () {
+      var path = window.location.pathname;
+      if (/\/index\.html$/i.test(path)) {
+        var clean = path.replace(/index\.html$/i, '');
+        window.history.replaceState(
+          null,
+          document.title,
+          clean + window.location.search + window.location.hash
+        );
+      }
+    })();
+  </script>
+</head>
+
+<body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
+
+  <!-- ENCABEZADO -->
+  <header class="profile-topbar">
+    <a href="/catalogo" class="flex items-center gap-3 min-w-0">
+      <img
+        src="/catalogo/assets/images/logo.png"
+        alt="CUPISSA"
+        class="h-9 w-auto object-contain"
+      >
+      <span class="hidden sm:inline text-xs font-bold text-slate-500">Mi cuenta</span>
+    </a>
+
+  </header>
+
+  <main class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- =====================================================
+         AUTENTICACIÓN
+    ====================================================== -->
+    <section id="profile-auth-section" class="max-w-xl mx-auto">
+
+      <div class="text-center mb-6">
+        <div class="profile-icon">
+          <i class="fa-regular fa-user"></i>
+        </div>
+
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900">
+          Mi perfil
+        </h1>
+
+        <p class="text-sm text-slate-500 mt-2">
+          Ingresa a tu cuenta o regístrate para consultar tus pedidos.
+        </p>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-pink-100 shadow-lg overflow-hidden">
+
+        <!-- PESTAÑAS -->
+        <div id="profile-auth-tabs" class="grid grid-cols-2 p-2 bg-slate-50 gap-2">
+          <button
+            type="button"
+            id="auth-login-tab"
+            class="auth-tab active"
+            onclick="showAuthMode('login')"
+          >
+            Iniciar sesión
+          </button>
+
+          <button
+            type="button"
+            id="auth-register-tab"
+            class="auth-tab"
+            onclick="showAuthMode('register')"
+          >
+            Registrarme
+          </button>
+        </div>
+
+        <!-- =================================================
+             INICIO DE SESIÓN
+        ================================================== -->
+        <form
+          id="profile-login-form"
+          class="p-5 sm:p-7 space-y-4"
+          onsubmit="loginProfile(event)"
+        >
+          <div id="profile-login-error" class="hidden profile-message error"></div>
+
+          <div>
+            <label class="profile-label" for="login-email-profile">
+              Correo electrónico
+            </label>
+
+            <input
+              id="login-email-profile"
+              class="profile-input"
+              type="email"
+              inputmode="email"
+              autocomplete="email"
+              autocapitalize="none"
+              autocorrect="off"
+              spellcheck="false"
+              required
+              placeholder="tucorreo@hotmail.com o tucorreo@gmail.com"
+            >
+          </div>
+
+          <p class="text-xs text-slate-500 leading-relaxed">Te enviaremos un código de acceso a cualquier correo válido: Hotmail, Outlook, Gmail u otro proveedor. No necesitas contraseña.</p>
+
+          <button class="profile-primary w-full" type="submit">
+            <span>Enviar código de acceso</span>
+            <i class="fa-solid fa-envelope"></i>
+          </button>
+
+          <div class="relative flex items-center gap-3 py-1">
+            <div class="h-px bg-slate-200 flex-1"></div>
+            <span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">O continúa con</span>
+            <div class="h-px bg-slate-200 flex-1"></div>
+          </div>
+
+          <button
+            type="button"
+            class="profile-google-button"
+            onclick="loginWithGoogle()"
+          >
+            <i class="fa-brands fa-google text-lg"></i>
+            Continuar con Google
+          </button>
+
+
+          <p class="text-[11px] leading-relaxed text-slate-400 text-center">
+            Ingresa con el correo electrónico asociado a tu cuenta CUPISSA.
+          </p>
+        </form>
+
+        <form id="profile-email-login-otp-panel" class="hidden p-5 sm:p-7 space-y-4" onsubmit="verifyProfileEmailLoginOtp(event)">
+          <div id="profile-email-login-otp-error" class="hidden profile-message error"></div>
+          <p class="text-sm text-slate-600">Enviamos un código de seis dígitos a <strong id="profile-email-login-destination"></strong>.</p>
+          <label class="profile-label" for="profile-email-login-code">Código de acceso</label>
+          <input id="profile-email-login-code" class="profile-input text-center tracking-[.35em] text-lg font-black" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required placeholder="000000">
+          <button class="profile-primary w-full" type="submit">Verificar e ingresar <i class="fa-solid fa-arrow-right"></i></button>
+          <button type="button" class="block w-full text-center text-xs font-bold text-pink-600 underline" onclick="resendProfileEmailLoginOtp()">Enviar un código nuevo</button>
+          <button type="button" class="block w-full text-center text-xs font-semibold text-slate-500" onclick="showAuthMode('login')">Cambiar correo</button>
+        </form>
+
+        <!-- =================================================
+             REGISTRO TRADICIONAL
+        ================================================== -->
+        <form
+          id="profile-register-form"
+          class="hidden p-5 sm:p-7 space-y-4"
+          onsubmit="registerProfile(event)"
+        >
+          <div id="profile-register-error" class="hidden profile-message error"></div>
+          <div id="profile-register-success" class="hidden profile-message success"></div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="profile-label" for="reg-nombres">Nombres</label>
+              <input
+                id="reg-nombres"
+                class="profile-input"
+                required
+                autocomplete="given-name"
+              >
+            </div>
+
+            <div>
+              <label class="profile-label" for="reg-apellidos">Apellidos</label>
+              <input
+                id="reg-apellidos"
+                class="profile-input"
+                required
+                autocomplete="family-name"
+              >
+            </div>
+          </div>
+
+          <div>
+            <label class="profile-label" for="reg-telefono">
+              Número de teléfono
+            </label>
+
+            <input
+              id="reg-telefono"
+              class="profile-input"
+              type="tel"
+              inputmode="tel"
+              required
+              autocomplete="tel"
+              placeholder="Ej. 3001234567"
+            >
+          </div>
+
+          <div>
+            <label class="profile-label" for="reg-email">
+              Correo electrónico
+            </label>
+
+            <input
+              id="reg-email"
+              class="profile-input"
+              type="email"
+              inputmode="email"
+              required
+              autocomplete="email"
+              autocapitalize="none"
+              placeholder="tucorreo@ejemplo.com"
+            >
+          </div>
+
+          <label class="flex items-start gap-3 rounded-xl border border-pink-200 bg-pink-50 p-3 text-xs leading-relaxed text-slate-700">
+            <input id="profile-consent-register" type="checkbox" required class="mt-1 accent-pink-600 shrink-0">
+            <span>Autorizo el <a href="/tratamiento-datos/" target="_blank" rel="noopener" class="font-bold underline">tratamiento de mis datos personales</a> y el envío de correos de CUPISSA, incluidos mensajes comerciales. Puedo solicitar la revocatoria de la autorización para mensajes comerciales.</span>
+          </label>
+
+          <button class="profile-primary w-full" type="submit">
+            <span>Crear mi cuenta</span>
+            <i class="fa-solid fa-user-plus"></i>
+          </button>
+
+          <div class="relative flex items-center gap-3 py-1">
+            <div class="h-px bg-slate-200 flex-1"></div>
+            <span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">O regístrate con</span>
+            <div class="h-px bg-slate-200 flex-1"></div>
+          </div>
+
+          <button
+            type="button"
+            class="profile-google-button"
+            onclick="registerWithGoogle()"
+          >
+            <i class="fa-brands fa-google text-lg"></i>
+            Registrarme con Google
+          </button>
+
+          <p class="text-[10px] leading-relaxed text-slate-400 text-center">
+            El correo y el teléfono son obligatorios para crear tu cuenta CUPISSA.
+          </p>
+        </form>
+
+        <!-- =================================================
+             OTP REGISTRO TRADICIONAL
+        ================================================== -->
+        <section
+          id="profile-signup-otp-panel"
+          class="profile-flow-panel p-5 sm:p-7 space-y-4"
+        >
+          <div class="text-center">
+            <div class="profile-icon">
+              <i class="fa-solid fa-envelope-circle-check"></i>
+            </div>
+
+            <h2 class="text-xl font-black text-slate-900">
+              Verifica tu correo
+            </h2>
+
+            <p class="text-sm text-slate-500 mt-2">
+              Te enviamos un código de seis dígitos a:
+            </p>
+
+            <p
+              id="profile-signup-otp-email"
+              class="text-sm font-black text-pink-600 mt-1 break-all"
+            ></p>
+          </div>
+
+          <div class="profile-flow-note">
+            Revisa tu bandeja de entrada y la carpeta de correo no deseado.
+            Escribe aquí el código numérico que recibiste.
+          </div>
+
+          <div id="profile-signup-otp-error" class="profile-flow-error"></div>
+          <div id="profile-signup-otp-success" class="profile-flow-success"></div>
+
+          <form
+            id="profile-signup-otp-form"
+            onsubmit="verifyProfileSignupOtp(event)"
+            class="space-y-4"
+          >
+            <div>
+              <label class="profile-label" for="profile-signup-otp-code">
+                Código de verificación
+              </label>
+
+              <input
+                id="profile-signup-otp-code"
+                class="profile-input profile-otp-input"
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="6"
+                minlength="6"
+                pattern="[0-9]{6}"
+                required
+                placeholder="000000"
+              >
+            </div>
+
+            <button type="submit" class="profile-primary w-full">
+              Verificar código
+              <i class="fa-solid fa-check"></i>
+            </button>
+          </form>
+
+          <button
+            id="profile-signup-otp-resend"
+            type="button"
+            onclick="resendProfileSignupOtp()"
+            class="profile-secondary"
+          >
+            <i class="fa-solid fa-rotate mr-1"></i>
+            Reenviar código
+          </button>
+
+          <button
+            type="button"
+            onclick="cancelProfileSignupOtp()"
+            class="block w-full text-center text-xs text-slate-400 font-bold py-2"
+          >
+            Cancelar y regresar
+          </button>
+        </section>
+
+        <!-- =================================================
+             GOOGLE: SEGUNDO OTP OBLIGATORIO
+        ================================================== -->
+        <section
+          id="profile-google-otp-panel"
+          class="profile-flow-panel p-5 sm:p-7 space-y-4"
+        >
+          <div class="text-center">
+            <div class="profile-icon">
+              <i class="fa-brands fa-google"></i>
+            </div>
+
+            <h2 class="text-xl font-black text-slate-900">
+              Verificación adicional
+            </h2>
+
+            <p class="text-sm text-slate-500 mt-2">
+              Para completar tu registro CUPISSA, escribe el código enviado a:
+            </p>
+
+            <p
+              id="profile-google-otp-email"
+              class="text-sm font-black text-pink-600 mt-1 break-all"
+            ></p>
+          </div>
+
+          <div class="profile-flow-note">
+            Aunque ya hayas ingresado con Google, debes verificar este código
+            para terminar tu registro en CUPISSA.
+          </div>
+
+          <div id="profile-google-otp-error" class="profile-flow-error"></div>
+          <div id="profile-google-otp-success" class="profile-flow-success"></div>
+
+          <form
+            id="profile-google-otp-form"
+            onsubmit="verifyGoogleRegistrationOtp(event)"
+            class="space-y-4"
+          >
+            <div>
+              <label class="profile-label" for="profile-google-otp-code">
+                Código de seis dígitos
+              </label>
+
+              <input
+                id="profile-google-otp-code"
+                class="profile-input profile-otp-input"
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="6"
+                minlength="6"
+                pattern="[0-9]{6}"
+                required
+                placeholder="000000"
+              >
+            </div>
+
+            <button type="submit" class="profile-primary w-full">
+              Verificar y continuar
+              <i class="fa-solid fa-check"></i>
+            </button>
+          </form>
+
+          <button
+            type="button"
+            onclick="resendGoogleRegistrationOtp()"
+            class="profile-secondary"
+          >
+            <i class="fa-solid fa-rotate mr-1"></i>
+            Reenviar código
+          </button>
+
+          <button
+            type="button"
+            onclick="cancelGoogleRegistration()"
+            class="block w-full text-center text-xs text-slate-400 font-bold py-2"
+          >
+            Cancelar
+          </button>
+        </section>
+
+        <!-- =================================================
+             DATOS FINALES DEL REGISTRO GOOGLE
+        ================================================== -->
+        <section
+          id="profile-google-register-panel"
+          class="profile-flow-panel p-5 sm:p-7 space-y-4"
+        >
+          <div class="text-center">
+            <h2 class="text-xl font-black text-slate-900">
+              Completa tus datos
+            </h2>
+
+            <p class="text-sm text-slate-500 mt-2">
+              Tu correo ya fue verificado. Necesitamos los datos restantes.
+            </p>
+          </div>
+
+          <div id="profile-google-register-error" class="profile-flow-error"></div>
+
+          <div>
+            <label class="profile-label" for="google-reg-email">
+              Correo verificado
+            </label>
+
+            <input
+              id="google-reg-email"
+              class="profile-input bg-slate-100"
+              type="email"
+              readonly
+            >
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="profile-label" for="google-reg-nombres">
+                Nombres
+              </label>
+
+              <input
+                id="google-reg-nombres"
+                class="profile-input"
+                autocomplete="given-name"
+                required
+              >
+            </div>
+
+            <div>
+              <label class="profile-label" for="google-reg-apellidos">
+                Apellidos
+              </label>
+
+              <input
+                id="google-reg-apellidos"
+                class="profile-input"
+                autocomplete="family-name"
+                required
+              >
+            </div>
+          </div>
+
+          <div>
+            <label class="profile-label" for="google-reg-telefono">
+              Número de teléfono
+            </label>
+
+            <input
+              id="google-reg-telefono"
+              class="profile-input"
+              type="tel"
+              inputmode="tel"
+              autocomplete="tel"
+              required
+              placeholder="Ej. 3001234567"
+            >
+          </div>
+
+          <label class="flex items-start gap-3 rounded-xl border border-pink-200 bg-pink-50 p-3 text-xs leading-relaxed text-slate-700">
+            <input id="profile-consent-google" type="checkbox" required class="mt-1 accent-pink-600 shrink-0">
+            <span>Autorizo el <a href="/tratamiento-datos/" target="_blank" rel="noopener" class="font-bold underline">tratamiento de mis datos personales</a> y el envío de correos de CUPISSA, incluidos mensajes comerciales. Puedo solicitar la revocatoria de la autorización para mensajes comerciales.</span>
+          </label>
+
+          <button
+            id="profile-google-create-client"
+            type="button"
+            onclick="completeGoogleRegistration()"
+            class="profile-primary w-full"
+          >
+            Crear mi cuenta
+            <i class="fa-solid fa-user-plus"></i>
+          </button>
+
+          <button
+            type="button"
+            onclick="cancelGoogleRegistration()"
+            class="block w-full text-center text-xs text-slate-400 font-bold py-2"
+          >
+            Cancelar
+          </button>
+        </section>
+
+        <!-- =================================================
+             RECUPERACIÓN DE CONTRASEÑA
+        ================================================== -->
+        <section
+          id="profile-recovery-panel"
+          class="profile-flow-panel p-5 sm:p-7 space-y-4"
+        >
+          <div class="text-center">
+            <div class="profile-icon">
+              <i class="fa-solid fa-key"></i>
+            </div>
+
+            <h2 class="text-xl font-black text-slate-900">
+              Recuperar contraseña
+            </h2>
+
+            <p class="text-sm text-slate-500 mt-2">
+              Ingresa el correo de tu cuenta CUPISSA.
+            </p>
+          </div>
+
+          <div id="profile-recovery-error" class="profile-flow-error"></div>
+          <div id="profile-recovery-success" class="profile-flow-success"></div>
+
+          <form
+            id="profile-recovery-form"
+            onsubmit="sendProfileRecoveryOtp(event)"
+            class="space-y-4"
+          >
+            <div>
+              <label class="profile-label" for="profile-recovery-email">
+                Correo electrónico
+              </label>
+
+              <input
+                id="profile-recovery-email"
+                class="profile-input"
+                type="email"
+                autocomplete="email"
+                autocapitalize="none"
+                required
+                placeholder="tucorreo@ejemplo.com"
+              >
+            </div>
+
+            <button type="submit" class="profile-primary w-full">
+              Enviar código
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </form>
+
+          <form
+            id="profile-recovery-verify-form"
+            class="hidden space-y-4"
+            onsubmit="verifyProfileRecoveryOtp(event)"
+          >
+            <div>
+              <label class="profile-label" for="profile-recovery-code">
+                Código recibido
+              </label>
+
+              <input
+                id="profile-recovery-code"
+                class="profile-input profile-otp-input"
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="6"
+                minlength="6"
+                pattern="[0-9]{6}"
+                required
+                placeholder="000000"
+              >
+            </div>
+
+            <div>
+              <label class="profile-label" for="profile-new-password">
+                Nueva contraseña
+              </label>
+
+              <input
+                id="profile-new-password"
+                class="profile-input"
+                type="password"
+                minlength="6"
+                autocomplete="new-password"
+                required
+              >
+            </div>
+
+            <div>
+              <label class="profile-label" for="profile-new-password-confirm">
+                Confirmar nueva contraseña
+              </label>
+
+              <input
+                id="profile-new-password-confirm"
+                class="profile-input"
+                type="password"
+                minlength="6"
+                autocomplete="new-password"
+                required
+              >
+            </div>
+
+            <button type="submit" class="profile-primary w-full">
+              Guardar nueva contraseña
+              <i class="fa-solid fa-lock"></i>
+            </button>
+          </form>
+
+          <button
+            type="button"
+            onclick="showAuthMode('login')"
+            class="block w-full text-center text-xs text-slate-400 font-bold py-2"
+          >
+            Regresar al inicio de sesión
+          </button>
+        </section>
+
+        <!-- =================================================
+             VINCULAR CUENTA ANTIGUA
+        ================================================== -->
+        <section
+          id="profile-legacy-link-panel"
+          class="profile-flow-panel p-5 sm:p-7 space-y-4"
+        >
+          <div class="text-center">
+            <div class="profile-icon">
+              <i class="fa-solid fa-link"></i>
+            </div>
+
+            <h2 class="text-xl font-black text-slate-900">
+              Vincular cuenta anterior
+            </h2>
+
+            <p class="text-sm text-slate-500 mt-2">
+              Si ya tenías una cuenta CUPISSA, puedes vincularla sin crear
+              un cliente duplicado.
+            </p>
+          </div>
+
+          <div class="profile-flow-note">
+            Utiliza el teléfono y la contraseña que tenías en tu cuenta anterior.
+          </div>
+
+          <div id="profile-legacy-link-error" class="profile-flow-error"></div>
+
+          <form
+            id="profile-legacy-link-form"
+            onsubmit="submitLegacyAccountLink(event)"
+            class="space-y-4"
+          >
+            <div>
+              <label class="profile-label" for="legacy-link-telefono">
+                Teléfono de tu cuenta anterior
+              </label>
+
+              <input
+                id="legacy-link-telefono"
+                class="profile-input"
+                type="tel"
+                inputmode="tel"
+                autocomplete="tel"
+                required
+              >
+            </div>
+
+            <div>
+              <label class="profile-label" for="legacy-link-password">
+                Contraseña anterior
+              </label>
+
+              <input
+                id="legacy-link-password"
+                class="profile-input"
+                type="password"
+                autocomplete="current-password"
+                required
+              >
+            </div>
+
+            <div>
+              <label class="profile-label" for="legacy-link-nombres">
+                Nombres
+              </label>
+
+              <input
+                id="legacy-link-nombres"
+                class="profile-input"
+                required
+              >
+            </div>
+
+            <div>
+              <label class="profile-label" for="legacy-link-apellidos">
+                Apellidos
+              </label>
+
+              <input
+                id="legacy-link-apellidos"
+                class="profile-input"
+                required
+              >
+            </div>
+
+            <button type="submit" class="profile-primary w-full">
+              Vincular mi cuenta
+              <i class="fa-solid fa-link"></i>
+            </button>
+          </form>
+
+          <button
+            type="button"
+            onclick="showAuthMode('login')"
+            class="block w-full text-center text-xs text-slate-400 font-bold py-2"
+          >
+            Regresar
+          </button>
+        </section>
+
+      </div>
+
+    </section>
+
+    <!-- =====================================================
+         CUENTA DEL CLIENTE
+    ====================================================== -->
+    <section id="profile-account-section" class="hidden space-y-5">
+
+      <!-- ENCABEZADO DE CUENTA -->
+      <div class="bg-white rounded-3xl p-5 sm:p-7 border border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
+        <div class="flex items-center gap-4 min-w-0">
+          <div id="profile-avatar" class="profile-avatar">CU</div>
+
+          <div class="min-w-0">
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">
+              Mi cuenta
+            </p>
+
+            <h1
+              id="profile-heading-name"
+              class="text-xl sm:text-2xl font-black text-slate-900 break-words"
+            >
+              Mi perfil
+            </h1>
+
+            <p
+              id="profile-heading-phone"
+              class="text-sm text-pink-600 font-bold mt-1"
+            ></p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onclick="logoutProfile()"
+          class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs self-start sm:self-center"
+        >
+          <i class="fa-solid fa-right-from-bracket mr-1"></i>
+          Cerrar sesión
+        </button>
+      </div>
+
+      <!-- DATOS DEL PERFIL -->
+      <section class="bg-white rounded-3xl p-5 sm:p-7 border border-slate-100 shadow-sm">
+
+        <div class="flex items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-black text-slate-900">
+              Datos de la cuenta
+            </h2>
+
+            <p class="text-xs text-slate-400 mt-1">
+              Información de contacto y entrega.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            id="profile-edit-button"
+            onclick="toggleProfileEdit(true)"
+            class="px-4 py-2 rounded-xl bg-pink-50 text-pink-700 border border-pink-100 text-xs font-black"
+          >
+            <i class="fa-solid fa-pen mr-1"></i>
+            Editar
+          </button>
+        </div>
+
+        <div
+          id="profile-data-view"
+          class="grid grid-cols-1 sm:grid-cols-2 gap-4"
+        ></div>
+
+        <!-- FORMULARIO DE EDICIÓN -->
+        <form
+          id="profile-edit-form"
+          class="hidden space-y-4"
+          onsubmit="saveProfileChanges(event)"
+        >
+          <div id="profile-edit-error" class="hidden profile-message error"></div>
+
+          <div class="rounded-xl border border-slate-100 bg-slate-50 p-3">
+            <p class="text-[11px] font-semibold text-slate-500">
+              El nombre, el teléfono y el correo de la cuenta son datos fijos
+              y no se pueden modificar desde el perfil.
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+              <div>
+                <span class="profile-label">Nombre registrado</span>
+                <strong
+                  id="locked-profile-name"
+                  class="block text-sm text-slate-800"
+                ></strong>
+              </div>
+
+              <div>
+                <span class="profile-label">Teléfono registrado</span>
+                <strong
+                  id="locked-profile-phone"
+                  class="block text-sm text-slate-800"
+                ></strong>
+              </div>
+            </div>
+
+            <a
+              id="profile-request-identity-change"
+              href="https://wa.me/573245680018"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-2.5 text-xs font-black text-white shadow-sm hover:bg-green-700 transition-colors"
+            >
+              <i class="fa-brands fa-whatsapp text-base" aria-hidden="true"></i>
+              Solicitar cambio por WhatsApp
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+            <div>
+              <label class="profile-label" for="edit-correo">
+                Correo electrónico
+              </label>
+
+              <button type="button" onclick="startProfileEmailChange()" class="text-xs font-bold text-pink-600 mb-2 hover:underline">Cambiar correo</button>
+              <input
+                id="edit-correo"
+                class="profile-input bg-slate-100 text-slate-500 cursor-not-allowed"
+                type="email"
+                autocomplete="email"
+                autocapitalize="none"
+                readonly
+                disabled
+                aria-readonly="true"
+                tabindex="-1"
+              >
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="profile-label" for="edit-direccion">
+                Dirección
+              </label>
+
+              <input
+                id="edit-direccion"
+                class="profile-input"
+                autocapitalize="characters"
+              >
+            </div>
+
+            <div>
+              <label class="profile-label" for="edit-barrio">
+                Barrio
+              </label>
+
+              <input
+                id="edit-barrio"
+                class="profile-input"
+                autocapitalize="characters"
+              >
+            </div>
+
+            <div>
+              <label class="profile-label" for="edit-ciudad">
+                Ciudad
+              </label>
+
+              <input
+                id="edit-ciudad"
+                class="profile-input"
+                autocapitalize="characters"
+              >
+            </div>
+
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              type="button"
+              onclick="toggleProfileEdit(false)"
+              class="flex-1 py-3 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              class="flex-1 py-3 rounded-xl fuchsia-btn bg-pink-600 text-white text-xs font-black"
+            >
+              Guardar cambios
+            </button>
+          </div>
+        </form>
+
+        <!-- VERIFICACIÓN DE CAMBIO DE CORREO -->
+        <section
+          id="profile-email-otp-panel"
+          class="hidden fixed inset-0 z-[9999] items-center justify-center bg-slate-950/60 px-4 py-6 overflow-y-auto"
+        >
+          <div class="relative w-full max-w-md mx-auto my-auto rounded-3xl bg-white p-6 shadow-2xl space-y-4 border border-pink-100">
+            <button type="button" onclick="closeProfileEmailChange()" aria-label="Cerrar cambio de correo" class="absolute right-4 top-3 text-2xl font-bold text-slate-500 hover:text-pink-600">&times;</button>
+          <div class="pr-6">
+            <h3 class="font-black text-slate-900">
+              Cambiar correo electrónico
+            </h3>
+
+            <p class="text-xs text-slate-500 mt-1">
+              Primero verifica tu correo actual y luego el nuevo.
+            </p>
+          </div>
+
+          <div id="profile-email-old-stage" class="hidden">
+            <p class="text-sm mb-2">Introduce el código enviado a tu correo actual.</p>
+            <form onsubmit="verifyProfileOldEmail(event)" class="flex gap-2">
+              <input id="profile-email-old-code" class="profile-input" inputmode="numeric" maxlength="6" required placeholder="Código de 6 dígitos">
+              <button class="profile-primary" type="submit">Verificar</button>
+            </form>
+          </div>
+          <div id="profile-email-new-stage" class="hidden">
+            <form id="profile-email-new-request" onsubmit="requestProfileNewEmail(event)" class="space-y-2">
+              <label class="profile-label" for="profile-email-new-address">Nuevo correo electrónico</label>
+              <input id="profile-email-new-address" class="profile-input" type="email" required placeholder="nuevo@correo.com">
+              <button class="profile-primary w-full" type="submit">Enviar código al nuevo correo</button>
+            </form>
+          </div>
+          <div id="profile-email-otp-error" class="profile-flow-error"></div>
+          <div id="profile-email-otp-success" class="profile-flow-success"></div>
+
+          <form
+            style="display:none"
+            id="profile-email-otp-form"
+            onsubmit="verifyProfileEmailChange(event)"
+            class="space-y-3"
+          >
+            <input
+              id="profile-email-otp-code"
+              class="profile-input profile-otp-input"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="6"
+              minlength="6"
+              pattern="[0-9]{6}"
+              required
+              placeholder="000000"
+            >
+
+            <button type="submit" class="profile-primary w-full">
+              Confirmar nuevo correo
+            </button>
+          </form>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- PEDIDOS -->
+      <section id="tus-pedidos" class="space-y-3">
+
+        <div class="flex items-end justify-between">
+          <div>
+            <h2 class="text-lg sm:text-xl font-black text-slate-900">
+              Tus pedidos
+            </h2>
+
+            <p class="text-xs text-slate-400 mt-1">
+              Consulta el estado y los detalles de tus compras o alquileres.
+            </p>
+          </div>
+
+          <span
+            id="profile-orders-count"
+            class="text-xs font-bold text-pink-600"
+          >
+            0 pedidos
+          </span>
+        </div>
+
+        <div
+          id="profile-orders-list"
+          class="space-y-3"
+        >
+          <div class="bg-white p-6 rounded-2xl text-center text-sm text-slate-400">
+            Cargando tus pedidos...
+          </div>
+        </div>
+
+      </section>
+
+    </section>
+  </main>
+
+  <!-- =======================================================
+       MODAL DETALLE DEL PEDIDO
+  ======================================================== -->
+  <div
+    id="profile-order-modal"
+    class="profile-order-modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="profile-order-modal-title"
+  >
+    <div class="profile-order-modal-card">
+
+      <div class="flex items-center justify-between gap-3 border-b border-slate-100 p-4 sm:p-5">
+
+        <div>
+          <p class="text-[10px] uppercase font-bold tracking-wider text-pink-600">
+            Detalle de pedido
+          </p>
+
+          <h2
+            id="profile-order-modal-title"
+            class="font-black text-lg text-slate-900"
+          >
+            Pedido CUP0001
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          onclick="closeProfileOrder()"
+          class="w-9 h-9 rounded-full bg-slate-100 text-slate-600"
+          aria-label="Cerrar detalle"
+        >
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+      </div>
+
+      <div
+        id="profile-order-detail"
+        class="p-4 sm:p-5 overflow-y-auto"
+      ></div>
+
+    </div>
+  </div>
+
+  <!-- =======================================================
+       SCRIPTS
+       El orden de carga es obligatorio.
+  ======================================================== -->
+  <script src="/shared/js/supabase-config.js"></script>
+  <script src="/catalogo/assets/js/00-config-state.js"></script>
+  <script src="/shared/js/cupissa-auth.js?v=20261110-auth-real-7"></script>
+  <script src="/assets/js/perfil.js?v=20261112-delivery-2"></script>
+
+    <script src="/shared/js/security-console-notice.js?v=20261107-security-1"></script>
+
+
+<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js',{scope:'/'}).catch(()=>{}),{once:true});</script>
+</body>
+</html>

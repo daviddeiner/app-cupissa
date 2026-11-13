@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Resultado de pago | CUPISSA</title>
+  <link rel="shortcut icon" href="/catalogo/assets/images/favicon.png" type="image/png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/shared/js/supabase-config.js"></script>
+  <script src="/portal-pagos/assets/js/02-supabase-config-state.js"></script>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#f8fafc;color:#172033;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center;padding:24px}
+    .card{width:min(100%,520px);background:#fff;border:1px solid #f1d7e7;border-radius:26px;padding:34px 28px;box-shadow:0 18px 55px #17203312;text-align:center}
+    .logo{height:54px;max-width:190px;object-fit:contain;margin:0 auto 24px}.symbol{width:68px;height:68px;border-radius:22px;display:grid;place-items:center;margin:0 auto 18px;font-size:34px;font-weight:800;background:#fff1f7;color:#c02675}
+    h1{font-size:25px;margin:0 0 10px;font-weight:850}.desc{font-size:14px;line-height:1.65;color:#64748b;margin:0 auto 22px;max-width:390px}
+    .details{background:#f8fafc;border-radius:16px;padding:15px;text-align:left;margin:20px 0;font-size:13px}.line{display:flex;justify-content:space-between;gap:12px;padding:6px 0}.line span:first-child{color:#64748b}.line strong{overflow-wrap:anywhere;text-align:right}
+    .btn{display:block;width:100%;border:0;border-radius:14px;background:#c02675;color:white;padding:14px 18px;font-weight:800;font-size:14px;text-decoration:none;cursor:pointer;margin-top:10px}.btn.secondary{background:#fce7f3;color:#9d174d}
+    .success .symbol{background:#dcfce7;color:#15803d}.failure .symbol{background:#fee2e2;color:#b91c1c}.pending .symbol{background:#fef3c7;color:#a16207}
+    .small{font-size:11px;color:#94a3b8;margin-top:18px;line-height:1.5}
+  </style>
+</head>
+<body>
+  <main class="card pending" id="result-card" aria-live="polite">
+    <img class="logo" src="/catalogo/assets/images/logo.png" alt="CUPISSA">
+    <div class="symbol" id="result-symbol">…</div>
+    <h1 id="result-title">Verificando tu pago</h1>
+    <p class="desc" id="result-description">Estamos consultando el estado real de tu transacción con Wompi. No vuelvas a pagar mientras verificamos.</p>
+    <section class="details">
+      <div class="line"><span>Referencia</span><strong id="result-reference">—</strong></div>
+      <div class="line"><span>Valor</span><strong id="result-amount">—</strong></div>
+      <div class="line"><span>Estado</span><strong id="result-status">VERIFICANDO</strong></div>
+    </section>
+    <button class="btn" id="retry-button" type="button">Consultar estado del pago</button>
+    <a class="btn secondary" href="/portal-pagos/">Volver al Portal de Pagos</a>
+    <p class="small">Si Wompi aprobó el pago, CUPISSA actualizará tu crédito automáticamente. No realices un segundo pago por esta misma referencia.</p>
+  </main>
+  <script>
+  (function(){
+    'use strict';
+    const params = new URLSearchParams(location.search);
+    const reference = params.get('reference') || '';
+    const transactionId = params.get('id') || '';
+    const PENDING_KEY = 'cupissa_pending_credit_payment';
+    const card = document.getElementById('result-card');
+    const title = document.getElementById('result-title');
+    const desc = document.getElementById('result-description');
+    const symbol = document.getElementById('result-symbol');
+    const statusEl = document.getElementById('result-status');
+    const retry = document.getElementById('retry-button');
+    let busy = false;
+    let attempts = 0;
+    const money = value => new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Number(value||0));
+    let pending = null;
+    try { pending = JSON.parse(localStorage.getItem(PENDING_KEY)||'null'); } catch (_) {}
+    document.getElementById('result-reference').textContent = reference || 'No disponible';
+    document.getElementById('result-amount').textContent = money(pending?.amount || (Number(pending?.amountInCents||0)/100));
+
+    function render(state, message){
+      const s=String(state||'PENDING').toUpperCase();
+      card.className='card';
+      statusEl.textContent=s;
+      if(s==='APPROVED'){
+        card.classList.add('success'); symbol.textContent='✓'; title.textContent='¡Pago aprobado!';
+        desc.textContent='Tu pago fue confirmado por Wompi y el abono quedó aplicado a tu crédito. Tu saldo y próxima fecha de pago ya están actualizados.';
+        retry.hidden=true;
+        try { localStorage.removeItem(PENDING_KEY); } catch (_) {}
+      } else if(['DECLINED','VOIDED','ERROR','FAILED'].includes(s)){
+        card.classList.add('failure'); symbol.textContent='×'; title.textContent='Pago no aprobado';
+        desc.textContent=message || 'Wompi no aprobó esta transacción. Tu crédito no fue modificado. Puedes volver al portal y realizar un nuevo intento.';
+        retry.hidden=true;
+        try { localStorage.removeItem(PENDING_KEY); } catch (_) {}
+      } else {
+        card.classList.add('pending'); symbol.textContent='…'; title.textContent='Estamos verificando tu pago';
+        desc.textContent=message || 'Wompi todavía está procesando la confirmación. No vuelvas a pagar: seguiremos consultando esta misma transacción.';
+        retry.hidden=false;
+      }
+    }
+    async function check(){
+      if(busy) return;
+      if(!reference || !transactionId){ render('PENDING','No encontramos los datos de la transacción en esta dirección. Ingresa al portal y consulta el pago pendiente; no generes otro cobro.'); return; }
+      let session=null; try{session=JSON.parse(localStorage.getItem('cupissa_client_session')||'null')}catch(_){}
+      if(!session?.id){ render('PENDING','Tu sesión no está disponible en este navegador. Ingresa al Portal de Pagos con tu cuenta para recuperar la confirmación.'); return; }
+      busy=true; retry.disabled=true; retry.textContent='Consultando Wompi…'; attempts++;
+      try{
+        const {data,error}=await supabaseClient.functions.invoke('credit-payments',{body:{action:'confirm_credit_payment',clientId:String(session.id),clientPassword:String(session.password || ''),reference,transactionId}});
+        if(error){ let msg=''; try{const payload=await error.context?.json?.();msg=payload?.error||''}catch(_){} throw new Error(msg||'No se pudo consultar el servidor.'); }
+        if(data?.error) throw new Error(data.error);
+        const state=String(data?.status||'PENDING').toUpperCase();
+        render(state, data?.detail || '');
+      }catch(err){
+        console.error('[CUPISSA] Resultado de pago:',err);
+        render('PENDING', 'Aún no pudimos completar la verificación. No pagues otra vez. Puedes volver a consultar en unos segundos.');
+      }finally{
+        busy=false; retry.disabled=false; retry.textContent='Consultar estado del pago';
+      }
+    }
+    retry.addEventListener('click',check);
+    check();
+    const autoPoll=setInterval(()=>{ if(attempts>=8 || retry.hidden){clearInterval(autoPoll);return;} check(); },3500);
+  })();
+  </script>
+    <script src="/shared/js/security-console-notice.js?v=20261107-security-1"></script>
+
+</body>
+</html>

@@ -1,0 +1,1250 @@
+/* CUPISSA | Presentación responsive del catálogo */
+.fuchsia-btn { background-color: #db2777; color: white; }
+.fuchsia-btn:hover { background-color: #be185d; }
+.fuchsia-bg { background-color: #db2777; }
+.fuchsia-text { color: #db2777; }
+.fuchsia-border { border-color: #db2777; }
+.custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #f0abfc; border-radius: 9999px; }
+
+/* Aviso de fabricación: queda fijo bajo el encabezado durante todo el recorrido. */
+.catalog-promo-banner {
+    position: sticky;
+    top: 80px;
+    z-index: 38;
+    width: min(1440px, calc(100% - 48px));
+    margin: 10px auto 12px;
+    box-sizing: border-box;
+}
+
+/* Escritorio: columna izquierda con listas desplegables y productos a la derecha. */
+.catalog-layout-shell { width: 100%; }
+.catalog-layout {
+    width: min(100%, 1500px);
+    margin: 0 auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: minmax(220px, 258px) minmax(0, 1fr);
+    align-items: start;
+    gap: 22px;
+}
+#catalog-filter-sidebar {
+    position: sticky;
+    top: calc(80px + var(--promo-sticky-height, 54px) + 14px);
+    align-self: start;
+    max-height: calc(100vh - 170px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 4px 4px 14px 0;
+    scrollbar-width: thin;
+}
+.filter-group,
+.filter-sections-card {
+    background: #fff;
+    border: 1px solid #f1f5f9;
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .045);
+}
+.filter-group + .filter-group { margin-top: 10px; }
+.filter-group-title {
+    display: block;
+    margin: 0;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .11em;
+    line-height: 1.2;
+    text-align: left;
+}
+.filter-dropdown-toggle {
+    display: flex;
+    width: 100%;
+    min-height: 28px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 2px 1px;
+    text-align: left;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+.filter-dropdown-chevron { color: #db2777; font-size: 11px; transition: transform .18s ease; }
+.filter-dropdown-group.is-open .filter-dropdown-chevron { transform: rotate(180deg); }
+.filter-dropdown-group:not(.is-open) .filter-options-list { display: none !important; }
+.filter-options-list {
+    display: flex;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 5px !important;
+    overflow: visible !important;
+    margin-top: 10px;
+    padding: 0 !important;
+}
+#temporadas-container,
+#categorias-container,
+#subcategorias-container {
+    display: flex !important;
+    width: 100%;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    gap: 5px !important;
+    overflow: visible !important;
+    margin: 0;
+}
+#mundos-container button,
+#temporadas-container button,
+#categorias-container button,
+#subcategorias-container button {
+    display: flex;
+    width: 100%;
+    min-height: 32px;
+    align-items: center;
+    justify-content: flex-start;
+    max-width: 100%;
+    padding: 7px 9px !important;
+    border-radius: 8px !important;
+    text-align: left;
+    white-space: normal;
+    line-height: 1.25;
+    font-size: 11px !important;
+}
+#mundos-container button span { text-align: left; }
+.filter-sections-card { display: block; margin-top: 10px; }
+.mobile-filter-close { display: none; }
+.catalog-content-column { min-width: 0; display: flex; flex-direction: column; }
+#catalog-main { max-width: none; }
+#mobile-app-nav { display: none; }
+#mobile-filter-backdrop { display: none; }
+
+@media (max-width: 767px) {
+    body { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+    .desktop-header-actions { display: none !important; }
+    header > div { padding-left: 10px !important; padding-right: 10px !important; }
+    header .h-16 { min-height: 64px; }
+
+    .catalog-promo-banner {
+        top: 64px;
+        width: 100%;
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 7px 9px;
+        border-width: 0 0 1px;
+        border-radius: 0;
+        font-size: 9px;
+        line-height: 1.3;
+        background: rgba(253, 242, 248, .98);
+        backdrop-filter: blur(12px);
+    }
+
+    .catalog-layout { display: block; width: 100%; padding: 0; margin: 0; }
+    #catalog-filter-sidebar {
+        display: contents;
+        position: static;
+        max-height: none;
+        overflow: visible;
+        padding: 0;
+        width: 100%;
+    }
+    .filter-worlds-group {
+        position: sticky;
+        top: calc(64px + var(--promo-sticky-height, 48px));
+        z-index: 35;
+        border-radius: 0;
+        border-width: 0 0 1px;
+        border-color: #e2e8f0;
+        padding: 7px 9px 6px;
+        box-shadow: 0 3px 8px rgba(15, 23, 42, .055);
+        background: rgba(255,255,255,.98);
+        backdrop-filter: blur(12px);
+    }
+    .filter-worlds-group .filter-dropdown-toggle { display: none; }
+    .filter-worlds-group .filter-options-list,
+    #mundos-container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 7px !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        white-space: nowrap;
+        margin: 0;
+        padding: 0 0 2px !important;
+        scrollbar-width: none;
+    }
+    #mundos-container::-webkit-scrollbar { display: none; }
+    #mundos-container button {
+        width: auto;
+        min-height: 32px;
+        flex: 0 0 auto;
+        white-space: nowrap;
+        padding: 7px 11px !important;
+        border-radius: 999px !important;
+        font-size: 10px !important;
+    }
+
+    /* El panel de filtros se abre desde el botón inferior; conserva el menú desplegable. */
+    #catalog-filter-sections { display: none; }
+    body.mobile-filters-open #catalog-filter-sections {
+        display: block;
+        position: fixed;
+        left: 50%;
+        bottom: calc(96px + env(safe-area-inset-bottom));
+        transform: translateX(-50%);
+        z-index: 80;
+        width: min(94vw, 460px);
+        max-height: min(68vh, 620px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        margin: 0;
+        padding: 14px;
+        border-radius: 20px;
+        box-shadow: 0 18px 55px rgba(15, 23, 42, .22);
+    }
+    body.mobile-filters-open #mobile-filter-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 70;
+        background: rgba(15, 23, 42, .48);
+        backdrop-filter: blur(2px);
+    }
+    .mobile-filter-close {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 2px 2px 12px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 900;
+    }
+    .mobile-filter-close i { color: #db2777; font-size: 18px; }
+    #catalog-filter-sections .filter-group {
+        padding: 11px 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    #catalog-filter-sections .filter-group:last-child { border-bottom: 0; }
+    #catalog-filter-sections .filter-group-title { font-size: 10px; }
+    #catalog-filter-sections .filter-options-list { margin-top: 8px; }
+    #temporadas-container,
+    #categorias-container,
+    #subcategorias-container {
+        display: flex !important;
+        flex-direction: column !important;
+        flex-wrap: nowrap;
+        max-height: none;
+        overflow: visible !important;
+    }
+    #temporadas-container button,
+    #categorias-container button,
+    #subcategorias-container button {
+        width: 100%;
+        min-height: 34px;
+        padding: 8px 10px !important;
+        font-size: 11px !important;
+        border-radius: 9px !important;
+    }
+
+    #catalog-main { padding: 10px 10px 24px !important; gap: 10px; }
+    .catalog-title-row { margin: 0 2px 4px; }
+    .catalog-title-row h1 { font-size: 15px; }
+
+    /* Los cinco accesos inferiores permanecen visibles también sobre carrito y favoritos. */
+    #mobile-app-nav {
+        display: block;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 65;
+        padding: 5px 7px calc(7px + env(safe-area-inset-bottom));
+        background: rgba(255,255,255,.99);
+        border-top: 1px solid #e2e8f0;
+        box-shadow: 0 -5px 22px rgba(15, 23, 42, .09);
+        backdrop-filter: blur(16px);
+    }
+    .mobile-filter-row {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        align-items: center;
+        margin-bottom: 2px;
+    }
+    #mobile-filter-toggle {
+        grid-column: 1;
+        justify-self: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-width: 0;
+        padding: 7px 11px;
+        color: #fff;
+        background: #db2777;
+        border-radius: 999px;
+        box-shadow: 0 3px 9px rgba(219, 39, 119, .22);
+        font-size: 10px;
+        font-weight: 900;
+    }
+    #mobile-filter-toggle:active { background: #be185d; }
+    .mobile-nav-actions {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        align-items: stretch;
+        gap: 1px;
+    }
+    .mobile-nav-item {
+        min-width: 0;
+        min-height: 43px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        color: #64748b;
+        font-size: 8px;
+        line-height: 1.1;
+        font-weight: 800;
+        background: transparent;
+        border: 0;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    .mobile-nav-item > i,
+    .mobile-nav-icon-wrap > i { font-size: 16px; }
+    .mobile-nav-item.active { color: #db2777; }
+    .mobile-nav-item:disabled { opacity: .48; cursor: not-allowed; }
+    .mobile-nav-icon-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+    .mobile-nav-badge {
+        position: absolute;
+        top: -8px;
+        right: -11px;
+        min-width: 15px;
+        height: 15px;
+        padding: 0 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        color: #fff;
+        background: #db2777;
+        border: 1px solid #fff;
+        font-size: 8px;
+        line-height: 1;
+        font-weight: 900;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .catalog-layout { grid-template-columns: minmax(190px, 220px) minmax(0, 1fr); gap: 14px; padding: 0 12px; }
+    #catalog-main { padding: 18px 10px !important; }
+    .filter-group, .filter-sections-card { padding: 10px; }
+}
+
+/* Ajustes de interacción y tamaño para la navegación móvil y sus ventanas. */
+@media (max-width: 767px) {
+    :root { --mobile-app-nav-height: calc(84px + env(safe-area-inset-bottom)); }
+
+    body { padding-bottom: var(--mobile-app-nav-height); }
+
+    /* La barra queda por encima de los paneles y permite seguir cambiando de sección. */
+    #mobile-app-nav {
+        z-index: 90;
+        height: var(--mobile-app-nav-height);
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 4px 7px calc(6px + env(safe-area-inset-bottom));
+        pointer-events: auto;
+    }
+    #mobile-app-nav button,
+    #mobile-app-nav a { pointer-events: auto; }
+    .mobile-filter-row { height: 27px; flex: 0 0 27px; margin-bottom: 2px; }
+    .mobile-nav-actions { height: 43px; flex: 0 0 43px; }
+    .mobile-nav-item { min-height: 43px; font-size: 8px; }
+    .mobile-nav-item > i,
+    .mobile-nav-icon-wrap > i { font-size: 17px; }
+
+    /* Carrito y favoritos terminan justo encima de la barra inferior. */
+    #modal-cart,
+    #modal-favorites {
+        top: 0;
+        bottom: var(--mobile-app-nav-height);
+        align-items: flex-end !important;
+        overflow: hidden;
+        z-index: 55;
+    }
+    #modal-cart .mobile-drawer-panel,
+    #modal-favorites .mobile-drawer-panel {
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        max-height: 100%;
+        min-height: 0;
+        overflow: hidden;
+        padding: 14px 14px 12px;
+        border-radius: 18px 18px 0 0;
+        gap: 10px;
+        box-sizing: border-box;
+    }
+    #cart-items-container,
+    #favorites-items-container {
+        min-height: 0;
+        flex: 1 1 auto;
+        overscroll-behavior: contain;
+        padding-bottom: 4px;
+    }
+    #modal-cart .cart-modal-footer,
+    #modal-favorites .favorites-modal-footer {
+        flex: 0 0 auto;
+        padding-top: 10px;
+        padding-bottom: 2px;
+    }
+    #modal-cart .cart-modal-footer { gap: 8px; }
+    #modal-cart .cart-modal-footer > button { min-height: 46px; font-size: 13px; }
+    #modal-cart .cart-modal-footer .text-sm { font-size: 13px; }
+    #modal-cart .cart-modal-footer .text-xs { font-size: 12px; }
+
+    /* La ficha del producto reserva espacio para que Agregar al carrito no quede oculto. */
+    #modal-product-options {
+        top: 0;
+        bottom: var(--mobile-app-nav-height);
+        align-items: flex-start !important;
+        justify-content: center !important;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 8px;
+        z-index: 55;
+        box-sizing: border-box;
+    }
+    #modal-product-options .product-modal-inner {
+        width: 100%;
+        max-width: 620px;
+        max-height: calc(100% - 4px);
+        margin: auto 0;
+        padding: 14px 14px 8px;
+        border-radius: 20px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        box-sizing: border-box;
+        gap: 12px;
+    }
+    #modal-product-options .product-modal-grid { gap: 12px; }
+    #modal-product-options .product-modal-media { gap: 8px; }
+    #modal-product-options .product-modal-media .aspect-square {
+        width: 100%;
+        max-height: min(30vh, 225px);
+        aspect-ratio: 1.35 / 1;
+    }
+    #modal-product-options .product-modal-media .aspect-square img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    #modal-product-options .product-modal-actions {
+        position: sticky;
+        bottom: -8px;
+        z-index: 12;
+        margin: 10px -2px 0 !important;
+        padding: 10px 2px calc(8px + env(safe-area-inset-bottom));
+        background: linear-gradient(to bottom, rgba(255,255,255,.94), #fff 22%);
+        border-top: 1px solid #f1f5f9;
+    }
+    #modal-product-options .product-modal-actions button { min-height: 48px; }
+    #modal-product-options .product-modal-actions button:last-child { font-size: 13px; }
+    #modal-product-options #opt-modal-title { padding-right: 28px; font-size: 18px; }
+
+    /* Formulario de pedido: también queda por encima de la navegación inferior. */
+    #modal-checkout-form {
+        top: 0;
+        bottom: var(--mobile-app-nav-height);
+        align-items: flex-start !important;
+        overflow-y: auto;
+        padding: 8px;
+        z-index: 55;
+    }
+    #modal-checkout-form > div {
+        max-height: calc(100% - 4px);
+        width: 100%;
+        margin: auto 0;
+        padding: 16px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    /* El Portal se abre dentro del mismo catálogo y deja visible la barra inferior. */
+    .portal-overlay {
+        position: fixed;
+        inset: 0 0 var(--mobile-app-nav-height) 0;
+        z-index: 60;
+        display: flex;
+        padding: 0;
+        background: #f8fafc;
+    }
+    .portal-overlay.hidden { display: none !important; }
+    .portal-overlay-shell {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border-radius: 0;
+        background: #fff;
+    }
+    .portal-overlay-header {
+        min-height: 48px;
+        flex: 0 0 48px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 0 12px;
+        background: #fff;
+        border-bottom: 1px solid #e2e8f0;
+        color: #0f172a;
+        font-size: 13px;
+    }
+    .portal-overlay-close {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 36px;
+        padding: 7px 10px;
+        border-radius: 10px;
+        background: #fdf2f8;
+        color: #be185d;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+    .portal-overlay-close i { font-size: 15px; }
+    #portal-frame { display: block; width: 100%; min-height: 0; flex: 1 1 auto; border: 0; background: #f8fafc; }
+}
+
+/* Presentación de Portal de Pagos y controles de escritorio. */
+.portal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: rgba(15, 23, 42, .66);
+    backdrop-filter: blur(5px);
+}
+.portal-overlay:not(.hidden) { display: flex; }
+.portal-overlay-shell {
+    width: min(1600px, 100%);
+    height: min(960px, 100%);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 25px 80px rgba(15, 23, 42, .28);
+}
+.portal-overlay-header {
+    min-height: 56px;
+    flex: 0 0 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 18px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #fff;
+    color: #0f172a;
+    font-size: 14px;
+}
+.portal-overlay-close {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 13px;
+    border-radius: 12px;
+    background: #fdf2f8;
+    color: #be185d;
+    font-size: 12px;
+    font-weight: 800;
+}
+.portal-overlay-close:hover { background: #fce7f3; }
+#portal-frame { display: block; width: 100%; min-height: 0; flex: 1 1 auto; border: 0; background: #f8fafc; }
+
+@media (max-width: 767px) {
+    .portal-overlay {
+        inset: 0 0 var(--mobile-app-nav-height) 0;
+        padding: 0;
+        border-radius: 0;
+    }
+    .portal-overlay-shell { border-radius: 0; }
+    .portal-overlay-header {
+        min-height: 48px;
+        flex-basis: 48px;
+        padding: 0 12px;
+        font-size: 13px;
+    }
+    /* En celular se regresa al catálogo con la navegación inferior; no mostrar un botón de retorno dentro del portal. */
+    .portal-overlay-close { display: none !important; }
+    #portal-frame { min-height: 0; }
+}
+
+/* Animación de producto hacia el carrito: conserva abierta la ficha actual. */
+.cart-flight-image {
+    position: fixed !important;
+    z-index: 10001 !important;
+    display: block !important;
+    object-fit: contain !important;
+    padding: 3px;
+    border: 2px solid #fff;
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: 0 12px 34px rgba(15, 23, 42, .28), 0 0 0 2px rgba(219, 39, 119, .18);
+    pointer-events: none !important;
+    will-change: transform, opacity;
+    transition: transform 680ms cubic-bezier(.2, .78, .25, 1), opacity 680ms ease;
+}
+.cart-target-adding {
+    animation: cupissaCartTargetPulse 720ms ease-in-out;
+    transform-origin: center;
+}
+@keyframes cupissaCartTargetPulse {
+    0%, 100% { filter: none; }
+    35% { filter: drop-shadow(0 0 7px rgba(219, 39, 119, .7)); }
+    55% { transform: scale(1.16); }
+}
+.cart-add-feedback {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    z-index: 10002;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    max-width: calc(100vw - 28px);
+    padding: 11px 16px;
+    border: 1px solid rgba(219, 39, 119, .18);
+    border-radius: 999px;
+    background: #fff;
+    color: #9d174d;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, .18);
+    font-size: 12px;
+    font-weight: 900;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate(-50%, 12px);
+    transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
+}
+.cart-add-feedback.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+}
+.cart-add-feedback i { color: #db2777; font-size: 15px; }
+@media (min-width: 768px) {
+    body.cart-flight-desktop > header {
+        z-index: 10000 !important;
+    }
+}
+@media (max-width: 767px) {
+    .cart-add-feedback {
+        bottom: calc(var(--mobile-app-nav-height, 84px) + 12px);
+        font-size: 11px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .cart-flight-image,
+    .cart-target-adding,
+    .cart-add-feedback {
+        animation: none !important;
+        transition-duration: 1ms !important;
+    }
+}
+
+
+
+/* CUPISSA | estados vacíos, avisos y controles de selección */
+.catalog-infinite-sentinel {
+    display: block !important;
+    width: 100%;
+    height: 1px !important;
+    min-height: 1px !important;
+    max-height: 1px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+#scroll-loading-msg,
+#scroll-end-msg { display: none !important; }
+
+.mobile-nav-item {
+    transition: color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.mobile-nav-item.active {
+    color: #be185d !important;
+    background: linear-gradient(145deg, #fdf2f8, #fce7f3);
+    border-radius: 13px;
+    box-shadow: inset 0 0 0 1px rgba(219, 39, 119, .13), 0 3px 10px rgba(219, 39, 119, .08);
+}
+.mobile-nav-item.active > i,
+.mobile-nav-item.active .mobile-nav-icon-wrap > i { color: #db2777; }
+.mobile-nav-item.active:not(:disabled) { transform: translateY(-1px); }
+
+.cupissa-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    width: 100%;
+    min-height: 210px;
+    padding: 28px 20px;
+    border: 1px solid #fbcfe8;
+    border-radius: 22px;
+    background: radial-gradient(circle at top, rgba(252, 231, 243, .82), rgba(255,255,255,.98) 68%);
+    color: #64748b;
+    text-align: center;
+    box-shadow: 0 10px 28px rgba(190, 24, 93, .055);
+}
+.cupissa-empty-state-icon {
+    display: grid;
+    width: 58px;
+    height: 58px;
+    place-items: center;
+    border-radius: 19px;
+    background: linear-gradient(145deg, #fce7f3, #fdf2f8);
+    color: #db2777;
+    font-size: 24px;
+    box-shadow: inset 0 0 0 1px rgba(219, 39, 119, .12);
+}
+.cupissa-empty-state h3,
+.cupissa-empty-state h4 {
+    margin: 2px 0 0;
+    color: #831843;
+    font-size: 15px;
+    font-weight: 900;
+}
+.cupissa-empty-state p {
+    max-width: 340px;
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.55;
+}
+.cupissa-empty-catalog { grid-column: 1 / -1; }
+
+/* Selectores desplegables propios: los valores siguen sincronizados con los <select> originales. */
+.cupissa-select-control { position: relative; width: 100%; }
+.cupissa-native-select {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+.cupissa-select-trigger {
+    display: flex;
+    width: 100%;
+    min-height: 46px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 14px;
+    border: 1px solid #f3b4d1;
+    border-radius: 14px;
+    background: linear-gradient(110deg, #fff, #fff7fb);
+    color: #334155;
+    font-size: 13px;
+    font-weight: 800;
+    text-align: left;
+    box-shadow: 0 3px 10px rgba(190, 24, 93, .045);
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.cupissa-select-trigger:hover,
+.cupissa-select-control.is-open .cupissa-select-trigger {
+    border-color: #db2777;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(219, 39, 119, .10);
+}
+.cupissa-select-chevron { color: #db2777; font-size: 11px; transition: transform .18s ease; }
+.cupissa-select-control.is-open .cupissa-select-chevron { transform: rotate(180deg); }
+.cupissa-select-trigger:disabled { opacity: .5; cursor: not-allowed; }
+.cupissa-select-menu {
+    position: absolute;
+    top: calc(100% + 7px);
+    left: 0;
+    right: 0;
+    z-index: 120;
+    display: none;
+    max-height: 230px;
+    padding: 6px;
+    overflow-y: auto;
+    border: 1px solid #f5c2d9;
+    border-radius: 15px;
+    background: rgba(255,255,255,.99);
+    box-shadow: 0 18px 38px rgba(131, 24, 67, .17);
+    backdrop-filter: blur(12px);
+}
+.cupissa-select-control.is-open .cupissa-select-menu { display: block; animation: cupissaMenuIn .16s ease-out; }
+.cupissa-select-option {
+    display: flex;
+    width: 100%;
+    min-height: 40px;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+}
+.cupissa-select-option:hover { background: #fdf2f8; color: #9d174d; }
+.cupissa-select-option[aria-selected="true"] { background: #fce7f3; color: #9d174d; }
+.cupissa-select-option-check {
+    display: grid;
+    width: 21px;
+    height: 21px;
+    flex: 0 0 21px;
+    place-items: center;
+    border-radius: 7px;
+    background: #f8fafc;
+    color: transparent;
+    font-size: 10px;
+}
+.cupissa-select-option[aria-selected="true"] .cupissa-select-option-check { background: #db2777; color: #fff; }
+@keyframes cupissaMenuIn {
+    from { opacity: 0; transform: translateY(-5px) scale(.99); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Avisos emergentes de la tienda: sustituyen las alertas nativas del navegador. */
+.cupissa-global-toast {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 10020;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: min(420px, calc(100vw - 28px));
+    padding: 13px 14px;
+    border: 1px solid #f5c2d9;
+    border-radius: 17px;
+    background: rgba(255,255,255,.98);
+    color: #831843;
+    box-shadow: 0 18px 48px rgba(131, 24, 67, .19);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px) scale(.98);
+    transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
+    pointer-events: none;
+}
+.cupissa-global-toast.is-visible { opacity: 1; visibility: visible; transform: translateY(0) scale(1); pointer-events: auto; }
+.cupissa-global-toast-icon {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    place-items: center;
+    border-radius: 12px;
+    background: #fce7f3;
+    color: #db2777;
+    font-size: 17px;
+}
+.cupissa-global-toast[data-variant="success"] .cupissa-global-toast-icon { background: #fce7f3; color: #be185d; }
+.cupissa-global-toast-message { flex: 1; color: #475569; font-size: 12px; font-weight: 750; line-height: 1.45; }
+.cupissa-global-toast-close { display: grid; width: 28px; height: 28px; flex: 0 0 28px; place-items: center; border-radius: 9px; color: #9d174d; background: #fdf2f8; }
+@media (max-width: 767px) {
+    .cupissa-global-toast { right: 14px; bottom: calc(var(--mobile-app-nav-height, 84px) + 13px); width: calc(100vw - 28px); }
+    .cupissa-select-trigger { min-height: 48px; font-size: 14px; }
+    .cupissa-select-option { min-height: 44px; font-size: 13px; }
+    .cupissa-empty-state { min-height: 190px; padding: 24px 16px; }
+}
+
+@media (max-width: 767px) {
+    /* El Portal ocupa todo el espacio superior: su encabezado repetía un título innecesario. */
+    .portal-overlay-header { display: none !important; }
+}
+
+/* Oculta el indicador lateral de posición; el desplazamiento normal sigue disponible. */
+html, body { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+
+/* Perfil CUPISSA: overlay móvil con botón de regreso visible, independiente del portal. */
+.profile-overlay { position: fixed; inset: 0; z-index: 9998; display: flex; align-items: stretch; justify-content: center; background: rgba(15,23,42,.58); backdrop-filter: blur(5px); }
+.profile-overlay.hidden { display: none !important; }
+.profile-overlay-shell { width: min(100%, 1180px); height: 100%; display: flex; flex-direction: column; overflow: hidden; background: #f8fafc; box-shadow: 0 20px 70px rgba(15,23,42,.28); }
+.profile-overlay-header { flex: 0 0 54px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; background: #fff; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-size: 12px; }
+.profile-overlay-close { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; gap: 7px; padding: 9px 12px; border-radius: 11px; background: #fce7f3; color: #be185d; font-size: 11px; font-weight: 900; }
+.profile-overlay-close:hover { background: #fbcfe8; }
+.profile-overlay iframe { display: block; width: 100%; min-height: 0; flex: 1 1 auto; border: 0; background: #f8fafc; }
+body.profile-open { overflow: hidden; }
+body.profile-open #mobile-app-nav { display: flex !important; z-index: 9999; position: fixed; pointer-events: auto; }
+@media (max-width: 767px) {
+  .profile-overlay { inset: 0 0 var(--mobile-app-nav-height) 0; z-index: 9998; }
+  .profile-overlay-shell { width: 100%; border-radius: 0; }
+  .profile-overlay-header { display: none !important; }
+  .profile-overlay-close { display: inline-flex !important; min-height: 38px; }
+  .profile-overlay iframe { height: 100%; }
+}
+
+
+.season-featured-panel{padding:16px;border:1px solid #fbcfe8;border-radius:22px;background:linear-gradient(135deg,#fff 0%,#fff7fb 100%);box-shadow:0 8px 26px rgba(190,24,93,.06)}
+.season-featured-eyebrow{font-size:9px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#db2777;margin-bottom:4px}
+.season-featured-title{font-size:clamp(15px,2vw,21px);font-weight:950;letter-spacing:-.04em;color:#111827;line-height:1.2}
+.season-featured-title span{color:#db2777}
+.season-featured-count{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9d174d;background:#fce7f3;padding:7px 10px;border-radius:999px;white-space:nowrap}
+.product-activity{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:7px;color:#64748b;font-size:9px;line-height:1.35;font-weight:700}
+.product-activity span{display:inline-flex;align-items:center;gap:4px}
+.product-activity i{color:#db2777;font-size:9px}
+.product-activity strong{color:#334155}.product-activity .activity-disclaimer{display:block;flex-basis:100%;font-size:7px;line-height:1.2;font-weight:600;color:#94a3b8;margin-top:1px}
+@media(max-width:639px){.season-featured-panel{padding:10px;border-radius:16px}.season-featured-title{font-size:14px;line-height:1.15}.season-featured-count{font-size:8px;padding:5px 8px}.product-activity{font-size:8px;gap:3px 7px}}
+
+
+/* Destacados: carrusel horizontal táctil en teléfonos, conservando el orden. */
+@media (max-width: 767px) {
+    #season-featured-grid {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: stretch;
+        gap: 8px !important;
+        width: 100%;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        padding: 0 2px 8px !important;
+        scroll-snap-type: x mandatory;
+        scroll-padding-inline: 2px;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        touch-action: pan-x pan-y;
+        scrollbar-width: thin;
+    }
+    #season-featured-grid > * {
+        flex: 0 0 min(62vw, 220px) !important;
+        width: min(62vw, 220px) !important;
+        min-width: min(62vw, 220px) !important;
+        scroll-snap-align: start;
+    }
+    #season-featured-grid::-webkit-scrollbar { height: 3px; }
+    #season-featured-grid::-webkit-scrollbar-thumb { background: #f0abfc; border-radius: 999px; }
+}
+
+/* CUPISSA | Tarjetas completas y acceso de instalación */
+.product-card-title {
+    display: block;
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    hyphens: auto;
+    line-height: 1.28;
+}
+.product-card-cart-button {
+    flex: 0 0 auto;
+    min-width: 40px;
+    min-height: 36px;
+}
+.brand-install-wrap { min-width: 0; }
+.install-app-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    max-width: 100%;
+    padding: 3px 7px;
+    margin-top: 1px;
+    border: 1px solid #fbcfe8;
+    border-radius: 999px;
+    color: #be185d;
+    background: #fff7fb;
+    font-size: 8px;
+    font-weight: 900;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+.install-app-button:hover { background: #fce7f3; }
+.install-app-button:focus-visible { outline: 2px solid #db2777; outline-offset: 2px; }
+@media (min-width: 640px) {
+    .install-app-button { padding: 4px 10px; font-size: 9px; gap: 6px; }
+}
+
+
+/* CUPISSA | Selector compacto de accesorios con ampliación de fotografía */
+#wrapper-accesorios { min-width: 0; }
+#wrapper-accesorios > label { font-size: 10px !important; letter-spacing: .06em; }
+#accessory-options-list { grid-template-columns: repeat(1, minmax(0, 1fr)); min-width: 0; }
+.accessory-choice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    min-height: 54px;
+    padding: 6px;
+    overflow: hidden;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    color: #1e293b;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+    box-sizing: border-box;
+}
+.accessory-choice:hover { border-color: #f9a8d4; }
+.accessory-choice.is-selected { border-color: #db2777; background: #fdf2f8; box-shadow: 0 0 0 1px rgba(219,39,119,.06); }
+.accessory-choice:focus-visible { outline: 2px solid #db2777; outline-offset: 2px; }
+.accessory-image-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    background: #f8fafc;
+    color: #94a3b8;
+}
+.accessory-choice-image { display: block; width: 100%; height: 100%; object-fit: cover; }
+.accessory-image-empty { font-size: 15px; }
+.accessory-choice-details { display: block; flex: 1 1 auto; min-width: 0; max-width: 100%; overflow: hidden; }
+.accessory-choice-name {
+    display: -webkit-box;
+    max-width: 100%;
+    overflow: hidden;
+    color: #334155;
+    font-size: 10px;
+    font-weight: 850;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+.accessory-choice-price {
+    display: block;
+    max-width: 100%;
+    margin-top: 3px;
+    overflow: hidden;
+    color: #db2777;
+    font-size: 9px;
+    font-weight: 850;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.accessory-view-trigger {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 3px;
+    border: 0;
+    background: rgba(15,23,42,.70);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 900;
+    opacity: 0;
+    cursor: zoom-in;
+    transition: opacity .16s ease;
+}
+.accessory-choice:hover .accessory-view-trigger,
+.accessory-view-trigger:focus-visible { opacity: 1; }
+.accessory-view-label { line-height: 1; }
+@media (hover: none) {
+    .accessory-view-trigger { inset: auto 3px 3px auto; width: 23px; height: 23px; padding: 0; border: 1px solid rgba(255,255,255,.8); border-radius: 50%; opacity: 1; background: rgba(15,23,42,.78); font-size: 9px; }
+    .accessory-view-label { display: none; }
+}
+@media (min-width: 640px) {
+    #accessory-options-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+
+/* CUPISSA WEB | Destacados con altura natural según fotografía (móvil y PC).
+   No afecta la cuadrícula general, los precios ni la interacción de las fichas. */
+#season-featured-grid { align-items: start !important; }
+#season-featured-grid > * {
+  height: max-content !important;
+  min-height: 0 !important;
+  align-self: start !important;
+  justify-content: flex-start !important;
+}
+#season-featured-grid > * > div:first-child { flex: 0 0 auto !important; }
+#season-featured-grid .product-card-photo {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  object-fit: contain !important;
+}
+#season-featured-grid > * > div:last-child { margin-top: 0 !important; }
+
+
+/* CUPISSA | Tarjetas de altura natural en TODOS los listados. */
+#products-grid, #season-featured-grid { align-items: start !important; align-content: start !important; }
+#products-grid > *, #season-featured-grid > * {
+  height: auto !important; min-height: 0 !important; align-self: start !important;
+  display: flex !important; flex-direction: column !important; justify-content: flex-start !important;
+}
+#products-grid > * > div:first-child, #season-featured-grid > * > div:first-child { flex: 0 0 auto !important; }
+#products-grid > * > div:last-child, #season-featured-grid > * > div:last-child {
+  flex: 0 0 auto !important; margin-top: 0 !important;
+}
+#products-grid .product-card-photo, #season-featured-grid .product-card-photo {
+  display: block !important; width: 100% !important; height: auto !important;
+  max-height: min(65vw, 380px) !important; aspect-ratio: auto !important;
+  object-fit: contain !important;
+}
+@media (min-width:768px) {
+ #products-grid .product-card-photo, #season-featured-grid .product-card-photo {max-height: 340px !important;}
+}
+
+/* CUPISSA 2026-11 | Catálogo móvil sin huecos entre fichas de distintas alturas. */
+@media (max-width:767px) {
+ #products-grid:not(.hidden) { display:block!important; columns:2!important; column-gap:10px!important; align-items:initial!important; }
+ #products-grid > * { display:inline-flex!important; vertical-align:top!important; width:100%!important; max-width:100%!important; margin:0 0 10px!important; break-inside:avoid!important; -webkit-column-break-inside:avoid!important; page-break-inside:avoid!important; height:auto!important; min-height:0!important; }
+ #products-grid > .cupissa-empty-state, #products-grid > .col-span-full {display:block!important;column-span:all!important;width:100%!important;}
+ #products-grid .product-card-photo {height:auto!important;max-height:none!important;object-fit:contain!important;aspect-ratio:auto!important;}
+ #products-grid > * > div:last-child {margin-top:0!important;}
+}
+
+/* CUPISSA | Mosaico móvil estable: dos columnas independientes.
+   Las fichas existentes NO se recolocan al cargar más productos. */
+@media (max-width:767px) {
+  #products-grid:not(.hidden) { display:flex!important; columns:auto!important; align-items:flex-start!important; gap:10px!important; }
+  #products-grid > .cupissa-mosaic-column { display:flex!important; flex:1 1 0!important; min-width:0!important; flex-direction:column!important; gap:10px!important; }
+  #products-grid > .cupissa-mosaic-column > * { display:flex!important; flex-direction:column!important; width:100%!important; max-width:100%!important; margin:0!important; min-height:0!important; height:auto!important; }
+}
+
+
+/* CUPISSA | Aviso de cobertura nacional, conservando el banner original. */
+.catalog-shipping-note {display:block;margin-top:4px;font-size:.95em;font-weight:850;line-height:1.35;letter-spacing:.01em;}
+
+/* El botón de instalación permanece en el código, pero no se muestra temporalmente. */
+#install-app-button {display:none !important;}
+
+/* Solo escritorio: tarjetas de igual altura; el mosaico móvil sigue siendo natural. */
+@media (min-width:768px) {
+  #products-grid, #season-featured-grid {align-items:stretch !important;align-content:normal !important;}
+  #products-grid > [data-cupissa-product-id], #season-featured-grid > [data-cupissa-product-id] {height:100% !important;min-height:0 !important;align-self:stretch !important;justify-content:space-between !important;}
+  #products-grid > [data-cupissa-product-id] > div:last-child, #season-featured-grid > [data-cupissa-product-id] > div:last-child {margin-top:auto !important;}
+  #products-grid .product-card-photo, #season-featured-grid .product-card-photo {height:275px !important;max-height:275px !important;aspect-ratio:auto !important;object-fit:contain !important;}
+}
+
+/* Etiquetas legibles: títulos y nombres en caja natural. */
+.filter-group-title, .season-featured-title, .season-featured-eyebrow, .product-card-title, .catalog-title-row h1, #scroll-loading-msg, #scroll-end-msg {text-transform:none !important;}
+
+/* El aviso es visible al final de la grilla si aún quedan lotes por cargar. */
+.catalog-infinite-sentinel {height:auto !important; min-height:0 !important; max-height:none !important; margin:10px 0 14px !important; padding:0 !important; overflow:visible !important; opacity:1 !important; pointer-events:auto !important;}
+.catalog-infinite-sentinel.hidden {display:none !important;}
+#scroll-loading-msg:not(.hidden) {display:flex !important;}
+#scroll-loading-msg.hidden, #scroll-end-msg {display:none !important;}
+
+
+/* CUPISSA: selección de varias tallas por producto */
+.cupissa-size-quantity-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid #fbcfe8;border-radius:14px;background:linear-gradient(135deg,#fff 0%,#fff7fb 100%);min-width:0}
+.cupissa-size-quantity-detail{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cupissa-size-quantity-detail strong{font-size:12px;font-weight:900;color:#1e293b}
+.cupissa-size-quantity-detail small{font-size:10px;font-weight:700;color:#9d174d}
+.cupissa-size-quantity-controls{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.cupissa-size-quantity-controls button{width:30px;height:30px;border-radius:10px;background:#fce7f3;color:#9d174d;font-size:18px;font-weight:900;line-height:1}
+.cupissa-size-quantity-controls button:disabled{opacity:.35;cursor:not-allowed}
+.cupissa-size-quantity-value{min-width:18px;text-align:center;font-size:13px;font-weight:900;color:#0f172a}
+.cupissa-open-full-image{position:absolute;right:12px;bottom:12px;z-index:5;display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid rgba(255,255,255,.85);border-radius:999px;background:rgba(255,255,255,.94);color:#9d174d;font-size:11px;font-weight:900;box-shadow:0 5px 18px rgba(15,23,42,.16);opacity:0;transform:translateY(4px);transition:opacity .18s ease,transform .18s ease}
+.product-modal-media .group:hover .cupissa-open-full-image,.cupissa-open-full-image:focus-visible{opacity:1;transform:translateY(0)}
+.cupissa-full-image-stage{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;max-width:96vw;max-height:94vh}
+.cupissa-full-image-close{align-self:flex-end;z-index:3}
+.cupissa-full-image{display:block;max-width:92vw;max-height:82vh;width:auto;height:auto;object-fit:contain;border-radius:12px;user-select:none}
+.cupissa-image-magnifier{display:none;position:absolute;z-index:4;width:184px;height:184px;border:3px solid #fff;border-radius:50%;box-shadow:0 5px 25px rgba(0,0,0,.45);pointer-events:none;background-repeat:no-repeat;background-color:#fff}
+.cupissa-image-magnifier.is-visible{display:block}
+.cupissa-zoom-hint{color:#fff;font-size:11px;font-weight:700;text-align:center;opacity:.82}
+@media(max-width:767px){.cupissa-open-full-image{opacity:1;transform:none;padding:8px 10px}.cupissa-image-magnifier,.cupissa-zoom-hint{display:none!important}.cupissa-size-quantity-row{padding:9px 10px}}
+
+/* Selector compacto de tallas: las cantidades aparecen dentro del desplegable. */
+.cupissa-size-dropdown{width:100%;border:1px solid #f3c5dc;border-radius:12px;background:#fff;overflow:hidden}
+.cupissa-size-dropdown-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;cursor:pointer;list-style:none;font-size:12px;font-weight:800;color:#831843}
+.cupissa-size-dropdown-summary::-webkit-details-marker{display:none}
+.cupissa-size-dropdown-count{display:flex;align-items:center;gap:7px;color:#be185d;font-size:10px;font-weight:800;white-space:nowrap}
+.cupissa-size-dropdown[open] .cupissa-size-dropdown-summary{background:#fff1f7;border-bottom:1px solid #fce7f3}
+.cupissa-size-dropdown-list{padding:7px 10px;max-height:230px;overflow:auto}
+.cupissa-size-select-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 2px;border-bottom:1px solid #f8e7ef}
+.cupissa-size-select-row:last-child{border-bottom:0}
+.cupissa-size-select-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cupissa-size-select-info strong{font-size:11px;font-weight:900;color:#1e293b}
+.cupissa-size-select-info small{font-size:9px;color:#9d174d;font-weight:700}
+#opt-size-quantities{display:block!important}
+
+@media(max-width:767px){
+  #mobile-mundos-container{display:flex!important;flex-direction:column!important;gap:6px!important;margin-top:8px;max-height:180px;overflow-y:auto!important}
+  #mobile-mundos-container button{width:100%;min-height:34px;text-align:left;padding:8px 10px!important;border-radius:9px!important;font-size:10px!important}
+  #catalog-filter-sections .filter-options-list>div{display:flex;flex-direction:column;gap:6px}
+  #catalog-filter-sections .filter-options-list>div button{width:100%;min-height:34px;text-align:left;padding:8px 10px!important;border-radius:9px!important;font-size:10px!important}
+}
+
+/* Los mundos del panel duplicado existen solo en el panel de filtros móvil. */
+.mobile-worlds-in-drawer{display:none}
+@media(max-width:767px){.mobile-worlds-in-drawer{display:block}}
+
+/* Reducir trabajo fuera de pantalla sin modificar tamaños, interacciones ni scroll móvil. */
+@media (min-width:768px) {
+  #products-grid > [data-cupissa-product-id] {content-visibility:auto;contain-intrinsic-size:auto 450px;}
+}
+#products-grid, #season-featured-grid {scroll-behavior:auto;}
+#products-grid .product-card-photo, #season-featured-grid .product-card-photo {will-change:auto;}
+
+/* Solo destacados móviles: anchura compacta y tarjetas homogéneas. */
+@media (max-width: 767px) {
+  #season-featured-grid { align-items: stretch !important; }
+  #season-featured-grid > * {
+    flex: 0 0 min(46vw, 166px) !important;
+    width: min(46vw, 166px) !important;
+    min-width: min(46vw, 166px) !important;
+    height: auto !important;
+    align-self: stretch !important;
+    justify-content: space-between !important;
+  }
+  #season-featured-grid > * > div:first-child { flex: 1 1 auto !important; }
+  #season-featured-grid .product-card-photo {
+    width: 100% !important;
+    height: 148px !important;
+    max-height: 148px !important;
+    object-fit: contain !important;
+  }
+  #season-featured-grid .product-card-title { font-size: 10px !important; }
+}

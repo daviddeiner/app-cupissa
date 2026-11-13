@@ -1,0 +1,1875 @@
+{
+  "origen": "Kra 35 #58-32, Las Gaviotas, Soledad",
+  "registros_en_tablas": 464,
+  "nota": "El documento declara 473 barrios, pero las tablas suministradas contienen 464 registros.",
+  "ciudades": {
+    "BARRANQUILLA": [
+      {
+        "barrio": "Abajo",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Alboraya",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Alfonso López",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Altamira",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Altos de Riomar",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Altos del Limón",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Altos del Parque",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Altos del Prado",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Andalucía",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "America",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Atlántico",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Barlovento",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Barranquillita",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Bella Arena",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Bellavista",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Bernardo Hoyos",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Betania",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Boston",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Boyacá",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Buena Esperanza",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Buenos Aires",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "California",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Campo Alegre",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Carlos Meisel",
+        "tarifa": 14000
+      },
+      {
+        "barrio": "Carrizal",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Centro",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Cevillar",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Chiquinquirá",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Ciudad Modesto",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Ciudad Jardín",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "20 de julio",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Ciudadela 20 de Julio",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Ciudadela de la Salud",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Colina Campestre",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Nueva Colombia",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Cordialidad",
+        "tarifa": 14000
+      },
+      {
+        "barrio": "Cuchilla de Villate",
+        "tarifa": 14000
+      },
+      {
+        "barrio": "Las Delicias",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Boliche",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Bosque",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "El Campito",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "El Carmen",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Castillo",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Edén",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Ferry",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "El Golf",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Limón",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "El Limoncito",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Poblado",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Porvenir",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Prado",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Pueblo",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Romance",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Rubí",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Silencio",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Tabor",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Valle",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Evaristo Sourdis",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Granadillo",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "José Antonio Galán",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Juan Mina",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Kennedy",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "La Campiña",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "La Ceiba",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "La Chinita",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "La Concepción",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "La Cumbre",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "La Esmeralda",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "La Floresta",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "La Florida",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "La Gloria",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "La Libertad",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "La Luz",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "La Magdalena",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "La Manga",
+        "tarifa": 14000
+      },
+      {
+        "barrio": "La Paz",
+        "tarifa": 14000
+      },
+      {
+        "barrio": "La Pradera",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "La Sierra",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "La Sierrita",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "La Unión",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "La Victoria",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Las Américas",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Las Colinas",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Las Dunas",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Las Estrellas",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Las Flores",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Las Granjas",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Las Malvinas",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Las Mercedes",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Las Nieves",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Las Palmas",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Las Tres Avemarías",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Loma Fresca",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Los Alpes",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Los Andes",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Los Ángeles I, II y III",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Los Girasoles",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Los Jobos",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Los Laureles",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Los Nogales",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Los Olivos I",
+        "tarifa": 14000
+      },
+      {
+        "barrio": "Los Olivos II",
+        "tarifa": 14000
+      },
+      {
+        "barrio": "Los Pinos",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Los Rosales",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Los Trupillos",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Lucero",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Me Quejo",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Miramar",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Modelo",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Montecristo",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Montes",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Nueva Granada",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Nuevo Horizonte",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Olaya Herrera",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Paraíso",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Pasadena",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Pastrana",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Pinar del Río",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Porﬁn",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Portal del Genovés",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Pradomar",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Pumarejo",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Rebolo",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Recreo",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Riomar",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Rincón del Salado",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Rosario",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "San Antonio",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "San Felipe",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "San Francisco",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "San Isidro",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "San José",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "San Luis",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "San Nicolás",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "San Pedro Alejandrino",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "San Roque",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "San Salvador",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "San Vicente",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Santa Ana",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Santa Elena",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Santa María",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Santa Mónica",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Santo Domingo de Guzmán",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Santuario",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Siape",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Siete de Agosto",
+        "tarifa": 14000
+      },
+      {
+        "barrio": "Simón Bolívar",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Tabor Norte",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Tayrona",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Universal I y II",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Urbaplaya",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Urbanización La Ceiba",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Urbanización Las Mercedes",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Urbanización los Ángeles",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Urbanización Miramar II",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Valles de San José",
+        "tarifa": 14000
+      },
+      {
+        "barrio": "Villa Blanca",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Campestre",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Carolina",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Country",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa del Este",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Villa Flor",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Rosario",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa San Carlos",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa San Pedro I",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa San Pedro II",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Santos",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Sevilla",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Villa Teresita",
+        "tarifa": 14000
+      },
+      {
+        "barrio": "Villate",
+        "tarifa": 13000
+      },
+      {
+        "barrio": "Virginia",
+        "tarifa": 14000
+      },
+      {
+        "barrio": "Zona Franca",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Zona Industrial Vía 40",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Siete de abril",
+        "tarifa": 12000
+      }
+    ],
+    "SOLEDAD": [
+      {
+        "barrio": "Las Gaviotas",
+        "tarifa": 8000
+      },
+      {
+        "barrio": "12 de Octubre",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "20 de Julio",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Altos de la Metropolita",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Altos de Jesús",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Altos de Sevilla",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "América",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Antonio Nariño",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Arboleda",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Bello Horizonte",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Bella Murillo",
+        "tarifa": 8000
+      },
+      {
+        "barrio": "Bonanza",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Cachimbero",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Cadena",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Cantera",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Carretera Central",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Centenario",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Centro",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Ciudad Bonita",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Ciudad Salitre",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Ciudadela 11 de Noviembre",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Ciudadela Metropolitana I",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Ciudadela Metropolitana II",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Ciudadela Metropolitana III",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Comunal",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Costa Hermosa",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Cuchilla de los Ángeles",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Divino Niño",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Don Bosco IV",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "El Cañahuate",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "El Cortijo",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "El Encanto",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "El Esfuerzo",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "El Espantao",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "El Ferrocarril",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "El Manantial Etapa 1",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "El Manantial Etapa 2",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "El Oasis",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "El Parque",
+        "tarifa": 8000
+      },
+      {
+        "barrio": "El Pasito",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "El Porvenir",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "El Río",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "El Roble",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "El Sano",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "El Silencio",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "El Triunfo",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Fundación Social",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Granabastos",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Hacienda San José",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Hipódromo",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "INEM",
+        "tarifa": 8000
+      },
+      {
+        "barrio": "Isla Arza",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Juan Domínguez Romero",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "La Candelaria I",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "La Candelaria II",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "La Central",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "La Esperanza",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "La Fe",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "La Flora",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "La Floresta",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "La Ilusión",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "La Inmaculada",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "La Loma",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "La María",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "La Rivera",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "La Sombra",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "La Victoria",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "La Virginia",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Las Alianza",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Las Cometas",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Las Colonias",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Las Margaritas",
+        "tarifa": 9000
+      },
+      {
+        "barrio": "Las Moras Etapa 1",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Las Moras Etapa 2",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Las Moras Norte",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Las Moras Sur",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Las Nubes",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Las Trinitarias",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Los Almendros Etapa 1",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Los Almendros Etapa 2",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Los Almendros Etapa 3",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Los Ángeles",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Los Cusules",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Los Cedros",
+        "tarifa": 9000
+      },
+      {
+        "barrio": "Los Cortijos",
+        "tarifa": 9000
+      },
+      {
+        "barrio": "Los Encinos",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Los Loteros",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Los Muvdis",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Los Naranjos",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Los Olivos",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Los Robles Etapa 1",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Los Robles Etapa 2",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Los Robles Etapa 3",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Los Salados",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Los Laureles",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Manuela Beltrán",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "María de los Ángeles",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Moras Occidente",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Muvdi Etapa 1",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Muvdi Etapa 2",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "New York",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Normandía",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Nuevo Horizonte",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Nuevo Milenio",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Oasis de Soledad",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Portal de las Moras",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Portal de los Almendros",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Portal Real",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Prado de Soledad",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Puerta de Oro",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Pumarejo",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Renacer",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Reserva de los Almendros",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Rincón de las Moras",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Salomón",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Salamanca",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "San Antonio",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "San Bernardo IV",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "San Vicente de Paul",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Santa Inés",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "San Fernando",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Santa Isabel",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Soledad 2000 Sector A",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Soledad 2000 Sector B",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Soledad 2000 Sector C",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Tajamar I",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Tajamar II",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Terminal de Transportes Sector",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Tierra Firme",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Urbanización El Parque",
+        "tarifa": 8000
+      },
+      {
+        "barrio": "Urbanización El Río",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Urbanización La Arboleda",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Urbanización La Muvdi",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Urbanización Las Moras",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Urbanización Los Robles",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Urbanización Porvenir",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Urbanización Salamanca",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Urbanización San Antonio",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Urbanización Los Almendros",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Urbanización Villa Muvdi",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Vía Aeropuerto Sector",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Villa Adela I",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Adela II",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Alameda",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Villa Angelita",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Bella",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Villa Carmen I",
+        "tarifa": 9000
+      },
+      {
+        "barrio": "Villa Carmen II",
+        "tarifa": 9000
+      },
+      {
+        "barrio": "Villa Clavellinas",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Villa de las Moras",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa del Carmen",
+        "tarifa": 8000
+      },
+      {
+        "barrio": "Villa del Rey Etapa 1",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Villa del Rey Etapa 2",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Villa del Rosario",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Estefanía",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Estadio I",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Estadio II",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Karolina",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Katanga I",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Katanga II",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Keyla",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Villa Laura",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Villa Lidia",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Maria",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Villa Marval",
+        "tarifa": 9000
+      },
+      {
+        "barrio": "Villa Merly",
+        "tarifa": 9000
+      },
+      {
+        "barrio": "Villa Muvdi I",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Villa Muvdi II",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Villa Murillo",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Plaza",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Rosa",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Villa San Muelle",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Villa Santa",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Severa",
+        "tarifa": 11000
+      },
+      {
+        "barrio": "Villa Soledad",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Villa Sol",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Villa Valery",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Villa Venecia",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Viñas del Rey",
+        "tarifa": 12000
+      },
+      {
+        "barrio": "Vista Hermosa",
+        "tarifa": 10000
+      },
+      {
+        "barrio": "Zarabanda",
+        "tarifa": 12000
+      }
+    ],
+    "MALAMBO": [
+      {
+        "barrio": "Barrio Abajo",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Bellavista",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Brisas del Río",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Campo Magdalena",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Caracolí",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Carrizal (Malambo)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Centro (Malambo)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Ciudad Belén",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Ciudad Caribe I",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Ciudad Caribe II",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Ciudadela Real del Caribe",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Concorde Sector A",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Concorde Sector B",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Carmen",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Edén",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Esfuerzo (Malambo)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Montón",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Pasito (Malambo)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Juan XXIII",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "La Popa",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "La Milagrosa",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Lluvia de Oro",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Los Mangos",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Los Manguitos",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Luna de Malambo",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Macrocentro Industrial",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Mesolandia",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Montecarlo",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Parque Industrial Pimsa",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Pradito",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "San Fernando",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "San Jorge",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "San José (Malambo)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "San Martín (Malambo)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Santa Magdalena",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Vía Batallón Vergara",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Aida",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Campo",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Concord I",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Concord II",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Esther",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Paraíso",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Rica I",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Rica II",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Sola",
+        "tarifa": 15000
+      }
+    ],
+    "PUERTO COLOMBIA": [
+      {
+        "barrio": "Alto de la Risota",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Bravito",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Caujaral / Club Campestre",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Centro (Puerto Colombia)",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Corredor Universitario",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "El Carmen (Puerto)",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "El Muelle",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "La Manguita",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "La Risota",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Loma de Oro",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Pastrana (Puerto)",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Pradomar Beach",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Punta Roca",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Sabanilla Casco",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Sabanilla Country Club",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Salgar Casco Urbano",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Salgar Castillo Sector",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Salgar Playas",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "San Antonio (Puerto)",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "San Carlos",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Unisabanilla Sector",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Villa Campestre Norte",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Villa de la Playa",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Villa del Mar (Puerto)",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Villa Rosario (Puerto)",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Villa Salgar",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Vistamar",
+        "tarifa": 30000
+      },
+      {
+        "barrio": "Zona Hotelera Pradomar",
+        "tarifa": 30000
+      }
+    ],
+    "GALAPA": [
+      {
+        "barrio": "Alfonso López (Galapa)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Centro (Galapa)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "El Carmen (Galapa)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "La Candelaria (Galapa)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "La Esperanza",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Los Almendros (Galapa)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Los Carruajes",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Mundo Feliz Sector A",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Mundo Feliz Sector B",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Pueblito Viejo",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Salón Azul",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "San Antonio (Galapa)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "San Francisco (Galapa)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "San Martín",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "San Roque (Galapa)",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Santa Cruz",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Olimpia",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Selene Etapa 1",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Villa Selene Etapa 2",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Zambrano Sector 1",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Zambrano Sector 2",
+        "tarifa": 15000
+      },
+      {
+        "barrio": "Zona Industrial Galapa",
+        "tarifa": 15000
+      }
+    ],
+    "LA PLAYA": [
+      {
+        "barrio": "Adelita de Char Sector 1",
+        "tarifa": 18000
+      },
+      {
+        "barrio": "Adelita de Char Sector 2",
+        "tarifa": 18000
+      },
+      {
+        "barrio": "Adelita de Char Sector 3",
+        "tarifa": 18000
+      },
+      {
+        "barrio": "Eduardo Santos Sector Bajo",
+        "tarifa": 18000
+      },
+      {
+        "barrio": "Eduardo Santos Sector Central",
+        "tarifa": 18000
+      },
+      {
+        "barrio": "La Playa Sector Central",
+        "tarifa": 18000
+      },
+      {
+        "barrio": "Maratea Sector A",
+        "tarifa": 18000
+      },
+      {
+        "barrio": "Maratea Sector B",
+        "tarifa": 18000
+      },
+      {
+        "barrio": "Pescadores Sector 1",
+        "tarifa": 18000
+      },
+      {
+        "barrio": "Pescadores Sector 2",
+        "tarifa": 18000
+      },
+      {
+        "barrio": "Villa del Mar (La Playa)",
+        "tarifa": 18000
+      },
+      {
+        "barrio": "Villa Esperanza (La Playa)",
+        "tarifa": 18000
+      },
+      {
+        "barrio": "Villa Polita Sector 1",
+        "tarifa": 18000
+      },
+      {
+        "barrio": "Villa Polita Sector 2",
+        "tarifa": 18000
+      }
+    ]
+  }
+}
