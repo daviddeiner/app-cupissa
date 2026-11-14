@@ -37,9 +37,9 @@
     <!-- Datos estructurados del catálogo; las fichas de cada producto tienen sus metadatos individuales. -->
     <script id="seo-schema-script" type="application/ld+json"></script>
 
-    <link rel="stylesheet" href="/catalogo/assets/css/catalogo.css?v=20261110-ajustes-1">
+    <link rel="stylesheet" href="/catalogo/assets/css/catalogo.css?v=20261114-carga-movil-1">
 <link rel="stylesheet" href="/catalogo/assets/css/ficha-producto-movil.css?v=20261109-variantes-compactas-v3">
-    <link rel="stylesheet" href="/catalogo/assets/css/app-cupissa-mobile.css?v=3">
+    <link rel="stylesheet" href="/catalogo/assets/css/app-cupissa-mobile.css?v=20261114-inicio-1">
 <script>
 (function(){
   var path=window.location.pathname;
@@ -52,8 +52,8 @@
 </head>
 <body class="app-session-pending min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans">
     <div id="app-auth-gate" class="app-auth-gate" aria-live="polite">
-      <div class="app-auth-top"><img src="/catalogo/assets/images/logo.png" alt="CUPISSA"><span>Bienvenida a CUPISSA</span><small>Regístrate o inicia sesión para descubrir nuestra tienda.</small></div>
-      <div id="app-auth-loading" class="app-auth-loading">Comprobando tu sesión…</div>
+      <div class="app-auth-top"><img src="/catalogo/assets/images/logo.png" alt="CUPISSA"><span>Descubre CUPISSA</span><small>Regístrate o inicia sesión para descubrir nuestra tienda.</small></div>
+      <div id="app-auth-loading" class="app-auth-loading" aria-label="Preparando CUPISSA"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i></div>
       <iframe id="app-auth-frame" title="Registro e inicio de sesión CUPISSA" src="about:blank" allow="clipboard-write"></iframe>
       <button id="app-auth-retry" type="button" hidden>Reintentar conexión</button>
     </div>
@@ -454,22 +454,22 @@
 
     <!-- Lógica modular del catálogo. Se conserva el orden de carga para mantener las dependencias globales. -->
     <script src="/shared/js/supabase-config.js"></script>
-    <script src="/shared/js/cupissa-back-navigation.js?v=20261110-ajustes-1"></script>
+    <script src="/shared/js/cupissa-back-navigation.js?v=20261114-historial-1"></script>
     <script src="/catalogo/assets/js/00-config-state.js?v=20261109-500-fast-mix-v1"></script>
     <script src="/shared/js/cupissa-auth.js?v=20261113-app-v3"></script>
-    <script src="/catalogo/assets/js/app-cupissa-auth-gate.js?v=3"></script>
+    <script src="/catalogo/assets/js/app-cupissa-auth-gate.js?v=20261114-inicio-1"></script>
     <script defer src="/catalogo/assets/js/cupissa-views-tracker.js?v=20261110-vistas-1"></script>
-    <script src="/catalogo/assets/js/01-initialization.js?v=20261110-ajustes-1"></script>
-    <script src="/catalogo/assets/js/02-product-data.js?v=20261110-ajustes-1"></script>
+    <script src="/catalogo/assets/js/01-initialization.js?v=20261114-carga-1"></script>
+    <script src="/catalogo/assets/js/02-product-data.js?v=20261114-carga-1000-3"></script>
     <script src="/catalogo/assets/js/03-filters-search.js?v=20261109-mundo-categoria-temporada-v5"></script>
-    <script src="/catalogo/assets/js/04-product-grid.js?v=20261112-temporada-1"></script>
+    <script src="/catalogo/assets/js/04-product-grid.js?v=20261114-carga-1"></script>
     <script src="/catalogo/assets/js/05-product-modal.js?v=20261110-deposito-2"></script>
     <script src="/catalogo/assets/js/06-cart-favorites-state.js?v=20261110-ajustes-1"></script>
     <script src="/catalogo/assets/js/07-cart.js?v=20261110-deposito-2"></script>
     <script src="/catalogo/assets/js/08-checkout.js?v=20261110-ajustes-1"></script>
     <script src="/catalogo/assets/js/09-favorites.js?v=20261109-account-sizes-history-3"></script>
     <script src="/catalogo/assets/js/10-formatters.js"></script>
-    <script src="/catalogo/assets/js/11-responsive-navigation.js?v=20261109-filtros-mundos-movil-v2"></script>
+    <script src="/catalogo/assets/js/11-responsive-navigation.js?v=20261114-filtros-1"></script>
     <script src="/catalogo/assets/js/12-cart-animation.js"></script>
     <script src="/catalogo/assets/js/13-brand-ui.js"></script>
     <script src="/catalogo/assets/js/14-product-activity.js?v=20261108-ranking-1"></script>

@@ -188,7 +188,7 @@ function shuffleArray(array) {
         }
 
         function finishCatalogSupabaseLoading() {
-            updateFeaturedSeasonProducts(true);
+            updateFeaturedSeasonProducts(false);
             renderSeasonFeatured();
             updateSEOStructuredData();
             tryOpenCatalogProductFromLink();
@@ -226,28 +226,9 @@ function shuffleArray(array) {
                 let selectedRows = shuffleArray([...rows]);
                 if (catalogInitialWorldsPending) {
                     catalogInitialWorldsPending = false;
-                    // Publicar inmediatamente el lote recibido: ninguna consulta
-                    // adicional de mundos, destacados o popularidad debe impedir
-                    // utilizar las tarjetas, filtros, carrito y modal existentes.
-                    const readyRows = spreadCatalogDiversity(
-                        selectedRows.filter(row => row?.id != null && !catalogLoadedProductIds.has(String(row.id))),
-                        rawProducts.slice(-8)
-                    ).map(normalizeProduct);
-                    readyRows.forEach(product => catalogLoadedProductIds.add(String(product.id)));
-                    if (readyRows.length) {
-                        rawProducts.push(...readyRows);
-                        renderFilters();
-                        applyFiltersAndSearch();
-                        updateFeaturedSeasonProducts(false);
-                        tryOpenCatalogProductFromLink();
-                        if (typeof window.loadCupissaProductPopularity === 'function') {
-                            Promise.resolve().then(() => window.loadCupissaProductPopularity(readyRows))
-                                .catch(err => console.warn('Popularidad opcional:', err));
-                        }
-                    }
-                    // Consultas paralelas: la primera muestra incluye 1 producto de cada
-                    // mundo con publicaciones disponibles, incluso fuera del rango de 500.
-                    const worldRows = await Promise.all(CUPISSA_INITIAL_WORLDS.map(async world => {
+                    // Esperar representantes ANTES del primer render: sin saltos
+                    // de tarjetas y con al menos uno por dimensión publicada.
+                    const worldRowsPromise = Promise.all(CUPISSA_INITIAL_WORLDS.map(async world => {
                         if (rows.some(row => catalogDiversityValues(row, 'mundo', 'mundos').includes(world))) return null;
                         let response = await supabaseClient.from('productos')
                             .select(CUPISSA_CATALOG_PRODUCT_FIELDS)
@@ -260,9 +241,13 @@ function shuffleArray(array) {
                             .order('created_at', { ascending: false }).limit(1);
                         return (!response.error && response.data?.length) ? response.data[0] : null;
                     }));
+                    // Etiquetas y destacados se consultan en paralelo para reducir espera.
+                    const taxonomyRowsPromise = fetchInitialTaxonomyRepresentatives(rows);
+                    const featuredRowsPromise = fetchInitialFeaturedSeasonRows();
+                    const [worldRows, taxonomyRows, featuredRows] = await Promise.all([
+                        worldRowsPromise, taxonomyRowsPromise, featuredRowsPromise
+                    ]);
                     const representatives = worldRows.filter(Boolean);
-                    const taxonomyRows = await fetchInitialTaxonomyRepresentatives([...rows, ...representatives]);
-                    const featuredRows = await fetchInitialFeaturedSeasonRows();
                     // Mostrar los representantes desde la primera pantalla, no esperar
                     // a que la carga automática complete los primeros 10 elementos.
                     displayLimit = Math.max(displayLimit, representatives.length + taxonomyRows.length + featuredRows.length);
@@ -388,7 +373,8 @@ function shuffleArray(array) {
                 applyFiltersAndSearch();
             }
             if (typeof setupAutomaticProductLoading === 'function') setupAutomaticProductLoading();
-            prefetchRemainingCatalogPages();
+            // Un solo consumidor descarga las siguientes páginas: el scroll.
+            // El precargador anterior competía con él y podía dejar el indicador bloqueado.
             setupCatalogRealtimeAppendOnly();
         }
 
@@ -687,7 +673,7 @@ function updateFeaturedSeasonProducts(forceShuffle = false) {
     }
 
     const group = seasonGroups.get(chosenName) || [];
-    if (forceShuffle || chosenName !== featuredSeasonName || !featuredSeasonProducts.length) {
+    if (chosenName !== featuredSeasonName || !featuredSeasonProducts.length) {
         featuredSeasonName = chosenName;
         featuredSeasonProducts = selectVariedFeaturedProducts(group, 5);
     }

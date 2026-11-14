@@ -1173,7 +1173,7 @@ body.profile-open #mobile-app-nav { display: flex !important; z-index: 9999; pos
 /* El aviso es visible al final de la grilla si aún quedan lotes por cargar. */
 .catalog-infinite-sentinel {height:auto !important; min-height:0 !important; max-height:none !important; margin:10px 0 14px !important; padding:0 !important; overflow:visible !important; opacity:1 !important; pointer-events:auto !important;}
 .catalog-infinite-sentinel.hidden {display:none !important;}
-#scroll-loading-msg:not(.hidden) {display:flex !important;}
+#scroll-loading-msg:not(.hidden) {display:none !important;}
 #scroll-loading-msg.hidden, #scroll-end-msg {display:none !important;}
 
 

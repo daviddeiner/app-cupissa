@@ -228,7 +228,7 @@ function renderProductsGrid() {
         window.loadProductActivityMetrics(activityProducts);
     }
     statusContainer.classList.remove('hidden');
-    loadingMsg.classList.toggle('hidden', displayLimit >= filteredProducts.length);
-    if (displayLimit >= filteredProducts.length) endMsg.classList.remove('hidden');
+    loadingMsg.classList.add('hidden');
+    if (displayLimit >= filteredProducts.length && !(typeof window.hasMoreCupissaCatalogProducts === 'function' && window.hasMoreCupissaCatalogProducts())) endMsg.classList.remove('hidden');
     else endMsg.classList.add('hidden');
 }

@@ -53,11 +53,17 @@
     window.scrollTo({ top:0, left:0, behavior:'auto' });
   }
 
-  // Solo existe un nivel de ficha: reemplazar al cambiar de tarjeta.
-  // Así Atrás nunca reabre productos que ya se habían cerrado.
+  // Cada ficha recomendada añade un nivel; Atrás vuelve exactamente a la anterior.
   let activeProduct = null;
   let traversing = false;
+  let productDepth = 0;
+  let lastExitAttempt = 0;
+  let closingProductStack = false;
   const catalogScroll = { y: 0 };
+  if (!isEmbedded && normalizePath(location.pathname) === CATALOG_PATH && !history.state?.cupissaExitGuard) {
+    history.replaceState({cupissaCatalogHome:true}, '', location.href);
+    history.pushState({cupissaExitGuard:true}, '', location.href);
+  }
   window.cupissaRememberProductNavigation = productId => {
     if (!isCatalogPage() || traversing) return;
     const modal = document.getElementById('modal-product-options');
@@ -65,24 +71,58 @@
     if (activeProduct === String(productId)) return;
     const url = `/producto/${encodeURIComponent(String(productId))}/`;
     const state = { cupissaProductModal: true, cupissaProductId: String(productId) };
-    if (activeProduct || history.state?.cupissaProductModal) history.replaceState(state, '', url);
-    else history.pushState(state, '', url);
+    productDepth++;
+    state.cupissaProductDepth = productDepth;
+    history.pushState(state, '', url);
     activeProduct = String(productId);
   };
   window.cupissaForgetProductNavigation = () => {
     if (traversing || !activeProduct) return;
     activeProduct = null;
-    if (history.state?.cupissaProductModal) history.replaceState({ cupissaCatalogHome: true }, '', CATALOG_PATH);
+    if (productDepth) {
+      const steps = productDepth;
+      productDepth = 0;
+      closingProductStack = true;
+      history.go(-steps);
+    }
   };
-  window.addEventListener('popstate', () => {
+  window.addEventListener('popstate', event => {
     if (isEmbedded) {
       try { window.parent.postMessage({ type:'CUPISSA_BACK_TO_CATALOG_HOME' }, window.location.origin); } catch (_) {}
       return;
     }
     if (isCatalogPage()) {
       traversing = true;
-      activeProduct = null;
-      closeCatalogPanels();
+      const wasProduct = !!activeProduct || closingProductStack;
+      if (event.state?.cupissaProductModal && event.state?.cupissaProductId) {
+        activeProduct = String(event.state.cupissaProductId);
+        productDepth = Number(event.state.cupissaProductDepth || 1);
+        if (typeof window.openOptionsModal === 'function') window.openOptionsModal(activeProduct);
+      } else {
+        activeProduct = null;
+        productDepth = 0;
+        closeCatalogPanels();
+        if (wasProduct) {
+          closingProductStack = false;
+          traversing = false;
+          requestAnimationFrame(() => window.scrollTo({ top: catalogScroll.y, behavior:'instant' }));
+          return;
+        }
+        const now = Date.now();
+        if (now - lastExitAttempt < 2200) {
+          window.close();
+          if (!window.closed) history.go(-2);
+          lastExitAttempt = 0;
+        } else {
+          lastExitAttempt = now;
+          const toast = document.createElement('div');
+          toast.textContent = 'Haz clic de nuevo en Atrás para salir';
+          Object.assign(toast.style, {position:'fixed',bottom:'110px',left:'50%',transform:'translateX(-50%)',background:'#111827',color:'white',padding:'12px 18px',borderRadius:'14px',zIndex:'2147483646',fontSize:'13px',textAlign:'center'});
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 2200);
+          history.pushState({cupissaCatalogHome:true}, '', CATALOG_PATH);
+        }
+      }
       traversing = false;
       requestAnimationFrame(() => window.scrollTo({ top: catalogScroll.y, behavior: 'instant' }));
       return;

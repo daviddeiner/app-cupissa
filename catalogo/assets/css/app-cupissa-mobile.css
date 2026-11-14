@@ -9,6 +9,9 @@ body.app-session-locked > :not(#app-auth-gate):not(#app-desktop-notice):not(scri
 .app-auth-top span { font-size:18px; font-weight:850; color:#111827; }
 .app-auth-top small { font-size:12px; color:#666; }
 .app-auth-loading { padding:26px; text-align:center; color:#be185d; font-weight:700; }
+body.app-session-pending .app-auth-top { flex:1; justify-content:center; gap:20px; background:#fff; }
+body.app-session-pending .app-auth-top small { display:none; }
+body.app-session-pending .app-auth-loading { padding-bottom:25vh; font-size:24px; }
 #app-auth-frame { display:none; flex:1; width:100%; min-height:0; border:0; background:#fff; }
 #app-auth-retry { margin:12px auto; padding:12px 24px; background:#f4699a; color:#111; border-radius:20px; font-weight:800; }
 #app-desktop-notice { display:none; }

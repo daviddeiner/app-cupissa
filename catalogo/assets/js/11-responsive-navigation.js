@@ -14,6 +14,9 @@ function setMobileNavSection(section) {
     });
 }
 
+// Los filtros deben estar presentes desde el primer fotograma del catálogo.
+document.body.dataset.appSection = 'home';
+
 
 /** Abre el perfil como página independiente en escritorio. */
 function goToProfilePage() {
