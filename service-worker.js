@@ -1,5 +1,5 @@
 /* CUPISSA | PWA ONLINE. Sin caché offline de páginas, pedidos, productos ni credenciales. */
-const ONLINE_VERSION='cupissa-online-20261114-catalogo-v3';
+const ONLINE_VERSION='cupissa-online-20261114-push-v1';
 self.addEventListener('install', event => event.waitUntil(self.skipWaiting()));
 self.addEventListener('activate', event => event.waitUntil((async()=>{
   const keys=await caches.keys();
@@ -8,3 +8,29 @@ self.addEventListener('activate', event => event.waitUntil((async()=>{
 })()));
 self.addEventListener('message',event=>{if(event.data?.type==='CUPISSA_SKIP_WAITING')self.skipWaiting();});
 // No interceptamos fetch: la web utiliza la red y Supabase directamente.
+
+self.addEventListener('push', event => {
+  let payload = {};
+  try { payload = event.data?.json() || {}; } catch { payload = {body:event.data?.text() || ''}; }
+  const title = String(payload.title || 'CUPISSA');
+  const url = String(payload.url || 'https://cupissa.com/catalogo/');
+  event.waitUntil(self.registration.showNotification(title, {
+    body:String(payload.body || 'Tienes una novedad en CUPISSA.'),
+    icon:'/catalogo/assets/images/app-icon-192.png',
+    badge:'/catalogo/assets/images/app-icon-192.png',
+    tag:String(payload.tag || 'cupissa-novedad'),
+    data:{url},
+    vibrate:[90,50,90],
+  }));
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const url = new URL(event.notification.data?.url || '/catalogo/',self.location.origin).toString();
+  event.waitUntil((async () => {
+    const windows = await clients.matchAll({type:'window',includeUncontrolled:true});
+    const ownWindow = windows.find(client => new URL(client.url).origin === self.location.origin);
+    if (ownWindow && new URL(url).origin === self.location.origin) { await ownWindow.navigate(url); return ownWindow.focus(); }
+    return clients.openWindow(url);
+  })());
+});
