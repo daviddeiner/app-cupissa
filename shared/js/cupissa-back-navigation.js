@@ -92,6 +92,11 @@
       return;
     }
     if (isCatalogPage()) {
+      if (document.getElementById('cupissa-tasks-view')?.hidden === false) {
+        window.cupissaCloseTasks?.();
+        history.pushState({cupissaExitGuard:true}, '', CATALOG_PATH);
+        return;
+      }
       traversing = true;
       const wasProduct = !!activeProduct || closingProductStack;
       if (event.state?.cupissaProductModal && event.state?.cupissaProductId) {
@@ -109,7 +114,7 @@
           return;
         }
         const now = Date.now();
-        if (now - lastExitAttempt < 2200) {
+        if (now - lastExitAttempt < 4000) {
           window.close();
           if (!window.closed) history.go(-2);
           lastExitAttempt = 0;
@@ -119,7 +124,7 @@
           toast.textContent = 'Haz clic de nuevo en Atrás para salir';
           Object.assign(toast.style, {position:'fixed',bottom:'110px',left:'50%',transform:'translateX(-50%)',background:'#111827',color:'white',padding:'12px 18px',borderRadius:'14px',zIndex:'2147483646',fontSize:'13px',textAlign:'center'});
           document.body.appendChild(toast);
-          setTimeout(() => toast.remove(), 2200);
+          setTimeout(() => toast.remove(), 4000);
           history.pushState({cupissaCatalogHome:true}, '', CATALOG_PATH);
         }
       }

@@ -37,7 +37,7 @@
     <!-- Datos estructurados del catálogo; las fichas de cada producto tienen sus metadatos individuales. -->
     <script id="seo-schema-script" type="application/ld+json"></script>
 
-    <link rel="stylesheet" href="/catalogo/assets/css/catalogo.css?v=20261114-carga-movil-1">
+    <link rel="stylesheet" href="/catalogo/assets/css/catalogo.css?v=20261114-tareas-fijo-1">
 <link rel="stylesheet" href="/catalogo/assets/css/ficha-producto-movil.css?v=20261109-variantes-compactas-v3">
     <link rel="stylesheet" href="/catalogo/assets/css/app-cupissa-mobile.css?v=20261114-inicio-1">
 <script>
@@ -269,8 +269,33 @@
             <button type="button" class="mobile-nav-item" data-mobile-section="profile" onclick="openProfileModal()" aria-label="Abrir Perfil" title="Abrir Perfil aquí mismo">
                 <i class="fa-regular fa-user"></i><span>Perfil</span>
             </button>
+            <button type="button" class="mobile-nav-item" data-mobile-section="tasks" onclick="cupissaOpenTasks()" aria-label="Tareas">
+                <i class="fa-solid fa-gift"></i><span>Tareas</span>
+            </button>
         </div>
     </nav>
+
+    <!-- TAREAS: únicamente app-cupissa; datos sincronizados con Supabase. -->
+    <section id="cupissa-tasks-view" class="cupissa-tasks-view" hidden aria-label="Tareas de invitaciones">
+        <div class="cupissa-tasks-card">
+            <p class="cupissa-tasks-kicker">RECOMPENSAS CUPISSA</p>
+            <h2>Invita a tus amigos</h2>
+            <p>Comparte tu código. Cuando 20 amigos creen su cuenta y lo ingresen, tendrás un 20 % de descuento en tu próxima compra.</p>
+            <div class="cupissa-tasks-progress-head"><strong id="cupissa-tasks-count">0/20 amigos invitados</strong><span id="cupissa-tasks-percent">0 %</span></div>
+            <div class="cupissa-tasks-track" role="progressbar" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" id="cupissa-tasks-progress"><div id="cupissa-tasks-fill"></div></div>
+            <div id="cupissa-tasks-reward" class="cupissa-tasks-reward">Tu premio se activa al completar las 20 invitaciones y dura 7 días. Es válido para una sola compra.</div>
+            <label for="cupissa-tasks-code">Tu código único</label>
+            <div class="cupissa-tasks-code-row"><output id="cupissa-tasks-code">Cargando…</output><button type="button" onclick="cupissaCopyInvite()">Copiar</button></div>
+            <button type="button" class="cupissa-tasks-share" onclick="cupissaShareInvite()"><i class="fa-solid fa-share-nodes"></i> Compartir invitación</button>
+        </div>
+        <div class="cupissa-tasks-card">
+            <h3>¿Un amigo te invitó?</h3>
+            <p>Puedes aceptar una sola invitación por cuenta. Quien te invitó avanzará hacia su recompensa.</p>
+            <form id="cupissa-tasks-accept-form"><label for="cupissa-tasks-enter-code">Código de tu amigo</label><div class="cupissa-tasks-code-row"><input id="cupissa-tasks-enter-code" maxlength="20" autocomplete="off" placeholder="Ej. CUPABC123" required><button type="submit">Aceptar</button></div></form>
+            <p id="cupissa-tasks-accepted" hidden>Ya has aceptado una invitación.</p>
+            <p id="cupissa-tasks-feedback" role="status" aria-live="polite"></p>
+        </div>
+    </section>
 
     <!-- PERFIL DE CLIENTE: ventana integrada en móvil, sin salir del catálogo. -->
     <div id="modal-profile" class="profile-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="profile-overlay-title">
@@ -455,7 +480,7 @@
 
     <!-- Lógica modular del catálogo. Se conserva el orden de carga para mantener las dependencias globales. -->
     <script src="/shared/js/supabase-config.js"></script>
-    <script src="/shared/js/cupissa-back-navigation.js?v=20261114-historial-1"></script>
+    <script src="/shared/js/cupissa-back-navigation.js?v=20261114-tareas-atras-1"></script>
     <script src="/catalogo/assets/js/00-config-state.js?v=20261109-500-fast-mix-v1"></script>
     <script src="/shared/js/cupissa-auth.js?v=20261113-app-v3"></script>
     <script src="/catalogo/assets/js/app-cupissa-auth-gate.js?v=20261114-inicio-1"></script>
@@ -463,14 +488,15 @@
     <script src="/catalogo/assets/js/01-initialization.js?v=20261114-carga-1"></script>
     <script src="/catalogo/assets/js/02-product-data.js?v=20261114-carga-1000-3"></script>
     <script src="/catalogo/assets/js/03-filters-search.js?v=20261109-mundo-categoria-temporada-v5"></script>
-    <script src="/catalogo/assets/js/04-product-grid.js?v=20261114-carga-1"></script>
-    <script src="/catalogo/assets/js/05-product-modal.js?v=20261110-deposito-2"></script>
-    <script src="/catalogo/assets/js/06-cart-favorites-state.js?v=20261110-ajustes-1"></script>
-    <script src="/catalogo/assets/js/07-cart.js?v=20261110-deposito-2"></script>
+    <script src="/catalogo/assets/js/04-product-grid.js?v=20261114-tareas-1"></script>
+    <script src="/catalogo/assets/js/05-product-modal.js?v=20261114-tareas-1"></script>
+    <script src="/catalogo/assets/js/06-cart-favorites-state.js?v=20261114-tareas-1"></script>
+    <script src="/catalogo/assets/js/07-cart.js?v=20261114-tareas-1"></script>
     <script src="/catalogo/assets/js/08-checkout.js?v=20261110-ajustes-1"></script>
     <script src="/catalogo/assets/js/09-favorites.js?v=20261109-account-sizes-history-3"></script>
     <script src="/catalogo/assets/js/10-formatters.js"></script>
-    <script src="/catalogo/assets/js/11-responsive-navigation.js?v=20261114-filtros-1"></script>
+    <script src="/catalogo/assets/js/11-responsive-navigation.js?v=20261114-tareas-1"></script>
+    <script src="/catalogo/assets/js/17-referrals.js?v=20261114-tareas-1"></script>
     <script src="/catalogo/assets/js/12-cart-animation.js"></script>
     <script src="/catalogo/assets/js/13-brand-ui.js"></script>
     <script src="/catalogo/assets/js/14-product-activity.js?v=20261108-ranking-1"></script>

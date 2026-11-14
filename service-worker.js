@@ -1,5 +1,5 @@
 /* CUPISSA | PWA ONLINE. Sin caché offline de páginas, pedidos, productos ni credenciales. */
-const ONLINE_VERSION='cupissa-online-20261114-push-image-v2';
+const ONLINE_VERSION='cupissa-online-20261114-tareas-v1';
 self.addEventListener('install', event => event.waitUntil(self.skipWaiting()));
 self.addEventListener('activate', event => event.waitUntil((async()=>{
   const keys=await caches.keys();

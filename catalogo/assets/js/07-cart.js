@@ -45,8 +45,12 @@ function openCartModal() {
             }
 
             cart.forEach((item, index) => {
-                grandTotal += Number(item.total || 0);
-                grandAnticipo += Number(item.valorAnticipo || 0);
+                const regularUnit = Number(item.precioOriginal || item.precioUnitario || 0);
+                const shownUnit = window.cupissaReferralReward?.active ? Math.round(regularUnit * .8) : regularUnit;
+                const shownTotal = shownUnit * Math.max(1,Number(item.cantidad || 1));
+                const shownAdvance = Math.round(shownTotal * Number(item.porcentajeAnticipo || 20) / 100);
+                grandTotal += shownTotal;
+                grandAnticipo += shownAdvance;
 
                 const card = document.createElement('div');
                 card.className = "flex items-center space-x-3 bg-slate-50 p-3 rounded-2xl border border-slate-100 text-xs";
@@ -59,7 +63,7 @@ function openCartModal() {
                             ${item.color ? `<span>Color: ${item.color}</span>` : ''}
                             ${item.accesorio ? `<span class="inline-flex items-center gap-1">${item.accesorioFoto ? `<img src="${item.accesorioFoto}" alt="${item.accesorio}" class="w-7 h-7 object-cover rounded-md border">` : ''}Accesorio: ${item.accesorio}</span>` : ''}
                         </div>
-                        <div class="font-bold fuchsia-text mt-1">${formatCOP(item.total)} (Anticipo: ${formatCOP(item.valorAnticipo)})</div>
+                        <div class="font-bold fuchsia-text mt-1">${shownUnit < regularUnit ? `<del class="text-slate-400 mr-1">${formatCOP(regularUnit * item.cantidad)}</del>` : ''}${formatCOP(shownTotal)} (Anticipo: ${formatCOP(shownAdvance)})</div>
                         ${item.modalidad === 'ALQUILER' && Number(item.deposito || 0) > 0 ? `<div class="text-[10px] text-amber-700 font-semibold mt-1">Depósito reembolsable: ${formatCOP(item.deposito)}</div>` : ''}
                     </div>
                     <div class="flex items-center space-x-2">

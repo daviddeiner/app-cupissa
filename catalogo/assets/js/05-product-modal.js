@@ -630,6 +630,8 @@ function cupissaSelectedAccessories() {
                 totalProduct = (baseUnitPrice + colorExtra + accessoryExtra) * totalQty;
             }
 
+            const originalTotal = totalProduct;
+            if (window.cupissaReferralReward?.active) totalProduct = Math.round(totalProduct * .8);
             const pctAnticipo = Number(p.porcentaje_anticipo ?? 20);
             const valAnticipo = Math.round(totalProduct * (pctAnticipo / 100));
             const depInfo = document.getElementById('wrapper-deposito-info');
@@ -644,7 +646,12 @@ function cupissaSelectedAccessories() {
             if (priceLabel) priceLabel.innerText = selectedModalidad === 'alquiler' ? (Number(p.valor_deposito || 0) > 0 ? 'Alquiler + depósito reembolsable' : 'Precio Alquiler') : (isMayorista ? 'Precio Mayorista' : 'Precio Detal');
             const refundableDeposit = selectedModalidad === 'alquiler'
                 ? Math.max(0, Number(p.valor_deposito || 0)) * totalQty : 0;
-            document.getElementById('opt-modal-total-price').innerText = formatCOP(totalProduct + refundableDeposit);
+            const totalEl = document.getElementById('opt-modal-total-price');
+            totalEl.textContent = formatCOP(totalProduct + refundableDeposit);
+            if (window.cupissaReferralReward?.active) {
+                const old = document.createElement('del'); old.className='text-xs text-slate-400 mr-2'; old.textContent=formatCOP(originalTotal + refundableDeposit);
+                totalEl.prepend(old);
+            }
             document.getElementById('opt-anticipo-pct').innerText = pctAnticipo;
             document.getElementById('opt-anticipo-val').innerText = formatCOP(valAnticipo);
             if (hasSizeOptions) cupissaUpdateSizeQuantitySummary();

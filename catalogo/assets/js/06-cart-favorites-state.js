@@ -47,7 +47,8 @@ function addModalProductToCart() {
 
     const newItems = rows.map((row, index) => {
         const quantity = Math.max(1, Number(row.cantidad || 1));
-        const unitPrice = baseUnitPrice + (selectedModalidad === 'venta' ? Number(row.incremento || 0) : 0) + colorExtra + accessoryExtra;
+        const regularUnitPrice = baseUnitPrice + (selectedModalidad === 'venta' ? Number(row.incremento || 0) : 0) + colorExtra + accessoryExtra;
+        const unitPrice = window.cupissaReferralReward?.active ? Math.round(regularUnitPrice * .8) : regularUnitPrice;
         const lineTotal = unitPrice * quantity;
         return {
             cartId: `${selectedProductModal.id}_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 6)}`,
@@ -65,6 +66,7 @@ function addModalProductToCart() {
             cantidad: quantity,
             cantidadMayorista: totalQuantity,
             precioUnitario: unitPrice,
+            precioOriginal: regularUnitPrice,
             total: lineTotal,
             deposito: selectedModalidad === 'alquiler' ? Number(selectedProductModal.valor_deposito || 0) * quantity : 0,
             porcentajeAnticipo: percentage,

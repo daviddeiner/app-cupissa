@@ -64,6 +64,18 @@
   let rentalDays = 1;
   let selectedPaymentMode = '';
   let paymentInProgress = false;
+  let referralDiscountActive = false;
+
+  async function loadReferralDiscount() {
+    try {
+      const { data, error } = await supabaseClient.rpc('cupissa_referral_status');
+      if (error) throw error;
+      referralDiscountActive = data?.reward_active === true;
+    } catch (error) {
+      referralDiscountActive = false;
+      console.warn('[CUPISSA] Promoción no disponible:', error?.message || error);
+    }
+  }
 
   /* =====================================================
      MENSAJES
@@ -469,6 +481,7 @@
         </div>
 
         <strong class="text-xs font-black text-slate-900 whitespace-nowrap">
+          ${referralDiscountActive ? `<del class="text-slate-400 text-[10px] mr-1">${money(Math.round(line.precioInicial * (line.modalidad === 'ALQUILER' ? rentalPriceFactor(rentalDays) : 1)) * line.cantidad)}</del>` : ''}
           ${money(line.total)}
         </strong>
       </article>
@@ -497,7 +510,7 @@
           : 1;
 
       line.precioUnitario = Math.round(
-        line.precioInicial * factor
+        Math.round(line.precioInicial * factor) * (referralDiscountActive ? .8 : 1)
       );
 
       line.total = Math.round(
@@ -2629,6 +2642,7 @@
         return;
       }
 
+      await loadReferralDiscount();
       await loadCartAndProducts();
       await loadDeliveryRates();
 

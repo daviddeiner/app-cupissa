@@ -97,6 +97,7 @@ window.addEventListener('message', event => {
 
 /** Inicio conserva la página viva y solo cierra paneles para volver al catálogo. */
 function goToCatalogHome() {
+    if (typeof window.cupissaCloseTasks === 'function') window.cupissaCloseTasks();
     setMobileNavSection('home');
     closeProfileModal();
     closeCartModal();
@@ -108,6 +109,7 @@ function goToCatalogHome() {
 }
 
 function toggleMobileFilters() {
+    if (typeof window.cupissaCloseTasks === 'function') window.cupissaCloseTasks();
     closeProfileModal();
     closeCartModal();
     closeFavoritesModal();

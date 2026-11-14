@@ -1,0 +1,38 @@
+CUPISSA | MEJORAS APP Y PROGRAMA DE INVITACIONES | 14-11-2026
+
+QUÉ INCLUYE
+- Cabecera móvil fija: logo, buscador, aviso de fabricantes y mundos.
+- Segundo toque para salir: ventana de 4 segundos; después vuelve a pedir confirmación.
+- Nueva pestaña Tareas después de Perfil, con código personal, copiar, compartir,
+  aceptación de un único código, progreso 0/20 y aviso cuando acepta un amigo.
+- Códigos para cuentas de Auth existentes y futuras, al ejecutar el SQL.
+- Descuento real del 20 % únicamente para quien invite a 20 cuentas nuevas.
+- El invitado no obtiene descuentos. El premio dura 7 días, se consume con
+  el primer pedido pagado y no puede repetirse ni acumularse.
+- Precios originales tachados y precios con descuento, excluyendo envío y
+  depósitos reembolsables del descuento.
+
+INSTALACIÓN (EN ESTE ORDEN)
+1. En Supabase SQL Editor ejecuta todo supabase/SQL_TAREAS_INVITACIONES.sql.
+2. Actualiza la Edge Function swift-endpoint con el archivo incluido en
+   supabase/functions/swift-endpoint/index.ts. Se ha cotejado el archivo
+   funcional Pasted text(9).txt aportado por Diani con la base de esta
+   función: su contenido coincide íntegramente, salvo los saltos de línea.
+   Por tanto, los cambios añadidos corresponden exclusivamente al sistema
+   de Tareas (cálculo, reserva, liberación y consumo del descuento).
+   La función es la encargada de calcular y validar el descuento con los
+   precios originales almacenados en Supabase y firmar el pago de Wompi.
+3. Publica el contenido de app-cupissa conservando las rutas originales.
+4. Prueba la campaña con cuentas NUEVAS registradas después de instalar el SQL.
+
+IMPORTANTE
+- No hay cambios al admin ni a la web pública.
+- No se aplican descuentos a cuentas antiguas que introduzcan un código;
+  pueden obtener su código para invitar nuevas cuentas.
+- Solo se contabilizan cuentas nuevas que aceptan manualmente el código.
+- Una compra con tarjeta que queda pendiente reserva el único descuento;
+  al aprobarse queda consumido. Si Wompi rechaza el cobro se libera la reserva.
+  Si se abandona un cobro sin que llegue a tener estado definitivo, es
+  necesario revisar ese pago antes de liberar su reserva manualmente.
+- Este paquete se inspeccionó estáticamente. No hay acceso de escritura a
+  tu proyecto Supabase para ejecutar la migración ni probar un pago real.
