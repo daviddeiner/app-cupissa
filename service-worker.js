@@ -1,5 +1,5 @@
 /* CUPISSA | PWA ONLINE. Sin caché offline de páginas, pedidos, productos ni credenciales. */
-const ONLINE_VERSION='cupissa-online-20261114-push-v1';
+const ONLINE_VERSION='cupissa-online-20261114-push-image-v2';
 self.addEventListener('install', event => event.waitUntil(self.skipWaiting()));
 self.addEventListener('activate', event => event.waitUntil((async()=>{
   const keys=await caches.keys();
@@ -12,12 +12,13 @@ self.addEventListener('message',event=>{if(event.data?.type==='CUPISSA_SKIP_WAIT
 self.addEventListener('push', event => {
   let payload = {};
   try { payload = event.data?.json() || {}; } catch { payload = {body:event.data?.text() || ''}; }
-  const title = String(payload.title || 'CUPISSA');
-  const url = String(payload.url || 'https://cupissa.com/catalogo/');
+  const title = 'Cupissa';
+  const url = String(payload.url || 'https://app.cupissa.com/catalogo/');
   event.waitUntil(self.registration.showNotification(title, {
-    body:String(payload.body || 'Tienes una novedad en CUPISSA.'),
-    icon:'/catalogo/assets/images/app-icon-192.png',
-    badge:'/catalogo/assets/images/app-icon-192.png',
+    body:[payload.title,payload.body].filter(Boolean).join(' — ') || 'Tienes una novedad en CUPISSA.',
+    icon:String(payload.icon || '/catalogo/assets/images/favicon.png'),
+    image:payload.imageUrl ? String(payload.imageUrl) : undefined,
+    badge:'/catalogo/assets/images/favicon.png',
     tag:String(payload.tag || 'cupissa-novedad'),
     data:{url},
     vibrate:[90,50,90],
