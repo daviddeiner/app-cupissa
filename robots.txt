@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://cupissa.com/sitemap.xml
+# Todas las paginas HTML de este subdominio incluyen meta robots noindex.
+# El rastreo debe permanecer permitido para que Google lea esa instruccion.
