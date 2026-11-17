@@ -110,6 +110,7 @@ function filterByMundo(mundo) {
     renderFilters();
     displayLimit = CUPISSA_PRODUCT_BATCH_SIZE;
     applyFiltersAndSearch();
+    window.cupissaPrioritizeActiveCatalog?.();
     cupissaScrollCatalogToTop();
 }
 
@@ -118,6 +119,7 @@ function filterByTemporada(temp) {
     displayLimit = CUPISSA_PRODUCT_BATCH_SIZE;
     renderFilters();
     applyFiltersAndSearch();
+    window.cupissaPrioritizeActiveCatalog?.();
     cupissaScrollCatalogToTop();
 }
 
@@ -127,6 +129,7 @@ function filterByCategoria(cat) {
     renderFilters();
     displayLimit = CUPISSA_PRODUCT_BATCH_SIZE;
     applyFiltersAndSearch();
+    window.cupissaPrioritizeActiveCatalog?.();
     cupissaScrollCatalogToTop();
 }
 
@@ -135,6 +138,7 @@ function filterBySubcategoria(subcat) {
     displayLimit = CUPISSA_PRODUCT_BATCH_SIZE;
     renderFilters();
     applyFiltersAndSearch();
+    window.cupissaPrioritizeActiveCatalog?.();
     cupissaScrollCatalogToTop();
 }
 
@@ -143,6 +147,7 @@ function filterBySubcategoria(subcat) {
             if (window.cupissaSearchTimer) window.clearTimeout(window.cupissaSearchTimer);
             window.cupissaSearchTimer = window.setTimeout(() => {
                 applyFiltersAndSearch();
+                window.cupissaPrioritizeActiveCatalog?.();
                 // Al buscar, presentar inmediatamente el inicio de los resultados.
                 // No quitar el foco del campo ni alterar filtros, productos o paginación.
                 cupissaScrollCatalogToTop();

@@ -10,7 +10,7 @@ async function loadNextProductsBatch() {
     isLoadingMore = true;
     const loadingMsg = document.getElementById('scroll-loading-msg');
     const endMsg = document.getElementById('scroll-end-msg');
-        if (loadingMsg) loadingMsg.classList.add('hidden');
+    if (loadingMsg) loadingMsg.classList.remove('hidden');
     if (endMsg) endMsg.classList.add('hidden');
     try {
         if (displayLimit < filteredProducts.length) {
@@ -18,6 +18,7 @@ async function loadNextProductsBatch() {
             renderProductsGrid();
             return;
         }
+        if (window.isCupissaCatalogPriorityLoading?.()) return;
         if (typeof window.hasMoreCupissaCatalogProducts === 'function' &&
             window.hasMoreCupissaCatalogProducts() &&
             typeof window.loadNextCupissaCatalogPage === 'function') {
@@ -37,7 +38,7 @@ async function loadNextProductsBatch() {
     } finally {
         productsBatchPending = false;
         isLoadingMore = false;
-        if (loadingMsg) loadingMsg.classList.add('hidden');
+        renderProductsGrid();
         if (endMsg && !(typeof window.hasMoreCupissaCatalogProducts === 'function' && window.hasMoreCupissaCatalogProducts())) {
             endMsg.classList.toggle('hidden', displayLimit < filteredProducts.length);
             if (displayLimit >= filteredProducts.length) endMsg.textContent = 'Has llegado al final del catálogo';
@@ -55,6 +56,7 @@ function catalogNearEnd() {
 }
 function scheduleCatalogNearEnd() {
     if (productsAutoLoadTimer !== null || productsBatchPending || document.hidden || Date.now() < nextCatalogRetryAt) return;
+    if (window.isCupissaCatalogPriorityLoading?.()) return;
     if (!catalogNearEnd()) return;
     if (displayLimit >= filteredProducts.length &&
         !(typeof window.hasMoreCupissaCatalogProducts === 'function' && window.hasMoreCupissaCatalogProducts())) return;

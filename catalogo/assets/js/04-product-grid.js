@@ -188,14 +188,25 @@ function renderProductsGrid() {
         renderSeasonFeatured();
     }
 
+    const hasMoreFromServer = typeof window.hasMoreCupissaCatalogProducts === 'function' &&
+        window.hasMoreCupissaCatalogProducts();
+    const priorityLoading = typeof window.isCupissaCatalogPriorityLoading === 'function' &&
+        window.isCupissaCatalogPriorityLoading();
     if (filteredProducts.length === 0) {
         grid.innerHTML = `
             <div class="col-span-full cupissa-empty-state cupissa-empty-catalog">
                 <div class="cupissa-empty-state-icon"><i class="fa-solid fa-box-open" aria-hidden="true"></i></div>
-                <h3>Por aquí todavía no hay productos</h3>
-                <p>Prueba con otro mundo o ajusta los filtros para descubrir más de CUPISSA.</p>
+                <h3>${priorityLoading || hasMoreFromServer ? 'Buscando productos para ti' : 'Por aquí todavía no hay productos'}</h3>
+                <p>${priorityLoading || hasMoreFromServer ? 'Estamos revisando más productos del catálogo…' : 'Prueba con otro mundo o ajusta los filtros para descubrir más de CUPISSA.'}</p>
             </div>`;
-        statusContainer.classList.add('hidden');
+        grid.dataset.renderedCount = '0';
+        statusContainer.classList.remove('hidden');
+        loadingMsg?.classList.toggle('hidden', !(priorityLoading || hasMoreFromServer));
+        if (endMsg) {
+            endMsg.textContent = 'Has llegado al final del catálogo';
+            endMsg.classList.toggle('hidden', priorityLoading || hasMoreFromServer);
+        }
+        if (typeof scheduleCatalogNearEnd === 'function') scheduleCatalogNearEnd();
         return;
     }
 
@@ -228,7 +239,10 @@ function renderProductsGrid() {
         window.loadProductActivityMetrics(activityProducts);
     }
     statusContainer.classList.remove('hidden');
-    loadingMsg.classList.add('hidden');
-    if (displayLimit >= filteredProducts.length && !(typeof window.hasMoreCupissaCatalogProducts === 'function' && window.hasMoreCupissaCatalogProducts())) endMsg.classList.remove('hidden');
-    else endMsg.classList.add('hidden');
+    const moreToDisplay = displayLimit < filteredProducts.length;
+    loadingMsg?.classList.toggle('hidden', !(moreToDisplay || priorityLoading || hasMoreFromServer));
+    if (endMsg) {
+        endMsg.textContent = 'Has llegado al final del catálogo';
+        endMsg.classList.toggle('hidden', moreToDisplay || priorityLoading || hasMoreFromServer);
+    }
 }

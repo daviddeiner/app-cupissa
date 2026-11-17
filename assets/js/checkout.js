@@ -2332,7 +2332,7 @@
 
         setProcessing(false);
 
-        showSuccess({
+        await showSuccess({
           order:
             result.order ||
             result.orders?.[0] ||
@@ -2479,27 +2479,82 @@
      RESULTADO DEL PEDIDO
   ===================================================== */
 
-  function showSuccess(result) {
+  // Cada línea se identifica por cartId (único por variante añadida).
+  // Así, si el cliente agregó otros productos durante el pago, se conservan.
+  function removePurchasedCartLines(items, purchasedLines = currentCart) {
+    const pending = purchasedLines.map(item => ({
+      id: item.cartId ? String(item.cartId) : '',
+      signature: [
+        item.productId ?? item.product_id ?? item.producto_id ?? '',
+        item.modalidad ?? 'VENTA', item.talla ?? '', item.color ?? '',
+        item.accesorio ?? '', item.customText ?? '',
+        Number(item.cantidad || 1), Number(item.total || 0)
+      ].map(value => String(value).toUpperCase()).join('|')
+    }));
+    return items.filter(item => {
+      const signature = [
+        item.productId ?? item.product_id ?? item.producto_id ?? '',
+        item.modalidad ?? 'VENTA', item.talla ?? '', item.color ?? '',
+        item.accesorio ?? '', item.customText ?? '',
+        Number(item.cantidad || 1), Number(item.total || 0)
+      ].map(value => String(value).toUpperCase()).join('|');
+      const id = item.cartId ? String(item.cartId) : '';
+      const index = pending.findIndex(line =>
+        (id && line.id && id === line.id) ||
+        (!id && !line.id && signature === line.signature));
+      if (index === -1) return true;
+      pending.splice(index, 1);
+      return false;
+    });
+  }
+
+  async function clearConfirmedItemsOnly() {
+    const originalLines = currentCart.map(item => ({...item}));
+    const readCart = key => parseStoredCartValue(localStorage.getItem(key));
+    // Actualización local inmediata para evitar que un pedido aprobado quede
+    // en el carrito si el cliente vuelve al catálogo enseguida.
+    localStorage.setItem(CART_KEY, JSON.stringify(
+      removePurchasedCartLines(readCart(CART_KEY), originalLines)));
+    try {
+      const {data: {session}} = await supabaseClient.auth.getSession();
+      const accountId = session?.user?.id;
+      if (!accountId) return;
+      const scopedKey = `cupissa_cart_account_${accountId}`;
+      const remaining = removePurchasedCartLines(readCart(scopedKey), originalLines);
+      localStorage.setItem(scopedKey, JSON.stringify(remaining));
+      localStorage.setItem(CART_KEY, JSON.stringify(remaining));
+
+      // El catálogo restaura el carrito desde esta tabla al volver a entrar.
+      // Solo actualizamos el carrito, nunca favoritos ni otros datos de la cuenta.
+      const {data: remote, error: readError} = await supabaseClient
+        .from('cliente_catalogo_estado').select('carrito')
+        .eq('auth_user_id', accountId).maybeSingle();
+      if (readError) throw readError;
+      if (remote) {
+        const {error: saveError} = await supabaseClient
+          .from('cliente_catalogo_estado')
+          .update({
+            carrito: removePurchasedCartLines(
+              Array.isArray(remote.carrito) ? remote.carrito : [], originalLines),
+            updated_at: new Date().toISOString()
+          })
+          .eq('auth_user_id', accountId);
+        if (saveError) throw saveError;
+      }
+    } catch (error) {
+      console.warn('[CUPISSA] Carrito actualizado localmente; sincronización pendiente:', error);
+    }
+  }
+
+  async function showSuccess(result) {
     if (result?.pendingReference) {
       removePendingWebPayment(result.pendingReference);
     }
 
-    if (!result?.testOrder) {
-      localStorage.setItem(CART_KEY, '[]');
-
-      try {
-        if (
-          typeof cart !== 'undefined' &&
-          Array.isArray(cart)
-        ) {
-          cart.length = 0;
-
-          if (typeof saveCart === 'function') {
-            saveCart();
-          }
-        }
-      } catch (_) {}
-    }
+    // Comenzar la limpieza inmediatamente, sin retrasar la confirmación visual.
+    const cartSynchronization = result?.testOrder
+      ? Promise.resolve()
+      : clearConfirmedItemsOnly();
 
     const orders =
       Array.isArray(result?.orders) &&
@@ -2567,6 +2622,7 @@
       top: 0,
       behavior: 'smooth'
     });
+    await cartSynchronization;
   }
 
   /* =====================================================

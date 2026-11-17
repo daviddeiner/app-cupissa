@@ -1282,3 +1282,28 @@ body.profile-open #mobile-app-nav { display: flex !important; z-index: 9999; pos
   }
   #season-featured-grid .product-card-title { font-size: 10px !important; }
 }
+
+/* CUPISSA 2026-11-17 · progreso accesible al final del scroll infinito. */
+.catalog-infinite-sentinel {
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:auto !important;
+  min-height:54px !important;
+  max-height:none !important;
+  margin:15px 0 20px !important;
+  padding:10px 8px !important;
+  overflow:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
+#scroll-loading-msg:not(.hidden) {
+  display:flex !important;
+  gap:9px;
+  align-items:center;
+  justify-content:center;
+  color:#b91c67;
+}
+#scroll-end-msg:not(.hidden) { display:block !important; color:#64748b; }
+#scroll-loading-msg.hidden, #scroll-end-msg.hidden { display:none !important; }

@@ -1800,7 +1800,7 @@
                 }
 
                 <div class="min-w-0 flex-1">
-                  <p class="font-black text-sm text-slate-900">
+                  <p class="cupissa-order-product-name font-black text-sm text-slate-900">
                     ${index + 1}. ${safe(product.nombre || product.producto || 'Producto')}
                   </p>
 

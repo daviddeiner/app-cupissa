@@ -22,7 +22,7 @@
     <script src="/catalogo/assets/js/01-tailwind-config.js"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Supabase JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -38,7 +38,7 @@
     <!-- Datos estructurados del catálogo; las fichas de cada producto tienen sus metadatos individuales. -->
     <script id="seo-schema-script" type="application/ld+json"></script>
 
-    <link rel="stylesheet" href="/catalogo/assets/css/catalogo.css?v=20261114-tareas-fijo-1">
+    <link rel="stylesheet" href="/catalogo/assets/css/catalogo.css?v=20261117-scroll-visible-1">
 <link rel="stylesheet" href="/catalogo/assets/css/ficha-producto-movil.css?v=20261109-variantes-compactas-v3">
     <link rel="stylesheet" href="/catalogo/assets/css/app-cupissa-mobile.css?v=20261114-inicio-1">
 <script>
@@ -50,6 +50,7 @@
   }
 })();
 </script>
+  <link rel="stylesheet" href="/assets/css/cupissa-editorial.css?v=20261117-elegante-1">
 </head>
 <body class="app-session-pending min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans">
     <div id="app-auth-gate" class="app-auth-gate" aria-live="polite">
@@ -151,7 +152,6 @@
                 <main id="catalog-main" class="flex-1 min-w-0 w-full p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
                     <div class="catalog-title-row flex items-center justify-between">
                         <h1 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">Catálogo Cupissa</h1>
-                        <button id="cupissa-enable-push" type="button" hidden class="px-3 py-2 rounded-xl bg-pink-50 border border-pink-200 text-pink-700 text-[10px] font-black"><i class="fa-regular fa-bell mr-1"></i>Activar notificaciones</button>
                     </div>
 
                     <section id="season-featured" class="hidden season-featured-panel" aria-label="Destacados de la temporada">
@@ -482,14 +482,14 @@
     <!-- Lógica modular del catálogo. Se conserva el orden de carga para mantener las dependencias globales. -->
     <script src="/shared/js/supabase-config.js"></script>
     <script src="/shared/js/cupissa-back-navigation.js?v=20261114-tareas-atras-1"></script>
-    <script src="/catalogo/assets/js/00-config-state.js?v=20261109-500-fast-mix-v1"></script>
+    <script src="/catalogo/assets/js/00-config-state.js?v=20261117-editorial-1"></script>
     <script src="/shared/js/cupissa-auth.js?v=20261113-app-v3"></script>
     <script src="/catalogo/assets/js/app-cupissa-auth-gate.js?v=20261114-inicio-1"></script>
     <script defer src="/catalogo/assets/js/cupissa-views-tracker.js?v=20261110-vistas-1"></script>
-    <script src="/catalogo/assets/js/01-initialization.js?v=20261114-carga-1"></script>
-    <script src="/catalogo/assets/js/02-product-data.js?v=20261114-carga-1000-3"></script>
-    <script src="/catalogo/assets/js/03-filters-search.js?v=20261109-mundo-categoria-temporada-v5"></script>
-    <script src="/catalogo/assets/js/04-product-grid.js?v=20261114-tareas-1"></script>
+    <script src="/catalogo/assets/js/01-initialization.js?v=20261117-scroll-1"></script>
+    <script src="/catalogo/assets/js/02-product-data.js?v=20261117-busqueda-1"></script>
+    <script src="/catalogo/assets/js/03-filters-search.js?v=20261117-busqueda-1"></script>
+    <script src="/catalogo/assets/js/04-product-grid.js?v=20261117-scroll-visible-1"></script>
     <script src="/catalogo/assets/js/05-product-modal.js?v=20261114-tareas-1"></script>
     <script src="/catalogo/assets/js/06-cart-favorites-state.js?v=20261114-tareas-1"></script>
     <script src="/catalogo/assets/js/07-cart.js?v=20261114-tareas-1"></script>
@@ -505,7 +505,7 @@
     <script src="/catalogo/assets/js/15-pwa-install.js"></script>
     <script src="/shared/js/security-console-notice.js?v=20261107-security-1"></script>
 <script src="/catalogo/assets/js/ficha-producto-movil.js?v=20261109-variantes-compactas-v4"></script>
-<script src="/catalogo/assets/js/app-cupissa-push.js?v=20261114-push-1"></script>
+<script src="/catalogo/assets/js/app-cupissa-push.js?v=20261117-permiso-1"></script>
 
 </body>
 </html>

@@ -89,7 +89,7 @@ function shuffleArray(array) {
             return output;
         }
 
-        // Todos los mundos representados en la primera carga de 500 productos.
+        // Representantes de los mundos dentro del primer lote de 1000 productos.
         const CUPISSA_INITIAL_WORLDS = [
             'INFANTIL', 'DAMAS', 'CABALLEROS', 'HOGAR', 'PUBLICIDAD Y EVENTOS',
             'DETALLES', 'PERSONALIZADOS', 'CONFECCIONES', 'ACCESORIOS',
@@ -175,7 +175,92 @@ function shuffleArray(array) {
         let catalogSupabaseLoading = false;
         let catalogSupabaseInitialized = false;
         let catalogLoadedProductIds = new Set();
+        let catalogPriorityRequest = 0;
+        let catalogPriorityLoading = false;
+        let catalogPriorityTimer = null;
         const CUPISSA_CATALOG_PRODUCT_FIELDS = 'id,nombre,mundo,mundos,categoria,categorias,subcategoria,subcategorias,temporada,temporadas,precio_detal,precio_mayorista,cant_min_mayorista,porcentaje_anticipo,dias_preparacion,personalizable,al_por_mayor,venta,alquiler,credito,precio_alquiler,valor_deposito,tallas,colores,fotos,created_at,descripcion,accesorios,oculto';
+
+        // Un filtro o una búsqueda no debe depender de las páginas aleatorias ya descargadas.
+        // Traemos primero las coincidencias desde Supabase, de 1000 en 1000,
+        // conservando la carga general para cuando termine la consulta prioritaria.
+        function prioritizeActiveCatalog() {
+            clearTimeout(catalogPriorityTimer);
+            const request = ++catalogPriorityRequest;
+            const query = document.getElementById('smart-search-input')?.value?.trim() || '';
+            const facets = [
+                ['subcategoria','subcategorias',activeSubcategoria,'TODAS'],
+                ['categoria','categorias',activeCategoria,'TODAS'],
+                ['temporada','temporadas',activeTemporada,'TODAS'],
+                ['mundo','mundos',activeMundo,'TODOS']
+            ];
+            const facet = facets.find(([, , value, defaultValue]) => value !== defaultValue);
+            // Si aún se obtiene el primer bloque, reintentar al finalizar su carga.
+            if (!catalogSupabaseInitialized) return;
+            if (!facet && !query) {
+                catalogPriorityLoading = false;
+                applyFiltersAndSearch();
+                if (typeof scheduleCatalogNearEnd === 'function') scheduleCatalogNearEnd();
+                return;
+            }
+            catalogPriorityLoading = true;
+            applyFiltersAndSearch();
+            catalogPriorityTimer = window.setTimeout(async () => {
+                if (request !== catalogPriorityRequest || !catalogSupabaseInitialized) return;
+                const baseQuery = () => supabaseClient.from('productos')
+                    .select(CUPISSA_CATALOG_PRODUCT_FIELDS)
+                    .eq('oculto', false)
+                    .order('created_at', {ascending:false});
+                const branches = [];
+                if (facet) {
+                    const [singular, plural, value] = facet;
+                    branches.push(() => baseQuery().ilike(singular, value));
+                    branches.push(() => baseQuery().contains(plural, [value]));
+                } else {
+                    // Primero el nombre; también buscar en descripciones.
+                    const firstWord = query.split(/\s+/).find(Boolean)?.replace(/[%_,()]/g, '') || '';
+                    if (firstWord) {
+                        branches.push(() => baseQuery().ilike('nombre', `%${firstWord}%`));
+                        branches.push(() => baseQuery().ilike('descripcion', `%${firstWord}%`));
+                    }
+                }
+                try {
+                    // Publicar cada lote en cuanto llega, sin esperar la carga general.
+                    const outcomes = await Promise.allSettled(branches.map(async makeQuery => {
+                        let offset = 0;
+                        while (request === catalogPriorityRequest) {
+                            const {data, error} = await makeQuery()
+                                .range(offset, offset + CUPISSA_CATALOG_PAGE_SIZE - 1);
+                            if (request !== catalogPriorityRequest) return;
+                            if (error) throw error;
+                            const rows = Array.isArray(data) ? data : [];
+                            const added = rows.filter(row => row?.id != null &&
+                                !catalogLoadedProductIds.has(String(row.id)));
+                            added.forEach(row => catalogLoadedProductIds.add(String(row.id)));
+                            if (added.length) {
+                                rawProducts.unshift(...added.map(normalizeProduct));
+                                renderFilters();
+                                applyFiltersAndSearch();
+                                tryOpenCatalogProductFromLink();
+                            }
+                            if (rows.length < CUPISSA_CATALOG_PAGE_SIZE) break;
+                            offset += CUPISSA_CATALOG_PAGE_SIZE;
+                        }
+                    }));
+                    outcomes.filter(outcome => outcome.status === 'rejected').forEach(outcome =>
+                        console.warn('[CUPISSA] Una fuente de resultados no respondió:', outcome.reason));
+                } catch (error) {
+                    console.warn('[CUPISSA] Búsqueda prioritaria no disponible; continúa el catálogo:', error);
+                } finally {
+                    if (request === catalogPriorityRequest) {
+                        catalogPriorityLoading = false;
+                        applyFiltersAndSearch();
+                        if (typeof scheduleCatalogNearEnd === 'function') scheduleCatalogNearEnd();
+                    }
+                }
+            }, 160);
+        }
+        window.cupissaPrioritizeActiveCatalog = prioritizeActiveCatalog;
+        window.isCupissaCatalogPriorityLoading = () => catalogPriorityLoading;
 
         function tryOpenCatalogProductFromLink() {
             if (window.__cupissaProductLinkOpened) return;
@@ -196,7 +281,7 @@ function shuffleArray(array) {
         }
 
         async function loadNextCatalogProductsPage() {
-            if (catalogSupabaseLoading || !catalogSupabaseHasMore || !catalogSupabaseInitialized) return false;
+            if (catalogSupabaseLoading || catalogPriorityLoading || !catalogSupabaseHasMore || !catalogSupabaseInitialized) return false;
             catalogSupabaseLoading = true;
             try {
                 const from = catalogSupabasePageOffsets[catalogSupabasePageIndex];
@@ -250,7 +335,7 @@ function shuffleArray(array) {
                     const representatives = worldRows.filter(Boolean);
                     // Mostrar los representantes desde la primera pantalla, no esperar
                     // a que la carga automática complete los primeros 10 elementos.
-                    displayLimit = Math.max(displayLimit, representatives.length + taxonomyRows.length + featuredRows.length);
+                    // Mantener exactamente 30 tarjetas en la primera pantalla.
                     // Reservar siempre los cinco espacios de destacados y uno
                     // por mundo antes de completar el grupo con productos aleatorios.
                     const reserved = new Map();
@@ -342,6 +427,8 @@ function shuffleArray(array) {
             catalogSupabaseLoading = false;
             catalogSupabaseInitialized = false;
             catalogLoadedProductIds = new Set();
+            ++catalogPriorityRequest;
+            catalogPriorityLoading = false;
             catalogInitialWorldsPending = true;
             catalogRealtimeQueue.length = 0;
             window.__cupissaProductLinkOpened = false;
@@ -373,6 +460,11 @@ function shuffleArray(array) {
                 applyFiltersAndSearch();
             }
             if (typeof setupAutomaticProductLoading === 'function') setupAutomaticProductLoading();
+            if (activeMundo !== 'TODOS' || activeTemporada !== 'TODAS' ||
+                activeCategoria !== 'TODAS' || activeSubcategoria !== 'TODAS' ||
+                document.getElementById('smart-search-input')?.value?.trim()) {
+                prioritizeActiveCatalog();
+            }
             // Un solo consumidor descarga las siguientes páginas: el scroll.
             // El precargador anterior competía con él y podía dejar el indicador bloqueado.
             setupCatalogRealtimeAppendOnly();
