@@ -12,9 +12,8 @@ function shuffleArray(array) {
         }
 
         const CUPISSA_CATALOG_PAGE_SIZE = 1000;
-        // Diversidad editorial: evita secuencias extensas del mismo mundo,
-        // categoría, subcategoría o temporada sin esconder publicaciones.
-        // Opera en memoria sobre cada lote: no cambia SQL, precios ni filtros.
+        // Las etiquetas siguen sirviendo para encontrar representantes iniciales.
+        // El ORDEN visual se mezcla solamente por el nombre del producto.
         function catalogDiversityValues(product, singular, plural) {
             const collect = value => {
                 if (Array.isArray(value)) return value;
@@ -32,57 +31,56 @@ function shuffleArray(array) {
                 .filter(Boolean);
         }
 
-        // Mezcla equilibrada por TODAS las dimensiones, a través de todos los lotes.
-        // Evalúa candidatos acotados para evitar la búsqueda cuadrática costosa en móviles.
+        // Diversidad por NOMBRE: evita que aparezcan seguidas muchas camisetas,
+        // conjuntos o productos del mismo nombre, incluso al elegir un filtro.
+        // No utiliza mundo, categoría, subcategoría ni temporada para ordenar.
         function spreadCatalogDiversity(rows, preceding = []) {
-            const dimensions = [
-                ['mundo', 'mundos', 24],
-                ['categoria', 'categorias', 16],
-                ['subcategoria', 'subcategorias', 11],
-                ['temporada', 'temporadas', 8]
-            ];
-            const describe = product => dimensions.map(([singular, plural]) =>
-                catalogDiversityValues(product, singular, plural));
-            const pending = shuffleArray(rows.map(row => ({ row, tags: describe(row) })));
-            const counts = dimensions.map(() => new Map());
-            const recent = preceding.slice(-20).map(describe);
+            const ignored = new Set(['DE', 'DEL', 'LA', 'LAS', 'EL', 'LOS',
+                'UN', 'UNA', 'PARA', 'CON', 'Y', 'EN', 'POR', 'AL']);
+            const describe = product => {
+                const words = String(product?.nombre || '')
+                    .toLocaleUpperCase('es-CO').normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^A-Z0-9]+/g, ' ').trim()
+                    .split(/\s+/).filter(word => word && !ignored.has(word));
+                return {
+                    first: words[0] || '',
+                    pair: words.slice(0, 2).join(' '),
+                    full: words.join(' '),
+                    words: new Set(words)
+                };
+            };
+            const pending = shuffleArray(rows.map(row => ({row, name: describe(row)})));
+            const recent = preceding.slice(-12).map(describe);
             const output = [];
-            // La frecuencia global limita los bloques monótonos incluso después de
-            // cientos de publicaciones; la cercanía penaliza categorías repetidas.
-            const register = tags => tags.forEach((values, d) => {
-                for (const value of new Set(values)) {
-                    counts[d].set(value, (counts[d].get(value) || 0) + 1);
-                }
-            });
-            preceding.forEach(product => register(describe(product)));
             while (pending.length) {
-                const candidates = Math.min(64, pending.length);
+                const candidates = Math.min(96, pending.length);
                 let best = 0, bestScore = Infinity;
                 for (let i = 0; i < candidates; i++) {
-                    const tags = pending[i].tags;
-                    let score = Math.random() * 0.35;
-                    tags.forEach((values, d) => {
-                        if (!values.length) return;
-                        score += Math.min(...values.map(value => counts[d].get(value) || 0)) * [0.55, 0.4, 0.3, 0.2][d];
-                        recent.forEach((other, position) => {
-                            if (values.some(value => other[d].includes(value))) {
-                                const distance = recent.length - position;
-                                score += dimensions[d][2] / Math.pow(distance, 0.72);
-                            }
-                        });
+                    const candidate = pending[i].name;
+                    let score = Math.random() * .35;
+                    recent.forEach((previous, position) => {
+                        const distance = recent.length - position;
+                        const closeness = 1 / Math.pow(distance, .85);
+                        if (candidate.full && candidate.full === previous.full) score += 140 * closeness;
+                        if (candidate.pair && candidate.pair === previous.pair) score += 80 * closeness;
+                        if (candidate.first && candidate.first === previous.first) score += 38 * closeness;
+                        if (candidate.words.size && previous.words.size) {
+                            let common = 0;
+                            candidate.words.forEach(word => { if (previous.words.has(word)) common++; });
+                            const similarity = common / Math.max(candidate.words.size, previous.words.size);
+                            score += similarity * 18 * closeness;
+                        }
                     });
                     if (score < bestScore) { bestScore = score; best = i; }
                 }
                 const [chosen] = pending.splice(best, 1);
                 output.push(chosen.row);
-                register(chosen.tags);
-                recent.push(chosen.tags);
-                if (recent.length > 20) recent.shift();
-                // Barajar la ventana de candidatos a medida que avanza la selección.
-                // Así todo el lote compite, no solamente sus primeras filas.
-                if (pending.length > 64) {
-                    const from = Math.floor(Math.random() * (pending.length - 63)) + 63;
-                    const to = Math.floor(Math.random() * 64);
+                recent.push(chosen.name);
+                if (recent.length > 12) recent.shift();
+                if (pending.length > 96) {
+                    const from = Math.floor(Math.random() * (pending.length - 95)) + 95;
+                    const to = Math.floor(Math.random() * 96);
                     [pending[from], pending[to]] = [pending[to], pending[from]];
                 }
             }
@@ -421,6 +419,7 @@ function shuffleArray(array) {
         async function fetchCatalogProducts() {
             rawProducts = [];
             filteredProducts = [];
+            window.resetCupissaNameMix?.();
             catalogSupabasePageOffsets = [];
             catalogSupabasePageIndex = 0;
             catalogSupabaseHasMore = true;
