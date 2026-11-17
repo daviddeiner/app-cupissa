@@ -280,6 +280,31 @@ function filterBySubcategoria(subcat) {
             return Math.round(score);
         }
 
+        // La mezcla de cada filtro depende del NOMBRE, no de su taxonomía.
+        // Mantener las tarjetas que ya están dibujadas y mezclar únicamente
+        // las nuevas evita saltos en el scroll al descargar más bloques.
+        let cupissaNameMixKey = '';
+        let cupissaNameMixRows = [];
+        function mixFilteredProductsByName(rows) {
+            const key = JSON.stringify([activeMundo, activeTemporada,
+                activeCategoria, activeSubcategoria]);
+            if (key !== cupissaNameMixKey) {
+                cupissaNameMixKey = key;
+                cupissaNameMixRows = spreadCatalogDiversity(rows);
+                return cupissaNameMixRows;
+            }
+            const allowed = new Set(rows.map(product => String(product.id)));
+            const retained = cupissaNameMixRows.filter(product => allowed.has(String(product.id)));
+            const known = new Set(retained.map(product => String(product.id)));
+            const additions = rows.filter(product => !known.has(String(product.id)));
+            cupissaNameMixRows = retained.concat(spreadCatalogDiversity(additions, retained));
+            return cupissaNameMixRows;
+        }
+        window.resetCupissaNameMix = () => {
+            cupissaNameMixKey = '';
+            cupissaNameMixRows = [];
+        };
+
         function applyFiltersAndSearch() {
             const searchElement = document.getElementById('smart-search-input');
             const query = (searchElement?.value || '').trim();
@@ -317,9 +342,10 @@ function filterBySubcategoria(subcat) {
                 currentNonMatches = scored.filter(item => item.score < 38).map(item => item.product);
                 filteredProducts = [...currentMatches, ...currentNonMatches];
             } else {
-                currentMatches = results;
+                const mixed = mixFilteredProductsByName(results);
+                currentMatches = mixed;
                 currentNonMatches = [];
-                filteredProducts = results;
+                filteredProducts = mixed;
             }
 
             renderProductsGrid();
