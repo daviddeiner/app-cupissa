@@ -85,7 +85,7 @@
     copy.className = 'cupissa-related-card-copy';
     const name = document.createElement('span');
     name.className = 'cupissa-related-card-name';
-    name.textContent = String(product?.nombre || 'Producto');
+    name.textContent = String(product?.nombre || 'Producto').toLocaleUpperCase('es-CO');
     const price = document.createElement('strong');
     price.className = 'cupissa-related-card-price';
     const amount = getPrice(product);
