@@ -245,6 +245,11 @@ function filterBySubcategoria(subcat) {
         }
 
         function calculateProductRelevance(product, query) {
+            // La referencia pública utiliza los últimos cuatro caracteres del ID.
+            // Admitir CUP-1234, CUP1234 y 1234, sin alterar el buscador por nombre.
+            const reference = String(product.id || '').slice(-4).toLowerCase();
+            const requestedRef = String(query || '').trim().toLowerCase().replace(/^ref(?:erencia)?\s*[:#-]?\s*/, '').replace(/^cup\s*[- ]?\s*/, '');
+            if (reference && /^[a-z0-9]{4}$/.test(requestedRef) && requestedRef === reference) return 10000;
             const phrase = normalizeSearchText(query);
             const queryWords = searchTokens(query);
             if (!phrase || !queryWords.length) return 0;
