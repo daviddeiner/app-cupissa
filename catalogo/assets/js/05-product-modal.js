@@ -241,7 +241,7 @@ function openOptionsModal(prodId) {
 
             updateModalidadUI();
 
-            document.getElementById('opt-modal-title').innerText = prod.nombre;
+            document.getElementById('opt-modal-title').innerText = String(prod.nombre || '').toLocaleUpperCase('es-CO');
             const creditLink = document.getElementById('cupissa-credit-whatsapp');
             if (creditLink) {
                 const message = `Hola, quiero solicitar información para pedir a crédito este producto: ${prod.nombre}. Ref: CUP-${String(prod.id).slice(-4)}. ¿Me pueden ayudar?`;
@@ -630,8 +630,6 @@ function cupissaSelectedAccessories() {
                 totalProduct = (baseUnitPrice + colorExtra + accessoryExtra) * totalQty;
             }
 
-            const originalTotal = totalProduct;
-            if (window.cupissaReferralReward?.active) totalProduct = Math.round(totalProduct * .8);
             const pctAnticipo = Number(p.porcentaje_anticipo ?? 20);
             const valAnticipo = Math.round(totalProduct * (pctAnticipo / 100));
             const depInfo = document.getElementById('wrapper-deposito-info');
@@ -646,12 +644,7 @@ function cupissaSelectedAccessories() {
             if (priceLabel) priceLabel.innerText = selectedModalidad === 'alquiler' ? (Number(p.valor_deposito || 0) > 0 ? 'Alquiler + depósito reembolsable' : 'Precio Alquiler') : (isMayorista ? 'Precio Mayorista' : 'Precio Detal');
             const refundableDeposit = selectedModalidad === 'alquiler'
                 ? Math.max(0, Number(p.valor_deposito || 0)) * totalQty : 0;
-            const totalEl = document.getElementById('opt-modal-total-price');
-            totalEl.textContent = formatCOP(totalProduct + refundableDeposit);
-            if (window.cupissaReferralReward?.active) {
-                const old = document.createElement('del'); old.className='text-xs text-slate-400 mr-2'; old.textContent=formatCOP(originalTotal + refundableDeposit);
-                totalEl.prepend(old);
-            }
+            document.getElementById('opt-modal-total-price').innerText = formatCOP(totalProduct + refundableDeposit);
             document.getElementById('opt-anticipo-pct').innerText = pctAnticipo;
             document.getElementById('opt-anticipo-val').innerText = formatCOP(valAnticipo);
             if (hasSizeOptions) cupissaUpdateSizeQuantitySummary();
