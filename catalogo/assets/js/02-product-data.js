@@ -220,10 +220,48 @@ function shuffleArray(array) {
                         branches.push(() => baseQuery().ilike('nombre', `%${firstWord}%`));
                         branches.push(() => baseQuery().ilike('descripcion', `%${firstWord}%`));
                     }
+                    // La referencia CUP-XXXX es una abreviatura del UUID: buscar
+                    // los IDs del catálogo completo, incluso los aún no cargados.
+                    const ref = query.toLowerCase().replace(/^ref(?:erencia)?\s*[:#-]?\s*/, '')
+                        .replace(/^cup\s*[- ]?\s*/, '').trim();
+                    if (/^[a-z0-9]{4}$/.test(ref)) {
+                        const scanReferences = async () => {
+                            let offset = 0;
+                            while (request === catalogPriorityRequest) {
+                                const {data: ids, error} = await supabaseClient.from('productos')
+                                    .select('id').eq('oculto', false)
+                                    .range(offset, offset + CUPISSA_CATALOG_PAGE_SIZE - 1);
+                                if (error) throw error;
+                                const rows = ids || [];
+                                const matchingIds = rows.filter(p => String(p.id).toLowerCase().endsWith(ref))
+                                    .map(p => p.id);
+                                if (matchingIds.length) {
+                                    const {data: matches, error: matchError} = await baseQuery().in('id', matchingIds);
+                                    if (matchError) throw matchError;
+                                    const added = (matches || []).filter(row => row?.id != null &&
+                                        !catalogLoadedProductIds.has(String(row.id)));
+                                    added.forEach(row => catalogLoadedProductIds.add(String(row.id)));
+                                    if (added.length && request === catalogPriorityRequest) {
+                                        rawProducts.unshift(...added.map(normalizeProduct));
+                                        renderFilters();
+                                        applyFiltersAndSearch();
+                                    }
+                                }
+                                if (rows.length < CUPISSA_CATALOG_PAGE_SIZE) break;
+                                offset += CUPISSA_CATALOG_PAGE_SIZE;
+                            }
+                        };
+                        scanReferences.isReferenceScan = true;
+                        branches.push(scanReferences);
+                    }
                 }
                 try {
                     // Publicar cada lote en cuanto llega, sin esperar la carga general.
                     const outcomes = await Promise.allSettled(branches.map(async makeQuery => {
+                        if (makeQuery.isReferenceScan) {
+                            await makeQuery();
+                            return;
+                        }
                         let offset = 0;
                         while (request === catalogPriorityRequest) {
                             const {data, error} = await makeQuery()
