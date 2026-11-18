@@ -60,7 +60,7 @@ function catalogProductCard(prod, options = {}) {
             </div>
             <div class="p-2.5 sm:p-4 space-y-1 sm:space-y-2">
                 <span class="text-[9px] sm:text-[10px] font-black uppercase text-pink-600 tracking-wider">${(prod.temporadas?.length ? prod.temporadas : [prod.temporada]).filter(Boolean).join(' - ')}</span>
-                <h3 class="product-card-title font-extrabold text-slate-900 text-[10px] leading-snug sm:text-xs tracking-tight"><a data-cupissa-seo-link href="${productPermalink}" title="${seoImageAlt}" class="hover:text-pink-700 hover:underline" aria-label="Ver ficha de ${prod.nombre}">${prod.nombre}</a></h3>
+                <h3 class="product-card-title font-extrabold text-slate-900 text-[10px] leading-snug sm:text-xs tracking-tight"><a data-cupissa-seo-link href="${productPermalink}" title="${seoImageAlt}" class="hover:text-pink-700 hover:underline" aria-label="Ver ficha de ${prod.nombre}">${String(prod.nombre || '').toLocaleUpperCase('es-CO')}</a></h3>
                 <div class="product-activity" data-activity-product="${String(prod.id)}" hidden aria-live="polite">
                     <span><i class="fa-regular fa-eye"></i><strong data-activity-viewers>20+</strong> personas viendo</span>
                     <small class="activity-disclaimer"></small>
@@ -70,7 +70,7 @@ function catalogProductCard(prod, options = {}) {
         <div class="p-2.5 sm:p-4 pt-0 flex flex-col sm:flex-row sm:items-center justify-between border-t border-slate-50 mt-1 sm:mt-2 gap-1.5 sm:gap-2">
             <div>
                 <span class="text-[8px] sm:text-[10px] text-slate-400 block font-semibold">${basePriceLabel}</span>
-                <span class="cupissa-reward-price font-black text-slate-900 text-xs sm:text-base" data-original="${basePrice}">${window.cupissaReferralReward?.active ? `<del class="text-slate-400 text-[10px] mr-1">${formatCOP(basePrice)}</del><span class="text-pink-600">${formatCOP(Math.round(basePrice*.8))}</span>` : formatCOP(basePrice)}</span>
+                <span class="font-black text-slate-900 text-xs sm:text-base">${formatCOP(basePrice)}</span>
             </div>
             <button type="button" class="product-card-cart-button w-10 h-9 sm:w-12 sm:h-11 fuchsia-btn font-extrabold rounded-xl sm:rounded-2xl shadow-md transition-all flex items-center justify-center" aria-label="Ver opciones y agregar ${prod.nombre} al carrito" title="Agregar al carrito">
                 <i class="fa-solid fa-cart-shopping text-sm sm:text-base" aria-hidden="true"></i>
