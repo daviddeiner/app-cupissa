@@ -15,7 +15,11 @@ html body :where(.product-card-title, .product-card-title a,
   #opt-modal-title, .cupissa-related-card-name,
   #cart-items-container h4, #favorites-items-container h4,
   #checkout-mini-cart strong, #checkout-product-summary strong,
-  .cupissa-order-product-name) {
+  .cupissa-order-product-name, #checkout-cart-items strong,
+  #checkout-cart-items h3, #checkout-cart-items h4,
+  #cart-items strong, #cart-items h3, #cart-items h4,
+  .cart-item-name, .checkout-product-name, .product-name,
+  .producto-nombre, .nombre-producto) {
   font-family: var(--cupissa-font-heading) !important;
   text-transform: uppercase !important;
   letter-spacing: .025em !important;
