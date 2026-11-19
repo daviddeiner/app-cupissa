@@ -631,7 +631,7 @@ function cupissaSelectedAccessories() {
             }
 
             const pctAnticipo = Number(p.porcentaje_anticipo ?? 20);
-            const contraEntrega = selectedModalidad === 'venta' && p.pago_contraentrega === true && totalQty < 6 && totalQty < Math.max(1,Number(p.cant_min_mayorista || 6));
+            const contraEntrega = p.pago_contraentrega === true && totalQty < 6 && totalQty < Math.max(1,Number(p.cant_min_mayorista || 6));
             const valAnticipo = contraEntrega ? 0 : Math.round(totalProduct * (pctAnticipo / 100));
             const depInfo = document.getElementById('wrapper-deposito-info');
             if (selectedModalidad === 'alquiler' && Number(p.valor_deposito || 0) > 0) {
