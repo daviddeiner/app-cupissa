@@ -146,11 +146,9 @@ function renderProductsGrid() {
     const grid = document.getElementById('products-grid');
     // Conservar tarjetas ya dibujadas durante la carga progresiva: no reordenar al hacer scroll.
     const mobileMosaic = window.matchMedia('(max-width: 767px)').matches;
-    const searchValue = (document.getElementById('smart-search-input')?.value || '').trim();
-    const splitMobile = mobileMosaic && searchValue.length>0 && currentMatches.length>0 && currentNonMatches.length>0;
     const catalogKey = filteredProducts.map(p => String(p.id)).join('|');
     const previousCatalogKey = grid.dataset.catalogKey || '';
-    const sameLayout = grid.dataset.mobileMosaic === String(mobileMosaic) && grid.dataset.searchSplit === String(splitMobile);
+    const sameLayout = grid.dataset.mobileMosaic === String(mobileMosaic);
     const sameCatalog = previousCatalogKey === catalogKey && sameLayout;
     // Si solo se agregaron productos al final, conservar las tarjetas existentes.
     // Si cambió el orden por filtros o búsqueda, reconstruir la grilla para no mezclar resultados.
@@ -161,25 +159,13 @@ function renderProductsGrid() {
     }
     grid.dataset.catalogKey = catalogKey;
     grid.dataset.mobileMosaic = String(mobileMosaic);
-    grid.dataset.searchSplit = String(splitMobile);
-    grid.classList.toggle('cupissa-search-split',splitMobile);
     let columns = null;
     if (mobileMosaic) {
-        columns = splitMobile
-            ? Array.from(grid.querySelectorAll('.cupissa-mosaic-group > .cupissa-mosaic-column'))
-            : Array.from(grid.querySelectorAll(':scope > .cupissa-mosaic-column'));
-        if (columns.length !== (splitMobile ? 4 : 2)) {
+        columns = Array.from(grid.querySelectorAll(':scope > .cupissa-mosaic-column'));
+        if (columns.length !== 2) {
             grid.replaceChildren();
-            columns = Array.from({length:splitMobile?4:2},()=>document.createElement('div'));
-            columns.forEach(col=>col.className='cupissa-mosaic-column');
-            if(splitMobile){
-                const matched=document.createElement('div');matched.className='cupissa-mosaic-group';
-                matched.append(columns[0],columns[1]);grid.appendChild(matched);
-                const separator=document.createElement('div');separator.className='cupissa-search-full-separator';
-                separator.innerHTML='<span>MÁS PRODUCTOS DEL CATÁLOGO</span>';grid.appendChild(separator);
-                const additional=document.createElement('div');additional.className='cupissa-mosaic-group';
-                additional.append(columns[2],columns[3]);grid.appendChild(additional);
-            }else columns.forEach(col=>grid.appendChild(col));
+            columns = [document.createElement('div'), document.createElement('div')];
+            columns.forEach(col => { col.className = 'cupissa-mosaic-column'; grid.appendChild(col); });
             grid.dataset.renderedCount = '0';
         }
     }
@@ -188,6 +174,7 @@ function renderProductsGrid() {
     const loadingMsg = document.getElementById('scroll-loading-msg');
     const endMsg = document.getElementById('scroll-end-msg');
 
+    const searchValue = (document.getElementById('smart-search-input')?.value || '').trim();
     const hasActiveFilters = activeMundo !== 'TODOS'
         || activeTemporada !== 'TODAS'
         || activeCategoria !== 'TODAS'
@@ -229,17 +216,17 @@ function renderProductsGrid() {
     const alreadyRendered = Math.min(Number(grid.dataset.renderedCount || 0), productsToShow.length);
     productsToShow.slice(alreadyRendered).forEach((prod, offset) => {
         const index = alreadyRendered + offset;
-        if (query && currentNonMatches.length > 0 && index === currentMatches.length && !splitMobile) {
+        if (query && currentNonMatches.length > 0 && index === currentMatches.length) {
             const separator = document.createElement('div');
-            separator.className = 'col-span-full my-4 flex items-center justify-center';
+            separator.className = 'cupissa-search-divider col-span-full my-4 flex items-center justify-center';
             separator.innerHTML = `
                 <div class="flex-grow border-t border-slate-300"></div>
-                <span class="flex-shrink mx-4 text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-4 py-1.5 rounded-full shadow-xs">Más productos del catálogo</span>
+                <span class="flex-shrink mx-2 text-xs font-black uppercase tracking-wider text-pink-700 bg-pink-50 border border-pink-200 px-3 py-2 rounded-full">Más productos del catálogo</span>
                 <div class="flex-grow border-t border-slate-300"></div>`;
             if (columns) { columns[index % 2].appendChild(separator); } else grid.appendChild(separator);
         }
         const card = catalogProductCard(prod);
-        if (columns) columns[splitMobile && index>=currentMatches.length ? 2+((index-currentMatches.length)%2) : index%2].appendChild(card);
+        if (columns) columns[index % 2].appendChild(card);
         else grid.appendChild(card);
     });
     grid.dataset.renderedCount = String(productsToShow.length);
