@@ -176,7 +176,7 @@ function shuffleArray(array) {
         let catalogPriorityRequest = 0;
         let catalogPriorityLoading = false;
         let catalogPriorityTimer = null;
-        const CUPISSA_CATALOG_PRODUCT_FIELDS = 'id,nombre,mundo,mundos,categoria,categorias,subcategoria,subcategorias,temporada,temporadas,precio_detal,precio_mayorista,cant_min_mayorista,porcentaje_anticipo,dias_preparacion,personalizable,al_por_mayor,venta,alquiler,credito,precio_alquiler,valor_deposito,tallas,colores,fotos,created_at,descripcion,accesorios,oculto';
+        const CUPISSA_CATALOG_PRODUCT_FIELDS = 'id,nombre,mundo,mundos,categoria,categorias,subcategoria,subcategorias,temporada,temporadas,precio_detal,precio_mayorista,cant_min_mayorista,porcentaje_anticipo,dias_preparacion,pago_contraentrega,produccion_express,personalizable,al_por_mayor,venta,alquiler,credito,precio_alquiler,valor_deposito,tallas,colores,fotos,created_at,descripcion,accesorios,oculto';
 
         // Un filtro o una búsqueda no debe depender de las páginas aleatorias ya descargadas.
         // Traemos primero las coincidencias desde Supabase, de 1000 en 1000,
@@ -682,6 +682,8 @@ function shuffleArray(array) {
                 cant_min_mayorista: parseInt(p.cant_min_mayorista || 6),
                 porcentaje_anticipo: parseFloat(p.porcentaje_anticipo || 20),
                 dias_preparacion: parseInt(p.dias_preparacion || 0),
+                pago_contraentrega: p.pago_contraentrega === true,
+                produccion_express: p.produccion_express === true,
                 personalizable: !!p.personalizable,
                 alquiler: (p.alquiler === true || p.alquiler === 1 || p.alquiler === '1' || String(p.alquiler).toLowerCase() === 'true') && parseFloat(p.precio_alquiler || 0) > 0,
                 venta: true,
