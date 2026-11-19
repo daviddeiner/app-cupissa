@@ -70,6 +70,8 @@ function addModalProductToCart() {
             total: lineTotal,
             deposito: selectedModalidad === 'alquiler' ? Number(selectedProductModal.valor_deposito || 0) * quantity : 0,
             porcentajeAnticipo: percentage,
+            pagoContraentrega: selectedProductModal.pago_contraentrega === true,
+            cantidadMinimaMayorista: Math.max(1,Number(selectedProductModal.cant_min_mayorista || 6)),
             valorAnticipo: Math.round(lineTotal * percentage / 100)
         };
     });
