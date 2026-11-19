@@ -1661,10 +1661,14 @@
     if ($('checkout-grand-total')) {
       $('checkout-grand-total').textContent = orderTotalLabel();
     }
+    $('checkout-express-fee-row')?.classList.toggle('hidden',!expressEnabled);
+    if($('checkout-express-fee'))$('checkout-express-fee').textContent=money(EXPRESS_FEE);
 
     if ($('checkout-advance')) {
-      $('checkout-advance').textContent = money(advanceTotal);
+      $('checkout-advance').textContent = advanceTotal===0?'':money(advanceTotal);
     }
+    const advanceRow=$('checkout-advance')?.closest('.checkout-total-row');
+    if(advanceRow){const label=advanceRow.querySelector('span');if(label)label.textContent=advanceTotal===0?'Pago contra entrega':'Anticipo disponible';}
 
     if ($('pay-total-value')) {
       $('pay-total-value').textContent = money(orderTotal());
@@ -1673,7 +1677,8 @@
     if ($('pay-advance-value')) {
       $('pay-advance-value').textContent = advanceTotal===0 ? 'Pagar al recibir tu pedido' : money(advanceTotal);
     }
-    if($('pay-advance-label'))$('pay-advance-label').textContent=advanceTotal===0?'💵 Pago contra entrega':'Pagar anticipo';
+    if($('pay-advance-label'))$('pay-advance-label').textContent=advanceTotal===0?'Pago contra entrega':'Pagar anticipo';
+    $('pay-advance-button')?.querySelector('.checkout-pay-icon')?.classList.toggle('hidden',advanceTotal===0);
 
     const splitNote = $('split-orders-note');
 
@@ -2810,6 +2815,8 @@
       $('checkout-express')?.addEventListener('change',async event=>{
         expressEnabled=!!event.target.checked && expressAvailable;
         recalculateCartAmounts();
+        // Mostrar el precio nuevo inmediatamente al marcar la opción.
+        updateDeliveryQuote();renderSummary();
         saleDatePicker?.destroy();saleDatePicker=null;
         if($('delivery-date'))$('delivery-date').value='';
         await initCalendar();renderSummary();
