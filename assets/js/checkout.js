@@ -40,6 +40,9 @@
   let productLines = [];
   let cartTotal = 0;
   let advanceTotal = 0;
+  let expressEnabled = false;
+  let expressAvailable = false;
+  const EXPRESS_FEE = 10000;
   let deliveryRates = {};
   let deliveryFee = 0;
   let deliveryIsNational = false;
@@ -503,6 +506,8 @@
   }
 
   function recalculateCartAmounts() {
+    const quantitiesByProduct = new Map();
+    productLines.forEach(line=>{if(line.modalidad!=='ALQUILER')quantitiesByProduct.set(line.productId,(quantitiesByProduct.get(line.productId)||0)+line.cantidad);});
     productLines.forEach(line => {
       const factor =
         line.modalidad === 'ALQUILER'
@@ -518,7 +523,7 @@
       );
 
       line.anticipoCalculado = Math.round(
-        line.total * line.porcentajeAnticipo / 100
+        line.total * ((line.modalidad !== 'ALQUILER' && line.pagoContraentrega && (quantitiesByProduct.get(line.productId)||0)<6 && (quantitiesByProduct.get(line.productId)||0)<line.cantidadMinimaMayorista) ? 0 : line.porcentajeAnticipo) / 100
       );
 
       line.diasAlquiler =
@@ -551,9 +556,11 @@
       0
     );
 
+    expressAvailable = saleLines.length > 0 && saleLines.every(line=>line.produccionExpress);
+    if(!expressAvailable)expressEnabled=false;
     preparedDays =
       saleUnits > 0
-        ? longestPrep + saleUnits - 1
+        ? Math.max(1,longestPrep + Math.floor((saleUnits-1)/3) - (expressEnabled ? 2 : 0))
         : 0;
 
     earliestDelivery =
@@ -743,6 +750,9 @@
         anticipoCalculado: Math.round(
           initialUnit * quantity * percentage / 100
         ),
+        pagoContraentrega: product.pago_contraentrega === true,
+        produccionExpress: product.produccion_express === true,
+        cantidadMinimaMayorista: Math.max(1,Number(product.cant_min_mayorista || 6)),
         deposito: rental
           ? Math.max(0, Number(product.valor_deposito || 0)) * quantity
           : 0,
@@ -850,6 +860,9 @@
     if (hasSale) {
       await loadFullSaleDates();
     }
+    const expressOption=$('express-option');
+    if(expressOption)expressOption.classList.toggle('hidden',!expressAvailable);
+    if($('checkout-express'))$('checkout-express').checked=expressEnabled;
 
     if (!window.flatpickr) {
       showAlert(
@@ -891,7 +904,7 @@
           disable: [
             date =>
               isBlockedDate(date) ||
-              fullSaleDates.has(asDateKey(date))
+              (!expressEnabled && fullSaleDates.has(asDateKey(date)))
           ],
           allowInput: false,
           onChange: () =>
@@ -1190,7 +1203,7 @@
 
   function orderTotal() {
     return Math.max(0, Number(cartTotal || 0) + refundableDepositTotal() +
-      (deliveryIsNational ? 0 : Number(deliveryFee || 0)));
+      (deliveryIsNational ? 0 : Number(deliveryFee || 0)) + (expressEnabled ? EXPRESS_FEE : 0));
   }
 
   function orderTotalLabel() {
@@ -1414,7 +1427,7 @@
       return 'No se puede agendar una compra para domingos ni festivos colombianos.';
     }
 
-    if (fullSaleDates.has(key)) {
+    if (!expressEnabled && fullSaleDates.has(key)) {
       return 'Esta fecha ya alcanzó la cantidad máxima de pedidos. Selecciona otra fecha.';
     }
 
@@ -1658,8 +1671,9 @@
     }
 
     if ($('pay-advance-value')) {
-      $('pay-advance-value').textContent = money(advanceTotal);
+      $('pay-advance-value').textContent = advanceTotal===0 ? 'Pagar al recibir tu pedido' : money(advanceTotal);
     }
+    if($('pay-advance-label'))$('pay-advance-label').textContent=advanceTotal===0?'💵 Pago contra entrega':'Pagar anticipo';
 
     const splitNote = $('split-orders-note');
 
@@ -1783,7 +1797,7 @@
           : advanceTotal;
 
       goButton.textContent =
-        `Ir a pagar · ${money(amount)}`;
+        mode==='deposit' && advanceTotal===0 ? 'Confirmar pedido · Pago contra entrega' : `Ir a pagar · ${money(amount)}`;
     }
   }
 
@@ -1988,6 +2002,21 @@
       showStep(1);
       return;
     }
+    if(mode==='deposit' && advanceTotal===0){
+      paymentInProgress=true;
+      try{
+        const customer=getFormData();
+        const response=await callCheckoutFunction({action:'create_web_payment',clientId:String(clientSession.id),clientPassword:String(clientSession.password),customer,items:getCheckoutItems(),rentalDays:Number(rentalDays||1),saleDeliveryDate:customer.fecha_venta,rentalDeliveryDate:customer.fecha_alquiler,paymentMode:'cod',express:expressEnabled,clientTotal:Number(orderTotal()),clientShipping:deliveryIsNational?null:Number(deliveryFee||0),clientAdvance:0});
+        if(!response.success)throw Error(response.error||'No se pudo registrar el pedido.');
+        try{await clearConfirmedItemsOnly();}catch(error){console.warn('Pedido confirmado; no se pudo limpiar el carrito local:',error);}
+        $('payment-result-title').textContent='¡Pedido confirmado!';
+        $('payment-result-message').textContent='Tu pedido quedó registrado con pago contra entrega.';
+        $('payment-result-order').textContent=response.reference||'';
+        $('checkout-workflow')?.classList.add('hidden');
+        $('payment-result')?.classList.remove('hidden');
+      }catch(error){showAlert(error.message||'No se pudo confirmar tu pedido.');}finally{paymentInProgress=false;}
+      return;
+    }
 
     const expectedAmount =
       mode === 'full'
@@ -2050,6 +2079,7 @@
         rentalDeliveryDate: customer.fecha_alquiler,
 
         paymentMode: mode,
+        express: expressEnabled,
 
         // Informativos. El backend debe recalcular
         // los valores reales consultando Supabase.
@@ -2777,6 +2807,13 @@
         'click',
         () => startWebPayment(selectedPaymentMode)
       );
+      $('checkout-express')?.addEventListener('change',async event=>{
+        expressEnabled=!!event.target.checked && expressAvailable;
+        recalculateCartAmounts();
+        saleDatePicker?.destroy();saleDatePicker=null;
+        if($('delivery-date'))$('delivery-date').value='';
+        await initCalendar();renderSummary();
+      });
 
       $('customer-city')?.addEventListener('focus', () => renderDeliverySuggestions('city'));
       $('customer-neighborhood')?.addEventListener('focus', () => renderDeliverySuggestions('neighborhood'));
