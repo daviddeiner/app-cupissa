@@ -88,7 +88,7 @@
                 <label class="checkout-label" for="customer-neighborhood-other">Especifica el barrio / sector *</label>
                 <input id="customer-neighborhood-other" class="checkout-input" maxlength="100" placeholder="Escribe el barrio o sector" autocapitalize="characters">
               </div>
-              <div id="sale-date-field" class="sm:col-span-2"><label class="checkout-label" for="delivery-date">Fecha de entrega de la compra *</label><input id="delivery-date" class="checkout-input" type="text" placeholder="Selecciona una fecha disponible" readonly><label id="express-option" class="hidden mt-3 flex items-center gap-2 text-sm font-bold text-pink-700"><input type="checkbox" id="checkout-express" class="accent-pink-600 w-5 h-5">⚡ Producción express (+$10.000): reduce 2 días hábiles y permite fechas sin cupo. Domingos y festivos no disponibles.</label></div>
+              <div id="sale-date-field" class="sm:col-span-2"><label class="checkout-label" for="delivery-date">Fecha de entrega de la compra *</label><input id="delivery-date" class="checkout-input" type="text" placeholder="Selecciona una fecha disponible" readonly><label id="express-option" class="hidden mt-3 flex items-center gap-2 text-sm font-bold text-pink-700"><input type="checkbox" id="checkout-express" class="accent-pink-600 w-5 h-5">PRODUCCIÓN EXPRESS +$10.000</label></div>
               <div id="rental-date-field" class="sm:col-span-2 hidden"><label class="checkout-label" for="rental-date">Fecha del alquiler *</label><input id="rental-date" class="checkout-input" type="text" placeholder="Selecciona la fecha del evento" readonly></div>
               <div id="rental-days-field" class="sm:col-span-2 hidden"><label class="checkout-label" for="rental-days">Cantidad de días para el alquiler *</label><select id="rental-days" class="checkout-input"><option value="1">1 día — valor inicial</option><option value="2">2 días — +50%</option><option value="3">3 días — +100%</option><option value="4">4 días — +150%</option><option value="5">5 días — +200%</option></select><p class="text-[11px] text-slate-500 mt-1">Cada día adicional incrementa el valor inicial del alquiler en un 50%. Máximo 5 días.</p></div>
             </div>
@@ -148,6 +148,15 @@
     </section>
   </main>
 
+  <div id="cupissa-address-confirm" class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/55 p-4" role="dialog" aria-modal="true" aria-labelledby="cupissa-address-confirm-title">
+    <div class="w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-2xl border border-pink-100">
+      <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-pink-100 text-pink-600"><i class="fa-solid fa-location-dot text-xl"></i></div>
+      <h2 id="cupissa-address-confirm-title" class="text-lg font-black text-slate-900">¿CAMBIAR DIRECCIÓN A PREDETERMINADA?</h2>
+      <p class="mt-2 text-sm text-slate-600">¿Quieres guardar esta dirección como la principal de tu perfil CUPISSA?</p>
+      <p id="cupissa-address-confirm-value" class="mt-3 rounded-xl bg-pink-50 px-3 py-3 text-sm font-semibold text-slate-800 break-words"></p>
+      <div class="mt-5 grid grid-cols-2 gap-3"><button id="cupissa-address-cancel" type="button" class="rounded-xl border border-slate-200 py-3 font-bold text-slate-700">CANCELAR</button><button id="cupissa-address-accept" type="button" class="rounded-xl bg-pink-600 py-3 font-black text-white">ACEPTAR</button></div>
+    </div>
+  </div>
   <div id="payment-processing" class="checkout-processing hidden" role="status" aria-live="polite">
     <div class="processing-card"><div class="processing-spinner"></div><h2 class="font-black text-slate-900 mt-4">Verificando tu pago</h2><p class="text-xs text-slate-500 mt-2">Estamos verificando la confirmación de tu pago. No cierres esta página.</p></div>
   </div>
@@ -155,7 +164,7 @@
   <script src="/shared/js/supabase-config.js"></script>
   <script src="/catalogo/assets/js/00-config-state.js"></script>
   <script src="/checkout/assets/js/wompi-checkout.js?v=20261113-sin-portal"></script>
-  <script src="/assets/js/checkout.js?v=20261119-arreglos-2"></script>
+  <script src="/assets/js/checkout.js?v=20261119-direcciones-separador-1"></script>
     <script src="/shared/js/security-console-notice.js?v=20261107-security-1"></script>
 
 </body>
