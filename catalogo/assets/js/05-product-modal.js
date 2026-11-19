@@ -647,8 +647,11 @@ function cupissaSelectedAccessories() {
                 ? Math.max(0, Number(p.valor_deposito || 0)) * totalQty : 0;
             document.getElementById('opt-modal-total-price').innerText = formatCOP(totalProduct + refundableDeposit);
             document.getElementById('opt-anticipo-pct').innerText = pctAnticipo;
-            document.getElementById('opt-anticipo-val').innerText = formatCOP(valAnticipo);
+            const anticipoValue=document.getElementById('opt-anticipo-val');
+            anticipoValue.innerText=contraEntrega?'':formatCOP(valAnticipo);
+            anticipoValue.classList.toggle('hidden',contraEntrega);
             const advanceLabel=document.querySelector('#wrapper-anticipo .text-slate-500');
-            if(advanceLabel)advanceLabel.innerHTML=contraEntrega?'💵 PAGO CONTRA ENTREGA':`Anticipo requerido (<span id="opt-anticipo-pct">${pctAnticipo}</span>%):`;
+            // Mantener el ID del porcentaje al cambiar de contra entrega a mayorista.
+            if(advanceLabel)advanceLabel.innerHTML=contraEntrega?'<span id="opt-anticipo-pct" class="hidden"></span>PAGO CONTRA ENTREGA':`Anticipo requerido (<span id="opt-anticipo-pct">${pctAnticipo}</span>%):`;
             if (hasSizeOptions) cupissaUpdateSizeQuantitySummary();
         }
