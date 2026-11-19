@@ -507,7 +507,7 @@
 
   function recalculateCartAmounts() {
     const quantitiesByProduct = new Map();
-    productLines.forEach(line=>{if(line.modalidad!=='ALQUILER')quantitiesByProduct.set(line.productId,(quantitiesByProduct.get(line.productId)||0)+line.cantidad);});
+    productLines.forEach(line=>quantitiesByProduct.set(line.productId,(quantitiesByProduct.get(line.productId)||0)+line.cantidad));
     productLines.forEach(line => {
       const factor =
         line.modalidad === 'ALQUILER'
@@ -523,7 +523,7 @@
       );
 
       line.anticipoCalculado = Math.round(
-        line.total * ((line.modalidad !== 'ALQUILER' && line.pagoContraentrega && (quantitiesByProduct.get(line.productId)||0)<6 && (quantitiesByProduct.get(line.productId)||0)<line.cantidadMinimaMayorista) ? 0 : line.porcentajeAnticipo) / 100
+        line.total * ((line.pagoContraentrega && (quantitiesByProduct.get(line.productId)||0)<6 && (quantitiesByProduct.get(line.productId)||0)<line.cantidadMinimaMayorista) ? 0 : line.porcentajeAnticipo) / 100
       );
 
       line.diasAlquiler =
