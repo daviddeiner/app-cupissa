@@ -34,9 +34,34 @@ function openFavoritesModal() {
                         </div>
                         <div class="flex items-center gap-2">
                             <button type="button" data-favorite-product-id="${String(prod.id)}" onclick="toggleFavorite('${prod.id}', event); openFavoritesModal();" class="w-8 h-8 rounded-full bg-white text-pink-600 border border-pink-100" aria-label="Quitar de favoritos" aria-pressed="${isFav}"><i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
-                            <button onclick="openOptionsModal('${prod.id}'); closeFavoritesModal();" class="px-3 py-1.5 fuchsia-btn font-bold rounded-xl text-[11px]">Ver Op.</button>
+                            <button type="button" class="cupissa-favorite-open px-3 py-1.5 fuchsia-btn font-bold rounded-xl text-[11px]">Ver Op.</button>
                         </div>
                     `;
+                    card.querySelector('.cupissa-favorite-open')?.addEventListener('click', async event => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const button=event.currentTarget;
+                        button.disabled=true;
+                        try {
+                            // Un favorito guardado puede no estar todavía en los lotes del catálogo.
+                            let available=rawProducts.find(item=>String(item.id)===String(prod.id));
+                            if(!available){
+                                const {data,error}=await supabaseClient.from('productos').select('*').eq('id',prod.id).eq('oculto',false).maybeSingle();
+                                if(error)throw error;
+                                if(!data)throw new Error('Este producto ya no está disponible en el catálogo.');
+                                available=normalizeProduct(data);
+                                rawProducts.push(available);
+                            }
+                            closeFavoritesModal();
+                            openOptionsModal(available.id);
+                            if(document.getElementById('modal-product-options')?.classList.contains('hidden')){
+                                throw new Error('No se pudo abrir este producto. Inténtalo nuevamente.');
+                            }
+                        }catch(error){
+                            alert(error?.message||'No se pudo abrir el producto.');
+                            if(document.getElementById('modal-favorites')?.classList.contains('hidden'))openFavoritesModal();
+                        }finally{button.disabled=false;}
+                    });
                     container.appendChild(card);
                 });
             }
