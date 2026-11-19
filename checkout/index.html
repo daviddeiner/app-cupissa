@@ -88,7 +88,7 @@
                 <label class="checkout-label" for="customer-neighborhood-other">Especifica el barrio / sector *</label>
                 <input id="customer-neighborhood-other" class="checkout-input" maxlength="100" placeholder="Escribe el barrio o sector" autocapitalize="characters">
               </div>
-              <div id="sale-date-field" class="sm:col-span-2"><label class="checkout-label" for="delivery-date">Fecha de entrega de la compra *</label><input id="delivery-date" class="checkout-input" type="text" placeholder="Selecciona una fecha disponible" readonly></div>
+              <div id="sale-date-field" class="sm:col-span-2"><label class="checkout-label" for="delivery-date">Fecha de entrega de la compra *</label><input id="delivery-date" class="checkout-input" type="text" placeholder="Selecciona una fecha disponible" readonly><label id="express-option" class="hidden mt-3 flex items-center gap-2 text-sm font-bold text-pink-700"><input type="checkbox" id="checkout-express" class="accent-pink-600 w-5 h-5">⚡ Producción express (+$10.000): reduce 2 días hábiles y permite fechas sin cupo. Domingos y festivos no disponibles.</label></div>
               <div id="rental-date-field" class="sm:col-span-2 hidden"><label class="checkout-label" for="rental-date">Fecha del alquiler *</label><input id="rental-date" class="checkout-input" type="text" placeholder="Selecciona la fecha del evento" readonly></div>
               <div id="rental-days-field" class="sm:col-span-2 hidden"><label class="checkout-label" for="rental-days">Cantidad de días para el alquiler *</label><select id="rental-days" class="checkout-input"><option value="1">1 día — valor inicial</option><option value="2">2 días — +50%</option><option value="3">3 días — +100%</option><option value="4">4 días — +150%</option><option value="5">5 días — +200%</option></select><p class="text-[11px] text-slate-500 mt-1">Cada día adicional incrementa el valor inicial del alquiler en un 50%. Máximo 5 días.</p></div>
             </div>
@@ -121,7 +121,7 @@
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <button type="button" id="pay-total-button" class="checkout-pay-option" aria-pressed="false"><span class="checkout-pay-icon"><i class="fa-solid fa-credit-card"></i></span><span class="text-left flex-1"><strong>Pagar total pedido</strong><small id="pay-total-value">$ 0</small><small class="checkout-pay-hint">Recomendado para envíos nacionales</small></span></button>
-            <button type="button" id="pay-advance-button" class="checkout-pay-option secondary" aria-pressed="false"><span class="checkout-pay-icon"><i class="fa-solid fa-wallet"></i></span><span class="text-left flex-1"><strong>Pagar anticipo</strong><small id="pay-advance-value">$ 0</small></span></button>
+            <button type="button" id="pay-advance-button" class="checkout-pay-option secondary" aria-pressed="false"><span class="checkout-pay-icon"><i class="fa-solid fa-wallet"></i></span><span class="text-left flex-1"><strong id="pay-advance-label">Pagar anticipo</strong><small id="pay-advance-value">$ 0</small></span></button>
           </div>
           <p id="split-orders-note" class="hidden text-xs text-pink-700 bg-pink-50 border border-pink-100 rounded-xl p-3">Tu compra y tu alquiler se registrarán como dos pedidos independientes. Completa el pago para confirmar ambos.</p>
           <button type="button" id="go-to-payment-button" class="checkout-primary w-full" disabled>Ir a pagar</button>
@@ -154,7 +154,7 @@
   <script src="/shared/js/supabase-config.js"></script>
   <script src="/catalogo/assets/js/00-config-state.js"></script>
   <script src="/checkout/assets/js/wompi-checkout.js?v=20261113-sin-portal"></script>
-  <script src="/assets/js/checkout.js?v=20261117-carrito-1"></script>
+  <script src="/assets/js/checkout.js?v=20261119-express-cod-1"></script>
     <script src="/shared/js/security-console-notice.js?v=20261107-security-1"></script>
 
 </body>
