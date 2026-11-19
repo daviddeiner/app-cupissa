@@ -30,10 +30,10 @@ function openCartModal() {
             let grandTotal = 0;
             let grandAnticipo = 0;
             const quantitiesByProduct=new Map();
-            cart.forEach(item=>{if(item.modalidad!=='ALQUILER'){
+            cart.forEach(item=>{
                 const id=String(item.productId||'');
                 quantitiesByProduct.set(id,(quantitiesByProduct.get(id)||0)+Number(item.cantidad||1));
-            }});
+            });
 
             if (cart.length === 0) {
                 container.innerHTML = `
@@ -55,7 +55,7 @@ function openCartModal() {
                 const shownTotal = shownUnit * Math.max(1,Number(item.cantidad || 1));
                 const product=typeof allProducts!=='undefined' && Array.isArray(allProducts)?allProducts.find(p=>String(p.id)===String(item.productId)):null;
                 const quantity=quantitiesByProduct.get(String(item.productId||''))||Number(item.cantidad||1);
-                const isContraEntrega=item.modalidad!=='ALQUILER' && (product?.pago_contraentrega===true || (!product && item.pagoContraentrega===true)) && quantity<6 && quantity<Math.max(1,Number(product?.cant_min_mayorista||item.cantidadMinimaMayorista||6));
+                const isContraEntrega=(product?.pago_contraentrega===true || (!product && item.pagoContraentrega===true)) && quantity<6 && quantity<Math.max(1,Number(product?.cant_min_mayorista||item.cantidadMinimaMayorista||6));
                 const shownAdvance=isContraEntrega?0:Math.round(shownTotal*Number(product?.porcentaje_anticipo??item.porcentajeAnticipo??20)/100);
                 grandTotal += shownTotal;
                 grandAnticipo += shownAdvance;
