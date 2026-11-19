@@ -829,6 +829,15 @@ async function createWebPayment(db: any, body: any) {
 
   let saleUnits = 0;
   let longestPreparation = 0;
+  const expressRequested = body.express === true;
+  const totalUnitsByProduct = new Map<string,number>();
+  for(const item of items){if(String(item.modalidad||'VENTA').toUpperCase()!=='ALQUILER'){
+    const id=String(item.productId);totalUnitsByProduct.set(id,(totalUnitsByProduct.get(id)||0)+Number(item.cantidad||1));
+  }}
+  if(expressRequested && (!items.some((item:any)=>String(item.modalidad||'VENTA').toUpperCase()!=='ALQUILER') ||
+    !items.filter((item:any)=>String(item.modalidad||'VENTA').toUpperCase()!=='ALQUILER').every((item:any)=>productMap.get(String(item.productId))?.produccion_express===true))){
+    return json({error:'Uno de los productos no está habilitado para producción express.'},400);
+  }
 
   for (const item of items) {
     const product = productMap.get(
@@ -936,9 +945,10 @@ async function createWebPayment(db: any, body: any) {
       Math.min(100, Number(product.porcentaje_anticipo || 20))
     );
 
-    const lineAdvance = Math.round(
-      lineTotal * percentage / 100
-    );
+    const codEligible = !rental && product.pago_contraentrega===true &&
+      (totalUnitsByProduct.get(String(product.id))||0)<6 &&
+      (totalUnitsByProduct.get(String(product.id))||0)<Math.max(1,Number(product.cant_min_mayorista||6));
+    const lineAdvance = codEligible ? 0 : Math.round(lineTotal * percentage / 100);
 
     const photos = parseArray(product.fotos)
       .filter(
@@ -1002,7 +1012,7 @@ async function createWebPayment(db: any, body: any) {
   if (productsTotal < 10000) {
     return json({ error: "La compra mínima es de $10.000 en productos." }, 400);
   }
-  const total = productsTotal + rentalDepositTotal + shippingFee;
+  const total = productsTotal + rentalDepositTotal + shippingFee + (expressRequested ? 10000 : 0);
   const advance = saleAdvance + rentalAdvance;
 
   if (total <= 0) {
@@ -1038,7 +1048,7 @@ async function createWebPayment(db: any, body: any) {
 
     preparationDays =
       saleUnits > 0
-        ? longestPreparation + saleUnits - 1
+        ? Math.max(1,longestPreparation + Math.floor((saleUnits-1)/3) - (expressRequested ? 2 : 0))
         : 0;
 
     earliest = calculateEarliestDelivery(
@@ -1165,17 +1175,24 @@ async function createWebPayment(db: any, body: any) {
     body.paymentMode || "full"
   );
 
-  if (!["full", "deposit"].includes(paymentMode)) {
+  if (!["full", "deposit", "cod"].includes(paymentMode)) {
     return json(
       { error: "El tipo de pago no es válido." },
       400
     );
   }
 
-  const amountToPay =
-    paymentMode === "full" ? total : advance;
+  if(paymentMode==='cod' && (advance!==0 || rentalLines.length>0 || saleLines.length===0 || referralDiscount ||
+    !items.every((item:any)=>{
+      const product=productMap.get(String(item.productId));
+      const quantity=totalUnitsByProduct.get(String(item.productId))||0;
+      return product?.pago_contraentrega===true && quantity<6 && quantity<Math.max(1,Number(product.cant_min_mayorista||6));
+    }))) {
+    return json({error:'Este pedido no cumple las condiciones para pago contra entrega.'},400);
+  }
+  const amountToPay = paymentMode==='cod' ? 0 : paymentMode === "full" ? total : advance;
 
-  if (amountToPay <= 0) {
+  if (amountToPay <= 0 && paymentMode!=='cod') {
     return json(
       {
         error:
@@ -1252,7 +1269,9 @@ async function createWebPayment(db: any, body: any) {
   ) => {
     const orderShipping =
       type === shippingOrderType ? shippingFee : 0;
-    const orderTotal = subtotal + orderShipping;
+    // `total` debe contener solo productos y depósitos de alquiler.
+    // El domicilio queda exclusivamente en `envio`, para sumarlo una sola vez al restante.
+    const orderTotal = subtotal + (type==='VENTA' && expressRequested ? 10000 : 0);
 
     return {
       cliente_id: String(profile.id),
@@ -1269,7 +1288,7 @@ async function createWebPayment(db: any, body: any) {
       envio: orderShipping,
       anticipo:
         paymentMode === "full"
-          ? orderTotal
+          ? orderTotal + orderShipping
           : orderAdvance,
       productos: lines,
       estado: "AGENDADO",
@@ -1307,7 +1326,7 @@ async function createWebPayment(db: any, body: any) {
     );
   }
 
-  if (hasSale) {
+  if (hasSale && !expressRequested) {
     const { data: reserved, error: reserveError } =
       await db.rpc("cupissa_reservar_cupo_pedido", {
         p_fecha: saleDeliveryDate,
@@ -1331,6 +1350,22 @@ async function createWebPayment(db: any, body: any) {
     }
   }
 
+  if(paymentMode==='cod'){
+    const insertedOrders:any[]=[];
+    for(const order of ordersData){
+      const {data,error}=await db.from('pedidos_web').insert([{
+        cliente_id:order.cliente_id,correo_cliente:order.correo_cliente,cliente_nombre:order.cliente_nombre,
+        telefono:order.telefono,direccion:order.direccion,barrio:order.barrio,ciudad:order.ciudad,
+        fecha_entrega:order.fecha_entrega,tipo_pedido:order.tipo_pedido,total:order.total,
+        envio:order.envio,anticipo:0,estado:'AGENDADO',
+        productos:order.productos.map((line:any)=>({...line,_cupissa_pago_contraentrega:true,_cupissa_express:expressRequested}))
+      }]).select('*').single();
+      if(error)throw new Error('No se pudo registrar el pedido contra entrega: '+error.message);
+      insertedOrders.push(data);
+    }
+    if(hasSale && !expressRequested)await db.rpc('cupissa_confirmar_cupo_pedido',{p_referencia:reference});
+    return json({success:true,reference,orders:insertedOrders,order:insertedOrders[0]});
+  }
   const { error: logError } = await db
     .from("pagos_web")
     .insert([
