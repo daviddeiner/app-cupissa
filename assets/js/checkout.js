@@ -1747,9 +1747,66 @@
     if(note&& !ok){note.classList.remove('hidden');note.textContent='No hay suficientes unidades en alquiler para la fecha seleccionada.'}
   }
 
+  function askDefaultAddress(address) {
+    return new Promise(resolve=>{
+      const modal=$('cupissa-address-confirm');
+      if(!modal){resolve(false);return;}
+      $('cupissa-address-confirm-value').textContent=[address.direccion,address.barrio,address.ciudad].filter(Boolean).join(' · ');
+      const accept=$('cupissa-address-accept');
+      const cancel=$('cupissa-address-cancel');
+      const previousFocus=document.activeElement;
+      let finished=false;
+      const finish=value=>{
+        if(finished)return;finished=true;
+        modal.classList.add('hidden');modal.classList.remove('flex');
+        accept.removeEventListener('click',onAccept);cancel.removeEventListener('click',onCancel);
+        document.removeEventListener('keydown',onKey);
+        previousFocus?.focus?.();resolve(value);
+      };
+      const onAccept=()=>finish(true);
+      const onCancel=()=>finish(false);
+      const onKey=event=>{if(event.key==='Escape'){event.preventDefault();finish(false);}};
+      accept.addEventListener('click',onAccept);cancel.addEventListener('click',onCancel);
+      document.addEventListener('keydown',onKey);
+      modal.classList.remove('hidden');modal.classList.add('flex');cancel.focus();
+    });
+  }
+
+  async function saveDefaultAddressIfNeeded() {
+    const form=getFormData();
+    const next={direccion:form.direccion,barrio:form.barrio,ciudad:form.ciudad};
+    const normalize=value=>String(value||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').toUpperCase();
+    const previous=clientProfile||{};
+    const hasSavedAddress=!!normalize(previous.direccion);
+    const changed=['direccion','barrio','ciudad'].some(field=>normalize(previous[field])!==normalize(next[field]));
+    if(!changed)return true;
+    // Si ya tiene una dirección, CANCELAR mantiene la predeterminada anterior,
+    // pero permite continuar con la nueva dirección para este pedido.
+    if(hasSavedAddress && !(await askDefaultAddress(next)))return true;
+    try{
+      if(previous.id){
+        const {error}=await supabaseClient.from('clientes_web').update(next).eq('id',previous.id);
+        if(error)throw error;
+        clientProfile={...previous,...next};
+      }else{
+        const {data,error}=await supabaseClient.from('clientes_web').insert([{
+          cliente_id:String(clientSession.id),nombres:form.nombres,apellidos:form.apellidos,
+          telefono:form.telefono,correo:form.correo,...next
+        }]).select('*').single();
+        if(error)throw error;
+        clientProfile=data;
+      }
+      return true;
+    }catch(error){
+      showAlert('No pudimos guardar la dirección en tu perfil: '+(error?.message||error));
+      return false;
+    }
+  }
+
   async function continueFromForm() {
     if (!(await verifyRentalStock())) return;
     if (!validateForm()) return;
+    if (!(await saveDefaultAddressIfNeeded())) return;
 
     selectedPaymentMode = '';
 
