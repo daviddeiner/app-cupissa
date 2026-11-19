@@ -631,7 +631,8 @@ function cupissaSelectedAccessories() {
             }
 
             const pctAnticipo = Number(p.porcentaje_anticipo ?? 20);
-            const valAnticipo = Math.round(totalProduct * (pctAnticipo / 100));
+            const contraEntrega = selectedModalidad === 'venta' && p.pago_contraentrega === true && totalQty < 6 && totalQty < Math.max(1,Number(p.cant_min_mayorista || 6));
+            const valAnticipo = contraEntrega ? 0 : Math.round(totalProduct * (pctAnticipo / 100));
             const depInfo = document.getElementById('wrapper-deposito-info');
             if (selectedModalidad === 'alquiler' && Number(p.valor_deposito || 0) > 0) {
                 document.getElementById('opt-val-deposito').innerText = formatCOP(Number(p.valor_deposito || 0) * totalQty);
@@ -647,5 +648,7 @@ function cupissaSelectedAccessories() {
             document.getElementById('opt-modal-total-price').innerText = formatCOP(totalProduct + refundableDeposit);
             document.getElementById('opt-anticipo-pct').innerText = pctAnticipo;
             document.getElementById('opt-anticipo-val').innerText = formatCOP(valAnticipo);
+            const advanceLabel=document.querySelector('#wrapper-anticipo .text-slate-500');
+            if(advanceLabel)advanceLabel.innerHTML=contraEntrega?'💵 PAGO CONTRA ENTREGA':`Anticipo requerido (<span id="opt-anticipo-pct">${pctAnticipo}</span>%):`;
             if (hasSizeOptions) cupissaUpdateSizeQuantitySummary();
         }
