@@ -66,7 +66,7 @@
   function comparePrice(p) {
     if(ownerPreview){
       const current=Number(p?.precio_detal);
-      return current>0?Math.ceil(current*(1.15+(hashProduct(p.id)%10)/100)/100)*100:0;
+      return current>0?Math.ceil(current*(1.24+(hashProduct(p.id)%11)/100)/100)*100:0;
     }
     const before=Number(oldPrices.get(String(p?.id))??p?.precio_anterior);
     const current=Number(p?.precio_detal);
@@ -321,31 +321,52 @@
     if(!section)return;
     const list=section.querySelector('#cupissa-product-review-list'),more=section.querySelector('#cupissa-show-more-reviews');
     list.innerHTML='<p class="cupissa-review-empty">Cargando reseñas…</p>';more.hidden=true;
-    const {data,error}=await supabaseClient.from('cupissa_resenas_verificadas')
-      .select('calificacion,comentario,created_at').eq('producto_id',String(p.id))
-      .order('calificacion',{ascending:false}).order('created_at',{ascending:false}).limit(1000);
-    if(token!==reviewToken)return;
-    if(error&&!ownerPreview) {list.innerHTML='<p class="cupissa-review-empty">Las reseñas estarán disponibles cuando se active esta sección.</p>';return;}
-    const reviews=data||[];
-    if(ownerPreview){
+    const batchSize=50, reviews=[];
+    let offset=0,totalReal=0,shown=0,samplesAdded=false;
+    const fetchBatch=async()=>{
+      const {data,count,error}=await supabaseClient.from('cupissa_resenas_verificadas')
+        .select('calificacion,comentario,created_at',{count:'exact'})
+        .eq('producto_id',String(p.id)).order('calificacion',{ascending:false})
+        .order('created_at',{ascending:false}).range(offset,offset+batchSize-1);
+      if(token!==reviewToken)return false;
+      if(error){if(!ownerPreview){list.innerHTML='<p class="cupissa-review-empty">Las reseñas estarán disponibles cuando se active esta sección.</p>';return false;}totalReal=offset;return true;}
+      reviews.push(...(data||[]));offset+=data?.length||0;
+      totalReal=count===null?((data||[]).length===batchSize?offset+1:offset):Number(count);
+      return true;
+    };
+    if(!(await fetchBatch()))return;
+    const addSamples=()=>{
+      if(!ownerPreview||samplesAdded||offset<totalReal)return;
       const seed=hashProduct(p.id);
       for(let i=0;i<previewCount(p);i++)reviews.push({calificacion:5,comentario:sampleComments[(seed+i)%sampleComments.length],sample:true});
-    }
-    if(!reviews.length) {list.innerHTML='<p class="cupissa-review-empty">Este producto todavía no tiene reseñas. Las primeras opiniones llegarán de compras entregadas.</p>';return;}
-    const average=reviews.reduce((sum,r)=>sum+Number(r.calificacion||0),0)/reviews.length;
+      samplesAdded=true;
+    };
+    addSamples();
+    if(!reviews.length&&offset>=totalReal){list.innerHTML='<p class="cupissa-review-empty">Este producto todavía no tiene reseñas.</p>';return;}
+    const realRating=ratings.get(String(p.id));
+    const loadedAverage=reviews.filter(r=>!r.sample).reduce((sum,r)=>sum+Number(r.calificacion||0),0)/Math.max(1,reviews.filter(r=>!r.sample).length);
+    const average=realRating?.count?realRating.total/realRating.count:loadedAverage;
     const summary=document.createElement('p');summary.className='cupissa-review-summary';
-    summary.textContent=(ownerPreview?'★★★★★  5.0/5':stars(average)+'  '+average.toFixed(1)+'/5')+' · '+reviews.length+' opiniones';
+    summary.textContent=(ownerPreview?'★★★★★  5.0/5':stars(average)+'  '+average.toFixed(1)+'/5')+' · '+(totalReal+(ownerPreview?previewCount(p):0))+' opiniones';
     list.replaceChildren(summary);
-    const nodes=reviews.map((r,i)=>{
-      const article=document.createElement('article');article.className='cupissa-review-entry';
-      if(i>=5)article.hidden=true;
-      article.innerHTML='<strong>'+stars(r.calificacion)+'</strong>'+(r.sample?'':'<span>Compra verificada</span>')+'<p>'+esc(r.comentario)+'</p>';
-      list.appendChild(article);return article;
-    });
-    if(nodes.length>5){
-      more.hidden=false;more.textContent='Ver más reseñas ('+(nodes.length-5)+')';
-      more.onclick=()=>{nodes.forEach(node=>node.hidden=false);more.hidden=true;};
-    }
+    const append=async(limit)=>{
+      if(token!==reviewToken)return;
+      more.disabled=true;
+      while(shown<reviews.length && limit>0){
+        const r=reviews[shown++],article=document.createElement('article');article.className='cupissa-review-entry';
+        article.innerHTML='<strong>'+stars(r.calificacion)+'</strong>'+(r.sample?'':'<span>Compra verificada</span>')+'<p>'+esc(r.comentario)+'</p>';
+        list.appendChild(article);limit--;
+      }
+      if(limit>0&&offset<totalReal){
+        if(await fetchBatch()){addSamples();return append(limit);}
+      }
+      addSamples();
+      more.disabled=false;
+      const remaining=Math.max(0,totalReal+(ownerPreview?previewCount(p):0)-shown);
+      more.hidden=remaining===0;more.textContent='Ver más reseñas ('+remaining+')';
+    };
+    more.onclick=()=>append(10);
+    await append(5);
   }
   function renderReferenceInModal(p) {
     let el=document.getElementById('cupissa-modal-reference-price');
