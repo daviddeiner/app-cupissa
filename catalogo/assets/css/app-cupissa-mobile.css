@@ -33,3 +33,5 @@ body.app-session-pending .app-auth-loading { padding-bottom:25vh; font-size:24px
   #app-desktop-notice { position:fixed; inset:0; display:flex !important; flex-direction:column; align-items:center; justify-content:center; gap:18px; background:#fff; padding:35px; text-align:center; z-index:2147483647; font:600 18px/1.5 Inter,sans-serif; }
   #app-desktop-notice img { width:180px; }
 }
+/* Las invitaciones ahora se consultan desde Perfil > Juega y gana. */
+#mobile-app-nav [data-mobile-section="tasks"]{display:none!important}
