@@ -410,7 +410,7 @@
         <strong>${esc(p.nombre)}</strong>
         <span class="cupissa-mini-stars ${demo?'is-rated':''}" aria-label="${demo?'Cinco estrellas en vista de presentación':'Calificación disponible al abrir producto'}">${demo?'★★★★★ · '+(10+demoHash(p.id)%9)+' opiniones':'☆☆☆☆☆'}</span>
         ${demo?`<small class="cupissa-mini-demo-tag">${demoHash(p.id)%2?'Último día':'🔥 Más vendido'}</small>`:''}
-        <div class="cupissa-mini-footer"><span>${demo?`<del class="cupissa-mini-old-price">${cop(Math.ceil(Number(p.precio_detal||0)*(1.15+demoHash(p.id)%10/100)/100)*100)}</del>`:'<small>Desde</small>'}${cop(p.precio_detal)}</span><span class="cupissa-mini-cart" aria-hidden="true"><i class="fa-solid fa-cart-shopping"></i></span></div>
+        <div class="cupissa-mini-footer"><span>${demo?`<del class="cupissa-mini-old-price">${cop(Math.ceil(Number(p.precio_detal||0)*(1.24+demoHash(p.id)%11/100)/100)*100)}</del>`:'<small>Desde</small>'}${cop(p.precio_detal)}</span><span class="cupissa-mini-cart" aria-hidden="true"><i class="fa-solid fa-cart-shopping"></i></span></div>
       </div></a>`;
     ['cupissa-profile-product-grid','cupissa-profile-page-products','cupissa-profile-order-products'].forEach(id=>{
       const grid=$(id);if(!grid)return;
