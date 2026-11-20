@@ -350,7 +350,11 @@ function filterBySubcategoria(subcat) {
                 const mixed = mixFilteredProductsByName(results);
                 currentMatches = mixed;
                 currentNonMatches = [];
-                filteredProducts = mixed;
+                const onHome = activeMundo === 'TODOS' && activeTemporada === 'TODAS'
+                    && activeCategoria === 'TODAS' && activeSubcategoria === 'TODAS';
+                filteredProducts = onHome && typeof window.cupissaMixHistoryRecommendations === 'function'
+                    ? window.cupissaMixHistoryRecommendations(mixed)
+                    : mixed;
             }
 
             renderProductsGrid();
