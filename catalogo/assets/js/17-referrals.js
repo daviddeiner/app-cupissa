@@ -93,7 +93,7 @@
   };
   function inviteText() {
     const code = latest?.code || '';
-    return `¡Te invito a conocer CUPISSA! Descarga la app, regístrate y escribe mi código ${code} en la sección Juega y gana de tu perfil para aceptar mi invitación. Descubre nuestros productos: https://app.cupissa.com/`;
+    return `¡Te invito a conocer Cupissa! Descarga la app, regístrate y escribe mi código ${code} en la sección Juega y gana de tu perfil para aceptar mi invitación. Descubre nuestros productos: https://app.cupissa.com/`;
   }
   window.cupissaCopyInvite = async () => {
     const code = latest?.code;
