@@ -25,18 +25,29 @@
     const price=comparePrice(p);
     const rating=ratings.get(String(p.id));
     const priceBox=card.querySelector('.font-black.text-slate-900.text-xs');
-    if(price&&priceBox&&!card.querySelector('.cupissa-special-price')) {
+    if(priceBox&&!card.querySelector('.cupissa-special-price')) {
       const node=document.createElement('div');node.className='cupissa-special-price';
-      node.innerHTML='<del>'+cash(price)+'</del><span>Descuento especial</span>';
+      node.innerHTML=price
+        ? '<del>'+cash(price)+'</del><span>Descuento especial</span>'
+        : '<span>Precio especial Cupissa</span>';
       priceBox.before(node);
+    } else if(price&&priceBox) {
+      const node=card.querySelector('.cupissa-special-price');
+      if(node && !node.querySelector('del'))node.innerHTML='<del>'+cash(price)+'</del><span>Descuento especial</span>';
     }
-    if(rating?.count && !card.querySelector('.cupissa-card-rating')) {
+    let ratingEl=card.querySelector('.cupissa-card-rating');
+    if(!ratingEl) {
       const title=card.querySelector('.product-card-title');
       if(title) {
-        const el=document.createElement('p');el.className='cupissa-card-rating';
-        el.innerHTML='<span>'+stars(rating.total/rating.count)+'</span> <small>('+rating.count+' reseñas verificadas)</small>';
-        title.after(el);
+        ratingEl=document.createElement('p');ratingEl.className='cupissa-card-rating';
+        title.after(ratingEl);
       }
+    }
+    if(ratingEl) {
+      const html=rating?.count
+        ? '<span>'+stars(rating.total/rating.count)+'</span> <small>('+rating.count+' reseñas de clientes)</small>'
+        : '<span class="cupissa-unrated-stars">☆☆☆☆☆</span> <small>Sin calificaciones aún</small>';
+      if(ratingEl.innerHTML!==html)ratingEl.innerHTML=html;
     }
     if(isFeatured(p)&&!card.querySelector('.cupissa-season-tag')) {
       const tag=document.createElement('span');tag.className='cupissa-season-tag';tag.textContent='Temporada destacada';
@@ -73,6 +84,50 @@
     });
     scheduleVerifiedRatings();
   }
+  // El catálogo dibuja sus tarjetas dentro de columnas anidadas; sincronizar
+  // también después del renderizado real, no únicamente con la carga inicial.
+  const previousGridRender=window.renderProductsGrid;
+  if(typeof previousGridRender==='function')window.renderProductsGrid=function(){
+    const result=previousGridRender.apply(this,arguments);
+    queueMicrotask(decorateVisibleCards);
+    return result;
+  };
+  const previousFeaturedRender=window.renderSeasonFeatured;
+  if(typeof previousFeaturedRender==='function')window.renderSeasonFeatured=function(){
+    const result=previousFeaturedRender.apply(this,arguments);
+    queueMicrotask(decorateVisibleCards);
+    return result;
+  };
+  function mixHistoryRecommendations(products) {
+    if(!Array.isArray(products)||products.length<12)return products;
+    let user;
+    try{user=JSON.parse(localStorage.getItem('cupissa_client_session')||'null');}catch(e){}
+    if(!user?.id)return products;
+    let visits=[];
+    try{visits=JSON.parse(localStorage.getItem('cupissa_product_history_v2:'+user.id)||'[]');}catch(e){}
+    if(!Array.isArray(visits)||!visits.length)return products;
+    const recent=visits.slice(0,18), favoriteIds=new Set(recent.map(p=>String(p.id)));
+    const score=p=>recent.reduce((total,seen,i)=>{
+      const closeness=1/(1+i*.1);
+      const matches=(key,points)=>String(p[key]||'').trim().toUpperCase()
+        && String(p[key]||'').trim().toUpperCase()===String(seen[key]||'').trim().toUpperCase()?points:0;
+      return total+closeness*(matches('subcategoria',7)+matches('categoria',4)+matches('mundo',1));
+    },0);
+    const suggested=products.filter(p=>!favoriteIds.has(String(p.id)))
+      .map(p=>({product:p,weight:score(p)})).filter(x=>x.weight>=4)
+      .sort((a,b)=>b.weight-a.weight).slice(0,Math.min(24,Math.floor(products.length*.15)));
+    if(!suggested.length)return products;
+    const featured=new Set(suggested.map(x=>String(x.product.id)));
+    const remaining=products.filter(p=>!featured.has(String(p.id)));
+    const result=[],boosted=suggested.map(x=>x.product);
+    let i=0,j=0;
+    while(i<remaining.length || j<boosted.length){
+      for(let n=0;n<5&&i<remaining.length;n++) result.push(remaining[i++]);
+      if(j<boosted.length)result.push(boosted[j++]);
+    }
+    return result;
+  }
+  window.cupissaMixHistoryRecommendations=mixHistoryRecommendations;
   function scheduleVerifiedRatings() {
     if(pendingRatingTimer)return;
     pendingRatingTimer=setTimeout(async()=>{
@@ -260,7 +315,13 @@
   function observeCatalogCards(){
     ['products-grid','season-featured-grid'].forEach(id=>{
       const grid=document.getElementById(id);if(!grid)return;
-      new MutationObserver(()=>decorateVisibleCards()).observe(grid,{childList:true});
+      new MutationObserver(mutations=>{
+        if(mutations.some(m=>[...m.addedNodes].some(node=>
+          node.nodeType===1 && (
+            node.matches?.('[data-cupissa-product-id]') ||
+            node.querySelector?.('[data-cupissa-product-id]')
+          ))))decorateVisibleCards();
+      }).observe(grid,{childList:true,subtree:true});
     });
   }
   document.addEventListener('DOMContentLoaded',()=>{
