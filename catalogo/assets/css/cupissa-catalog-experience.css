@@ -20,6 +20,7 @@
 .cupissa-special-price span{color:#b72160;font-weight:900}
 .cupissa-card-rating{font-size:12px!important;margin:6px 0 0!important;line-height:1.3}
 .cupissa-card-rating span{color:#e99d25;font-size:14px}
+.cupissa-card-rating .cupissa-unrated-stars{color:#b9aab2}
 .cupissa-card-rating small{color:#80737c;font-size:10px}
 .cupissa-season-tag,.cupissa-best-seller,.cupissa-last-day{position:absolute;z-index:3;bottom:7px;left:7px;max-width:90%;font-size:10px;font-weight:900;color:#fff;background:#bd356e;padding:5px 8px;border-radius:8px}
 .cupissa-best-seller{top:7px;bottom:auto;background:#151015}
