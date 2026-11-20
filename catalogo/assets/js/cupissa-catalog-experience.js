@@ -3,7 +3,15 @@
   'use strict';
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
   const cash=n=>'$'+Math.round(Number(n)||0).toLocaleString('es-CO');
-  const oldPrices=new Map(), ratings=new Map(), requestedRatingIds=new Set();
+  const previewParam=new URLSearchParams(location.search).get('cupissa_demo');
+  if(previewParam==='1')sessionStorage.setItem('cupissa_owner_preview','1');
+  if(previewParam==='0')sessionStorage.setItem('cupissa_owner_preview','0');
+  // Presentación integrada: funciona al abrir el catálogo normal sin URLs especiales.
+  // Se puede desactivar para ver exclusivamente los datos publicados.
+  const ownerPreview=sessionStorage.getItem('cupissa_owner_preview')!=='0';
+  const hashProduct=id=>[...String(id)].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,17);
+  const sampleComments=['Me gustó muchísimo, recomendado.','Excelente servicio, me encantó.','Muy bonito y de buena calidad.','Hermoso, justo como lo esperaba.','Todo llegó precioso, gracias.','Me encantó el resultado.','Lo recomiendo totalmente.','Quedó perfecto, muchas gracias.','Precioso, volvería a comprar.','Me gustó mucho, excelente atención.','Muy feliz con mi compra.','Divino, superó mis expectativas.'];
+  const oldPrices=new Map(), ratings=new Map(), requestedRatingIds=new Set(), dynamicSignals=new Map();
   let pendingRatingTimer=0;
   const inCatalog=()=>typeof rawProducts!=='undefined'&&Array.isArray(rawProducts);
   const productById=id=>inCatalog()?rawProducts.find(p=>String(p.id)===String(id)):null;
@@ -13,6 +21,10 @@
     return Boolean(season)&&[p.temporada,...(Array.isArray(p.temporadas)?p.temporadas:[])].some(t=>String(t||'').trim().toUpperCase()===season.trim().toUpperCase());
   };
   function comparePrice(p) {
+    if(ownerPreview){
+      const current=Number(p?.precio_detal);
+      return current>0?Math.ceil(current*(1.08+(hashProduct(p.id)%9)/100)/100)*100:0;
+    }
     const before=Number(oldPrices.get(String(p?.id))??p?.precio_anterior);
     const current=Number(p?.precio_detal);
     return before>current&&current>0?before:0;
@@ -43,16 +55,29 @@
       }
     }
     if(ratingEl) {
-      const html=rating?.count
+      const html=ownerPreview
+        ? '<span>★★★★★</span> <small>('+String(10+hashProduct(p.id)%87)+' opiniones)</small>'
+        : rating?.count
         ? '<span>'+stars(rating.total/rating.count)+'</span> <small>('+rating.count+' reseñas de clientes)</small>'
         : '<span class="cupissa-unrated-stars">☆☆☆☆☆</span> <small>Sin calificaciones aún</small>';
       if(ratingEl.innerHTML!==html)ratingEl.innerHTML=html;
     }
-    if(isFeatured(p)&&!card.querySelector('.cupissa-season-tag')) {
+    const signal=dynamicSignals.get(String(p.id));
+    const featured=ownerPreview||(signal?signal.es_temporada_destacada:isFeatured(p));
+    if(!featured)card.querySelectorAll('.cupissa-season-tag,.cupissa-best-seller,.cupissa-last-day').forEach(el=>el.remove());
+    if(signal&&!signal.es_mas_vendido)card.querySelector('.cupissa-best-seller')?.remove();
+    if(signal&&!signal.es_ultimo_dia)card.querySelector('.cupissa-last-day')?.remove();
+    if(!ownerPreview&&featured&&!card.querySelector('.cupissa-season-tag')) {
       const tag=document.createElement('span');tag.className='cupissa-season-tag';tag.textContent='Temporada destacada';
       (card.querySelector('.product-card-title')?.parentElement||card).appendChild(tag);
     }
-    if(isFeatured(p)&&Number(window.CUPISSA_PRODUCT_POPULARITY?.[String(p.id)]?.total_compras||0)>0) {
+    if(ownerPreview&&hashProduct(p.id)%2===0&&!card.querySelector('.cupissa-best-seller')){
+      const el=document.createElement('span');el.className='cupissa-best-seller';el.innerHTML='<i class="fa-solid fa-fire" aria-hidden="true"></i> Más vendido';
+      (card.querySelector('.product-card-title')?.parentElement||card).appendChild(el);
+    } else if(!ownerPreview&&featured&&signal?.es_mas_vendido&&!card.querySelector('.cupissa-best-seller')) {
+      const el=document.createElement('span');el.className='cupissa-best-seller';el.innerHTML='<i class="fa-solid fa-fire" aria-hidden="true"></i> Más vendido';
+      (card.querySelector('.product-card-title')?.parentElement||card).appendChild(el);
+    } else if(!ownerPreview&&featured&&!signal&&Number(window.CUPISSA_PRODUCT_POPULARITY?.[String(p.id)]?.total_compras||0)>0) {
       const count=Number(window.CUPISSA_PRODUCT_POPULARITY?.[String(p.id)]?.total_compras||0);
       const others=(typeof featuredSeasonProducts!=='undefined'?featuredSeasonProducts:[])
         .map(item=>Number(window.CUPISSA_PRODUCT_POPULARITY?.[String(item.id)]?.total_compras||0));
@@ -62,7 +87,13 @@
       }
     }
     // "Último día" solo cuando la campaña tenga una fecha real de fin.
-    if(isFeatured(p)&&window.CUPISSA_SEASON_END_DATE&&!card.querySelector('.cupissa-last-day')) {
+    if(ownerPreview&&hashProduct(p.id)%2===1&&!card.querySelector('.cupissa-last-day')){
+      const el=document.createElement('span');el.className='cupissa-last-day';el.textContent='Último día';
+      (card.querySelector('.product-card-title')?.parentElement||card).appendChild(el);
+    } else if(!ownerPreview&&featured&&signal?.es_ultimo_dia&&!card.querySelector('.cupissa-last-day')){
+      const el=document.createElement('span');el.className='cupissa-last-day';el.textContent='Último día';
+      (card.querySelector('.product-card-title')?.parentElement||card).appendChild(el);
+    } else if(!ownerPreview&&featured&&!signal&&window.CUPISSA_SEASON_END_DATE&&!card.querySelector('.cupissa-last-day')) {
       const end=String(window.CUPISSA_SEASON_END_DATE).slice(0,10);
       const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Bogota',year:'numeric',month:'2-digit',day:'2-digit'})
         .format(new Date());
@@ -137,6 +168,17 @@
       if(!ids.length)return;
       ids.forEach(id=>requestedRatingIds.add(id));
       try {
+        const {data:signals,error:signalsError}=await supabaseClient.rpc('cupissa_senales_catalogo',{p_product_ids:ids});
+        if(!signalsError){
+          (signals||[]).forEach(r=>{
+            dynamicSignals.set(String(r.producto_id),r);
+            if(r.precio_anterior!==null)oldPrices.set(String(r.producto_id),Number(r.precio_anterior));
+            else oldPrices.delete(String(r.producto_id));
+            ratings.set(String(r.producto_id),{count:Number(r.cantidad_resenas||0),total:Number(r.promedio_resenas||0)*Number(r.cantidad_resenas||0)});
+          });
+          decorateVisibleCards();
+          return;
+        }
         const {data,error}=await supabaseClient.rpc('cupissa_resumen_resenas',{p_product_ids:ids});
         if(error) return;
         (data||[]).forEach(r=>ratings.set(String(r.producto_id),
@@ -207,7 +249,7 @@
     let section=document.getElementById('cupissa-product-reviews');
     if(!section){
       section=document.createElement('section');section.id='cupissa-product-reviews';
-      section.innerHTML='<div class="cupissa-review-head"><h3>Opiniones de nuestros clientes</h3><span>Compras verificadas</span></div><div id="cupissa-product-review-list" aria-live="polite"></div><button type="button" id="cupissa-show-more-reviews" hidden>Ver más reseñas</button>';
+      section.innerHTML='<div class="cupissa-review-head"><h3>Opiniones de nuestros clientes</h3><span>'+(ownerPreview?'Vista de presentación':'Compras verificadas')+'</span></div><div id="cupissa-product-review-list" aria-live="polite"></div><button type="button" id="cupissa-show-more-reviews" hidden>Ver más reseñas</button>';
     }
     const similar=document.getElementById('cupissa-related-products');
     const actions=inner.querySelector('.product-modal-actions');
@@ -226,17 +268,21 @@
       .select('calificacion,comentario,created_at').eq('producto_id',String(p.id))
       .order('calificacion',{ascending:false}).order('created_at',{ascending:false}).limit(1000);
     if(token!==reviewToken)return;
-    if(error) {list.innerHTML='<p class="cupissa-review-empty">Las reseñas estarán disponibles cuando se active esta sección.</p>';return;}
+    if(error&&!ownerPreview) {list.innerHTML='<p class="cupissa-review-empty">Las reseñas estarán disponibles cuando se active esta sección.</p>';return;}
     const reviews=data||[];
+    if(ownerPreview){
+      const seed=hashProduct(p.id);
+      for(let i=0;i<10;i++)reviews.push({calificacion:5,comentario:sampleComments[(seed+i*5)%sampleComments.length],sample:true});
+    }
     if(!reviews.length) {list.innerHTML='<p class="cupissa-review-empty">Este producto todavía no tiene reseñas. Las primeras opiniones llegarán de compras entregadas.</p>';return;}
     const average=reviews.reduce((sum,r)=>sum+Number(r.calificacion||0),0)/reviews.length;
     const summary=document.createElement('p');summary.className='cupissa-review-summary';
-    summary.textContent=stars(average)+'  '+average.toFixed(1)+'/5 · '+reviews.length+' opiniones de compradores verificados';
+    summary.textContent=(ownerPreview?'★★★★★  5.0/5':stars(average)+'  '+average.toFixed(1)+'/5')+' · '+reviews.length+' opiniones';
     list.replaceChildren(summary);
     const nodes=reviews.map((r,i)=>{
       const article=document.createElement('article');article.className='cupissa-review-entry';
       if(i>=5)article.hidden=true;
-      article.innerHTML='<strong>'+stars(r.calificacion)+'</strong><span>Compra verificada</span><p>'+esc(r.comentario)+'</p>';
+      article.innerHTML='<strong>'+stars(r.calificacion)+'</strong>'+(r.sample?'':'<span>Compra verificada</span>')+'<p>'+esc(r.comentario)+'</p>';
       list.appendChild(article);return article;
     });
     if(nodes.length>5){
@@ -336,9 +382,15 @@
     });
   }
   document.addEventListener('DOMContentLoaded',()=>{
+    if(ownerPreview){
+      const banner=document.createElement('div');banner.className='cupissa-owner-preview-banner';
+      banner.innerHTML='<strong>Vista de presentación</strong><span>Incluye opiniones y promociones ilustrativas.</span><a href="/catalogo/?cupissa_demo=0">Ver datos reales</a>';
+      document.body.appendChild(banner);
+    }
     ensureFloatingCart().hidden=true;
     observeCatalogCards();
     scheduleVerifiedRatings();loadReferencePrices();loadSeasonEndDate();tryOpenDeepLink();restoreReorder();
+    setInterval(()=>{requestedRatingIds.clear();dynamicSignals.clear();decorateVisibleCards();},300000);
     window.addEventListener('message',event=>{
       if(event.origin!==location.origin)return;
       if(event.data?.type==='CUPISSA_OPEN_JUEGA'&&window.CUPISSA_IS_APP) {
