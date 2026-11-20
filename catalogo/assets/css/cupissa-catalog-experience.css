@@ -23,6 +23,13 @@
 .cupissa-owner-preview-banner{position:relative;z-index:1;inset:auto;transform:none;width:100%;max-width:none;flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;background:#20131b;color:#fff;border-bottom:1px solid #efbad3;border-radius:0;padding:8px 13px;box-shadow:none;font-size:11px;line-height:1.2}
 .cupissa-owner-preview-banner strong{color:#ffa2cb}
 .cupissa-owner-preview-banner a{color:#fff;text-decoration:underline;font-weight:800}
+/* El aviso sin contenido visible ocupaba espacio antes del catálogo.
+   Conservar intacta la fila horizontal de mundos. */
+@media(max-width:767px){
+  .catalog-promo-banner{display:none!important}
+  #catalog-filter-sidebar>.filter-worlds-group{display:block!important;top:64px!important}
+  .catalog-content-column #catalog-main{padding-top:4px!important}
+}
 .cupissa-card-rating{font-size:12px!important;margin:6px 0 0!important;line-height:1.3}
 .cupissa-card-rating span{color:#e99d25;font-size:14px}
 .cupissa-card-rating .cupissa-unrated-stars{color:#b9aab2}
