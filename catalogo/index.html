@@ -20,6 +20,7 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/catalogo/assets/js/01-tailwind-config.js"></script>
+    <link rel="stylesheet" href="/catalogo/assets/css/cupissa-catalog-experience.css?v=20261120">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -270,14 +271,14 @@
             <button type="button" class="mobile-nav-item" data-mobile-section="profile" onclick="openProfileModal()" aria-label="Abrir Perfil" title="Abrir Perfil aquí mismo">
                 <i class="fa-regular fa-user"></i><span>Perfil</span>
             </button>
-            <button type="button" class="mobile-nav-item" data-mobile-section="tasks" onclick="cupissaOpenTasks()" aria-label="Tareas">
-                <i class="fa-solid fa-gift"></i><span>Tareas</span>
+            <button type="button" class="mobile-nav-item" data-mobile-section="tasks" onclick="cupissaOpenTasks()" aria-label="Juega y gana" hidden>
+                <i class="fa-solid fa-gift"></i><span>Juega y gana</span>
             </button>
         </div>
     </nav>
 
-    <!-- TAREAS: únicamente app-cupissa; datos sincronizados con Supabase. -->
-    <section id="cupissa-tasks-view" class="cupissa-tasks-view" hidden aria-label="Tareas de invitaciones">
+    <!-- JUEGA Y GANA: se abre desde el perfil; invitaciones sincronizadas con Supabase. -->
+    <section id="cupissa-tasks-view" class="cupissa-tasks-view" hidden aria-label="Juega y gana · invitaciones">
         <div class="cupissa-tasks-card">
             <p class="cupissa-tasks-kicker">RECOMPENSAS CUPISSA</p>
             <h2>Invita a tus amigos</h2>
@@ -505,6 +506,8 @@
     <script src="/catalogo/assets/js/15-pwa-install.js"></script>
     <script src="/shared/js/security-console-notice.js?v=20261107-security-1"></script>
 <script src="/catalogo/assets/js/ficha-producto-movil.js?v=20261109-variantes-compactas-v4"></script>
+<script>window.CUPISSA_IS_APP = true;</script>
+<script src="/catalogo/assets/js/cupissa-catalog-experience.js?v=20261120"></script>
 <script src="/catalogo/assets/js/app-cupissa-push.js?v=20261117-permiso-1"></script>
 
 </body>
