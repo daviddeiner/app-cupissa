@@ -12,7 +12,7 @@
   const photo = p => String(p?.foto || p?.imagen_url || p?.image_url || p?.imagen || p?.fotos?.[0] || p?.imagenes?.[0] || '');
   const catalogUrl = id => '/catalogo/?cupissa_product=' + encodeURIComponent(id);
   let profile, account, current = 'inicio', activeFilter = 'todos', refreshInterval, eventChannel, proofIds = new Set();
-  let orders = [];
+  let orders = [], navigationHistory = [];
   const isApp = Boolean(window.CUPISSA_IS_APP);
 
   const homeMarkup = () => `
@@ -28,16 +28,16 @@
         <button data-cupissa-page="direccion"><i class="fa-solid fa-location-dot"></i>Dirección</button>
       </nav>
       <section class="cupissa-profile-recommendations">
-        <h2>Descubre más en CUPISSA</h2>
+        <h2>Descubre más en Cupissa</h2>
         <p>Productos que pueden gustarte</p>
         <div id="cupissa-profile-product-grid" class="cupissa-profile-products"></div>
       </section>
     </section>`;
   const panelMarkup = () => `
     <section id="cupissa-profile-page" class="cupissa-profile-page" hidden>
-      <header class="cupissa-page-heading"><button class="cupissa-back" data-cupissa-page="inicio" aria-label="Volver al perfil"><i class="fa-solid fa-arrow-left"></i></button><h2 id="cupissa-page-title"></h2></header>
+      <header class="cupissa-page-heading"><button class="cupissa-back" data-cupissa-back type="button" aria-label="Regresar al paso anterior"><i class="fa-solid fa-arrow-left"></i><span>Regresar</span></button><h2 id="cupissa-page-title"></h2></header>
       <div id="cupissa-page-body"></div>
-      <section class="cupissa-profile-recommendations"><h3>Más productos CUPISSA</h3><div id="cupissa-profile-page-products" class="cupissa-profile-products"></div></section>
+      <section class="cupissa-profile-recommendations"><h3>Más productos Cupissa</h3><div id="cupissa-profile-page-products" class="cupissa-profile-products"></div></section>
     </section>`;
 
   function init() {
@@ -60,6 +60,7 @@
     $('tus-pedidos').hidden = true;
     header.insertAdjacentHTML('afterend',homeMarkup()+panelMarkup());
     root.addEventListener('click', event => {
+      if (event.target.closest('[data-cupissa-back]')) {event.preventDefault();goBack();return;}
       const button = event.target.closest('[data-cupissa-page]');
       if (button) { event.preventDefault(); go(button.dataset.cupissaPage); }
     });
@@ -76,14 +77,20 @@
         tabs.appendChild(btn);
       });
     $('profile-orders-list')?.before(tabs);
+    $('tus-pedidos')?.insertAdjacentHTML('afterbegin',
+      '<button type="button" class="cupissa-info-back" data-cupissa-back><i class="fa-solid fa-arrow-left"></i> Regresar</button>');
     $('profile-orders-list')?.insertAdjacentHTML('afterend',
       '<section class="cupissa-profile-recommendations"><h3>También te puede gustar</h3><div id="cupissa-profile-order-products" class="cupissa-profile-products"></div></section>');
   }
-  function go(section) {
+  function goBack() {
+    go(navigationHistory.pop() || 'inicio',true);
+  }
+  function go(section,back=false) {
     if (section==='juega') {
       if (isApp) window.parent.postMessage({type:'CUPISSA_OPEN_JUEGA'},location.origin);
       return;
     }
+    if (!back && section!==current) navigationHistory.push(current);
     current=section;
     const home=$('cupissa-profile-home'), page=$('cupissa-profile-page');
     const info=$('cupissa-profile-data-panel'), pedido=$('tus-pedidos');
@@ -97,8 +104,8 @@
       if (!back) {
         back=document.createElement('button');
         back.className='cupissa-info-back'; back.type='button';
-        back.innerHTML='<i class="fa-solid fa-arrow-left"></i> Volver a configuración';
-        back.addEventListener('click',()=>go('config'));
+        back.innerHTML='<i class="fa-solid fa-arrow-left"></i> Regresar';
+        back.addEventListener('click',goBack);
         info.prepend(back);
       }
     }
@@ -119,25 +126,60 @@
   function settingsRow(icon, title, pageId) {
     return `<button data-cupissa-page="${pageId}" class="cupissa-settings-row"><i class="${icon}"></i>${title}<i class="fa-solid fa-chevron-right"></i></button>`;
   }
+  function prettyDialog({title,message,confirmText='Aceptar',info=false}) {
+    return new Promise(resolve=>{
+      const backdrop=document.createElement('div');
+      backdrop.className='cupissa-pretty-backdrop';
+      backdrop.innerHTML=`<section class="cupissa-pretty-dialog" role="alertdialog" aria-modal="true" aria-label="Confirmación">
+        <div class="cupissa-pretty-icon"><i class="fa-solid fa-heart"></i></div>
+        <h3></h3><p></p>
+        <div class="cupissa-pretty-actions">
+          ${info?'':'<button type="button" class="cupissa-pretty-cancel">Regresar</button>'}
+          <button type="button" class="cupissa-pretty-accept"></button>
+        </div></section>`;
+      backdrop.querySelector('h3').textContent=title;
+      backdrop.querySelector('p').textContent=message;
+      backdrop.querySelector('.cupissa-pretty-accept').textContent=confirmText;
+      const finish=answer=>{
+        document.removeEventListener('keydown',onKey);
+        backdrop.remove();resolve(answer);
+      };
+      const onKey=e=>{if(e.key==='Escape'){e.preventDefault();finish(false);}};
+      document.addEventListener('keydown',onKey);
+      backdrop.querySelector('.cupissa-pretty-accept').onclick=()=>finish(true);
+      backdrop.querySelector('.cupissa-pretty-cancel')?.addEventListener('click',()=>finish(false));
+      backdrop.addEventListener('click',e=>{if(e.target===backdrop)finish(false);});
+      document.body.appendChild(backdrop);
+      backdrop.querySelector('.cupissa-pretty-accept').focus();
+    });
+  }
   function renderSettings() {
     page('Configuración',`
-      <div class="cupissa-protection"><i class="fa-solid fa-shield-heart"></i><div><strong>Tu cuenta está protegida</strong><p>CUPISSA protege tu información con acceso verificado por correo y mantiene tus datos privados y seguros.</p></div></div>
+      <div class="cupissa-protection"><i class="fa-solid fa-shield-heart"></i><div><strong>Tu cuenta está protegida</strong><p>Cupissa protege tu información con acceso verificado por correo y mantiene tus datos privados y seguros.</p></div></div>
       <div class="cupissa-settings-list">
         ${settingsRow('fa-regular fa-user','Datos de la cuenta','datos')}
         ${settingsRow('fa-regular fa-credit-card','Métodos de pago','metodos')}
-        ${settingsRow('fa-solid fa-scale-balanced','Términos y políticas de CUPISSA','politicas')}
-        <button id="cupissa-profile-share" class="cupissa-settings-row"><i class="fa-solid fa-share-nodes"></i>Compartir CUPISSA<i class="fa-solid fa-chevron-right"></i></button>
+        ${settingsRow('fa-solid fa-scale-balanced','Términos y políticas de Cupissa','politicas')}
+        <button id="cupissa-profile-share" class="cupissa-settings-row"><i class="fa-solid fa-share-nodes"></i>Compartir Cupissa<i class="fa-solid fa-chevron-right"></i></button>
         <button id="cupissa-profile-change-account" class="cupissa-settings-row"><i class="fa-solid fa-users"></i>Cambiar de cuenta<i class="fa-solid fa-chevron-right"></i></button>
         <button id="cupissa-profile-logout" class="cupissa-settings-row"><i class="fa-solid fa-right-from-bracket"></i>Cerrar sesión<i class="fa-solid fa-chevron-right"></i></button>
       </div>`);
     $('cupissa-profile-share').onclick=share;
-    $('cupissa-profile-change-account').onclick=()=>{ if (confirm('Puedes acceder con otra cuenta de CUPISSA. ¿Cambiar de cuenta?')) window.logoutProfile?.(); };
-    $('cupissa-profile-logout').onclick=()=>window.logoutProfile?.();
+    $('cupissa-profile-change-account').onclick=async()=>{
+      if(await prettyDialog({title:'Cambiar de cuenta',message:'Puedes utilizar otra cuenta de Cupissa con su correo y código de acceso. Tus pedidos y favoritos estarán protegidos en cada cuenta.',confirmText:'Cambiar cuenta'})) window.logoutProfile?.();
+    };
+    $('cupissa-profile-logout').onclick=async()=>{
+      if(await prettyDialog({title:'Cerrar sesión',message:'¿Quieres salir de tu cuenta de Cupissa? Podrás iniciar sesión de nuevo cuando quieras.',confirmText:'Cerrar sesión'})) window.logoutProfile?.();
+    };
   }
   function renderPaymentMethods() {
-    page('Métodos de pago',`<div class="cupissa-static-list"><p>Estos son los medios disponibles según tu pedido y lugar de entrega:</p>
-      <div>Wompi · Pagos electrónicos</div><div>Transferencia bancaria</div><div>Pago contraentrega local (cuando aplique)</div><div>Interrapidísimo · Pago en casa (cuando aplique)</div><div>ADDI · Financiación según aprobación, recargo del 9 %</div>
-      <small>La disponibilidad final se confirma en el proceso de compra.</small></div>`);
+    page('Métodos de pago',`<div class="cupissa-static-list cupissa-payment-methods"><p>Los mismos medios de pago disponibles en nuestra página:</p>
+      <div><i class="fa-solid fa-mobile-screen"></i>Nequi</div>
+      <div><i class="fa-solid fa-credit-card"></i>Wompi</div>
+      <div><i class="fa-solid fa-bolt"></i>Addi</div>
+      <div><i class="fa-solid fa-shield-halved"></i>Crédito Cupissa</div>
+      <div><i class="fa-solid fa-money-bill-wave"></i>Efectivo</div>
+      <small>La disponibilidad de cada medio de pago depende de las condiciones de tu pedido.</small></div>`);
   }
   function renderPolicies() {
     page('Términos y políticas',`<div class="cupissa-static-list">
@@ -149,11 +191,11 @@
   }
   async function share() {
     const url=isApp ? 'https://app.cupissa.com/' : 'https://cupissa.com/';
-    const text='¡Descubre CUPISSA! Todo lo que puedas imaginar, aquí existe. Visita nuestro catálogo: '+url;
+    const text='¡Descubre Cupissa! Todo lo que puedas imaginar, aquí existe. Visita nuestro catálogo: '+url;
     try {
-      if (navigator.share) await navigator.share({title:'CUPISSA',text,url});
-      else { await navigator.clipboard.writeText(text); alert('Mensaje de CUPISSA copiado para compartir.'); }
-    } catch(e) { if (e?.name!=='AbortError') alert('No se pudo compartir.'); }
+      if (navigator.share) await navigator.share({title:'Cupissa',text,url});
+      else { await navigator.clipboard.writeText(text);prettyDialog({title:'¡Listo para compartir!',message:'Copiamos tu invitación de Cupissa. Ahora puedes pegarla donde quieras.',confirmText:'Entendido',info:true}); }
+    } catch(e) { if (e?.name!=='AbortError') prettyDialog({title:'No se pudo compartir',message:'Inténtalo nuevamente o copia el enlace desde tu navegador.',confirmText:'Entendido',info:true}); }
   }
   function orderProducts(o) { return Array.isArray(o.productos) ? o.productos : []; }
   function orderPhotos(o) {
@@ -185,16 +227,16 @@
   }
   async function cancel(id) {
     const order=orders.find(o=>String(o.id)===String(id));
-    if (!order || state(order.estado)!=='agendado') return alert('Este pedido ya no se puede cancelar.');
-    if (!confirm('¿Cancelar el pedido '+(order.codigo||'CUP')+'? Esta acción no se puede deshacer. Los anticipos se gestionan según las políticas de CUPISSA.')) return;
+    if (!order || state(order.estado)!=='agendado') return prettyDialog({title:'Pedido en proceso',message:'Este pedido ya no se puede cancelar desde tu cuenta.',confirmText:'Entendido',info:true});
+    if (!(await prettyDialog({title:'¿Cancelar pedido?',message:'El pedido '+(order.codigo||'Cupissa')+' se cancelará. Esta acción no se puede deshacer. Los anticipos se gestionan según las políticas de Cupissa.',confirmText:'Cancelar pedido'}))) return;
     const {error}=await db().rpc('cupissa_cancelar_pedido_cliente',{p_pedido_id:id});
-    if(error) return alert(error.message||'No fue posible cancelar el pedido. Verifica si ya está en fabricación.');
+    if(error) return prettyDialog({title:'No se pudo cancelar',message:error.message||'Verifica si ya comenzó la fabricación.',confirmText:'Entendido',info:true});
     order.estado='CANCELADO'; paintOrders(); await fetchMessages();
   }
   function reorder(id) {
     const o=orders.find(o=>String(o.id)===String(id));
     const ids=[...new Set(orderProducts(o).map(itemId).filter(Boolean))];
-    if(!ids.length) return alert('No encontramos las referencias para repetir el pedido. Contáctanos para ayudarte.');
+    if(!ids.length) return prettyDialog({title:'Estamos para ayudarte',message:'No encontramos las referencias para repetir este pedido. Escríbenos y te ayudaremos.',confirmText:'Entendido',info:true});
     sessionStorage.setItem('cupissa_reorder_products',JSON.stringify(ids));
     if(window.parent!==window){
       window.parent.postMessage({type:'CUPISSA_REORDER',ids},location.origin);
@@ -271,14 +313,14 @@
         <button type="submit">Publicar reseña verificada</button>
       </form>`}</div></article>`).join('')}</div>`);
   }
-  function productoName(p) {return p.producto||'Producto CUPISSA';}
+  function productoName(p) {return p.producto||'Producto Cupissa';}
   async function submitReview(form) {
     const button=form.querySelector('button'); button.disabled=true; button.textContent='Publicando…';
     const {error}=await db().rpc('cupissa_publicar_resena',{
       p_pedido_id:form.dataset.reviewOrder,p_producto_id:form.dataset.reviewProduct,
       p_calificacion:Number(form.elements.rating.value),p_comentario:form.elements.comment.value.trim()
     });
-    if(error) {button.disabled=false;button.textContent='Publicar reseña verificada';alert(error.message||'No se pudo publicar tu reseña.');return;}
+    if(error) {button.disabled=false;button.textContent='Publicar reseña verificada';prettyDialog({title:'Revisa tu reseña',message:error.message||'No se pudo publicar tu reseña.',confirmText:'Entendido',info:true});return;}
     await renderPendingReviews();
   }
   async function renderHistory() {
@@ -286,7 +328,7 @@
     try {history=JSON.parse(localStorage.getItem('cupissa_product_history_v2:'+account?.id)||'[]');} catch(e){}
     if(!Array.isArray(history)) history=[];
     page('Historial',history.length?`<div class="cupissa-history-products">${history.slice(0,80).map(p=>`
-      <a href="${catalogUrl(p.id)}" class="cupissa-history-item">${p.foto?`<img src="${esc(p.foto)}" alt="">`:''}<span><strong>${esc(p.nombre||'Producto CUPISSA')}</strong><small>Ver producto</small></span></a>`).join('')}</div>`:'<div class="cupissa-empty">Los productos que visites desde tu cuenta aparecerán aquí.</div>');
+      <a href="${catalogUrl(p.id)}" class="cupissa-history-item">${p.foto?`<img src="${esc(p.foto)}" alt="">`:''}<span><strong>${esc(p.nombre||'Producto Cupissa')}</strong><small>Ver producto</small></span></a>`).join('')}</div>`:'<div class="cupissa-empty">Los productos que visites desde tu cuenta aparecerán aquí.</div>');
   }
   async function loadProducts() {
     if(!profile) return;
@@ -308,14 +350,20 @@
     const ranked=data.slice().sort((a,b)=>{
       const weight=p=>[p.subcategoria,p.categoria,p.mundo].reduce((n,t)=>n+(tags.filter(v=>v===String(t||'').toUpperCase()).length*3),0)+(visited.has(String(p.id))?-2:0);
       return weight(b)-weight(a);
-    }).slice(0,16);
-    const html=ranked.map(p=>`<a class="cupissa-mini-product" href="${catalogUrl(p.id)}">
+    });
+    // Conservar la variedad del escaparate; el historial influye solo un poco.
+    const similar=ranked.slice(0,4), selected=new Set(similar.map(p=>String(p.id)));
+    const varied=data.filter(p=>!selected.has(String(p.id))).slice(0,12);
+    const mixed=[];let j=0;
+    varied.forEach((p,i)=>{mixed.push(p);if(i%4===3&&j<similar.length)mixed.push(similar[j++]);});
+    while(j<similar.length)mixed.push(similar[j++]);
+    const html=mixed.slice(0,16).map(p=>`<a class="cupissa-mini-product" href="${catalogUrl(p.id)}">
       <img src="${esc(p.fotos?.[0]||'')}" alt="${esc(p.nombre)}" loading="lazy">
       <strong>${esc(p.nombre)}</strong><span>Desde ${cop(p.precio_detal)}</span></a>`).join('');
     ['cupissa-profile-product-grid','cupissa-profile-page-products','cupissa-profile-order-products'].forEach(id=>{if($(id)) $(id).innerHTML=html;});
   }
   window.cupissaExperienceProfileUpdated=(currentProfile,currentAccount)=>{
-    profile=currentProfile;account=currentAccount;orders=[];proofIds=new Set();
+    profile=currentProfile;account=currentAccount;orders=[];proofIds=new Set();navigationHistory=[];
     window.__cupissaMessages=[];window.__cupissaMessagesError='';
     init();go('inicio');loadProducts();
     if(refreshInterval) clearInterval(refreshInterval);
