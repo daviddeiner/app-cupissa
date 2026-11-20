@@ -6,6 +6,10 @@ antes en Supabase SQL Editor el archivo:
 
   supabase/cupissa_experiencia_clientes_20261120.sql
 
+La versión corregida del SQL admite pedidos_web con codigo, numero_pedido
+o referencia, sin exigir la columna codigo. También identifica al cliente
+mediante cliente_id o cliente_web_id, según la estructura disponible.
+
 Solo se ejecuta una vez por base de datos, aunque se suban ambos ZIP.
 Conserva las tablas, productos, pedidos, Wompi y usuarios existentes.
 
