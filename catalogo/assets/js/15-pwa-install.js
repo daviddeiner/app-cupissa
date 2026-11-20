@@ -4,7 +4,6 @@
   let swRegistration = null;
   let updateAvailable = false;
   let applyingUpdate = false;
-  let reloadAfterUpdate = false;
 
   const button = () => document.getElementById('install-app-button');
   const help = document.getElementById('install-app-help');
@@ -75,7 +74,6 @@
     const waiting = swRegistration?.waiting;
     if (!waiting) return false;
     applyingUpdate = true;
-    reloadAfterUpdate = true;
     setButtonState('updating');
     waiting.postMessage({ type: 'CUPISSA_SKIP_WAITING' });
     return true;
@@ -146,10 +144,14 @@
   });
 
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    // Nunca forzar recargas automáticas: pueden interrumpir la carga del
+    // catálogo y provocar ciclos cuando el service worker cambia de versión.
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (reloadAfterUpdate && !window.__cupissaReloadedForUpdate) {
-        window.__cupissaReloadedForUpdate = true;
-        window.location.reload();
+      if (applyingUpdate) {
+        applyingUpdate = false;
+        updateAvailable = false;
+        setButtonState(isInstalled() ? 'installed' : 'install');
+        showHelp('La actualización está lista. Abre de nuevo Cupissa cuando quieras para verla.');
       }
     });
 
