@@ -39,5 +39,6 @@ body.app-session-pending .app-auth-loading { padding-bottom:25vh; font-size:24px
 @media(max-width:767px){
   #mobile-app-nav .mobile-nav-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important}
   #mobile-app-nav .mobile-filter-row{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  #mobile-app-nav .mobile-nav-item[hidden]{display:none!important}
 }
 .cupissa-tasks-back{display:inline-flex;align-items:center;gap:8px;margin:14px 12px 8px;border:1px solid #f6c5d8;border-radius:18px;padding:10px 17px;background:#fff;color:#b72160;font-weight:800}
