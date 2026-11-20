@@ -1,0 +1,51 @@
+CUPISSA | Actualización de experiencia de clientes — 20/11/2026
+
+IMPORTANTE: Estos archivos ya incluyen la página y la aplicación. Para que
+las nuevas reseñas, cancelaciones y mensajes funcionen en producción, ejecutar
+antes en Supabase SQL Editor el archivo:
+
+  supabase/cupissa_experiencia_clientes_20261120.sql
+
+Solo se ejecuta una vez por base de datos, aunque se suban ambos ZIP.
+Conserva las tablas, productos, pedidos, Wompi y usuarios existentes.
+
+CAMBIOS
+* Perfil con Tus pedidos, Mensajes, Reseñas, Historial y Dirección.
+* En la app también aparece Juega y gana con las invitaciones existentes.
+* Configuración, datos fijos, dirección editable, métodos de pago, políticas,
+  compartir, cambiar de cuenta y cerrar sesión.
+* Pedidos por estado; mostrar restante, fotos, fecha, detalle y foto de entrega.
+* Cancelación solo cuando el pedido aún está AGENDADO, validada por la base.
+* Mensajes de cambios de estado con historial y sincronización en vivo;
+  respaldo mediante actualización periódica.
+* Reseñas únicamente de productos realmente entregados y solo una por cliente
+  y producto; las cinco mejor valoradas aparecen primero, luego Ver más.
+* Historial y recomendaciones por categorías realmente visitadas.
+* Carrito flotante al abrir producto.
+* Etiquetas de temporada destacada y Más vendido si hay compras comprobadas.
+* Último día solo si se ha registrado la fecha real de fin de temporada.
+
+PRECIOS DE REFERENCIA REALES
+El precio actual de cada producto no cambia y Wompi no recibe valores nuevos.
+Si en la base existe una columna precio_anterior mayor al precio_detal, la
+tarjeta, la ficha, el carrito y el resumen de compra muestran su comparación
+como "Descuento especial". La migración añade la columna sin inventar valores.
+Para registrar un precio anterior real, usar ese dato histórico; dejar nulo
+cuando no exista. Se respeta el precio real del producto.
+
+RESEÑAS ANTIGUAS
+La migración NO inventa autores, fechas, calificaciones ni comentarios.
+Las reseñas reales anteriores al sistema pueden incorporarse cuando haya
+textos auténticos y un modo fiable de atribuirlos al artículo. El sistema
+publica automáticamente las nuevas de compradores con pedido ENTREGADO.
+No se crean diez opiniones ficticias por cada producto nuevo.
+
+NOTAS IMPORTANTES
+* Los pedidos cancelados pueden requerir gestión de devolución de anticipos
+  conforme a las políticas actuales; cancelación no equivale a reembolso.
+* "Comprar de nuevo" recupera las referencias y permite revisar opciones
+  (talla, color, cantidad) antes de añadir al carrito.
+* Si todavía no se ha ejecutado el SQL, las pantallas indican que el sistema
+  de reseñas o historial debe activarse, y el resto del sitio sigue disponible.
+* Se respetan los archivos originales de autenticación, catálogo, carrito
+  Wompi, alquileres y notificaciones existentes.
