@@ -9,7 +9,8 @@
   const productById=id=>inCatalog()?rawProducts.find(p=>String(p.id)===String(id)):null;
   const isFeatured=p=>{
     const season=typeof featuredSeasonName==='string'?featuredSeasonName:'';
-    return season&&[p.temporada,...(Array.isArray(p.temporadas)?p.temporadas:[])].some(t=>String(t||'').trim().toUpperCase()===season.trim().toUpperCase());
+    if(typeof featuredSeasonProducts!=='undefined'&&featuredSeasonProducts.some(item=>String(item.id)===String(p.id)))return true;
+    return Boolean(season)&&[p.temporada,...(Array.isArray(p.temporadas)?p.temporadas:[])].some(t=>String(t||'').trim().toUpperCase()===season.trim().toUpperCase());
   };
   function comparePrice(p) {
     const before=Number(oldPrices.get(String(p?.id))??p?.precio_anterior);
@@ -25,11 +26,9 @@
     const price=comparePrice(p);
     const rating=ratings.get(String(p.id));
     const priceBox=card.querySelector('.font-black.text-slate-900.text-xs');
-    if(priceBox&&!card.querySelector('.cupissa-special-price')) {
+    if(price&&priceBox&&!card.querySelector('.cupissa-special-price')) {
       const node=document.createElement('div');node.className='cupissa-special-price';
-      node.innerHTML=price
-        ? '<del>'+cash(price)+'</del><span>Descuento especial</span>'
-        : '<span>Precio especial Cupissa</span>';
+      node.innerHTML='<del>'+cash(price)+'</del><span>Descuento especial</span>';
       priceBox.before(node);
     } else if(price&&priceBox) {
       const node=card.querySelector('.cupissa-special-price');
@@ -51,15 +50,15 @@
     }
     if(isFeatured(p)&&!card.querySelector('.cupissa-season-tag')) {
       const tag=document.createElement('span');tag.className='cupissa-season-tag';tag.textContent='Temporada destacada';
-      card.querySelector('.relative')?.appendChild(tag);
+      (card.querySelector('.product-card-title')?.parentElement||card).appendChild(tag);
     }
     if(isFeatured(p)&&Number(window.CUPISSA_PRODUCT_POPULARITY?.[String(p.id)]?.total_compras||0)>0) {
       const count=Number(window.CUPISSA_PRODUCT_POPULARITY?.[String(p.id)]?.total_compras||0);
       const others=(typeof featuredSeasonProducts!=='undefined'?featuredSeasonProducts:[])
         .map(item=>Number(window.CUPISSA_PRODUCT_POPULARITY?.[String(item.id)]?.total_compras||0));
       if(count===Math.max(...others,0)&&!card.querySelector('.cupissa-best-seller')) {
-        const el=document.createElement('span');el.className='cupissa-best-seller';el.textContent='Más vendido';
-        card.querySelector('.relative')?.appendChild(el);
+        const el=document.createElement('span');el.className='cupissa-best-seller';el.innerHTML='<i class="fa-solid fa-fire" aria-hidden="true"></i> Más vendido';
+        (card.querySelector('.product-card-title')?.parentElement||card).appendChild(el);
       }
     }
     // "Último día" solo cuando la campaña tenga una fecha real de fin.
@@ -69,7 +68,7 @@
         .format(new Date());
       if(end===today){
         const el=document.createElement('span');el.className='cupissa-last-day';el.textContent='Último día';
-        card.querySelector('.relative')?.appendChild(el);
+        (card.querySelector('.product-card-title')?.parentElement||card).appendChild(el);
       }
     }
   }
@@ -185,8 +184,20 @@
     float=document.createElement('button');float.type='button';float.id='cupissa-floating-cart';
     float.setAttribute('aria-label','Abrir carrito de compras');
     float.innerHTML='<i class="fa-solid fa-bag-shopping"></i><span>Carrito</span>';
-    float.onclick=()=>{
-      window.closeOptionsModal?.();window.openCartModal?.();
+    float.onclick=event=>{
+      event.preventDefault();event.stopPropagation();
+      // Cerrar la ficha modifica el historial del navegador de forma asíncrona.
+      // Abrir el carrito después evita que el evento popstate lo cierre de nuevo.
+      let opened=false;
+      const showCart=()=>{
+        if(opened)return;opened=true;
+        window.removeEventListener('popstate',afterProductHistory);
+        window.openCartModal?.();
+      };
+      const afterProductHistory=()=>setTimeout(showCart,50);
+      window.addEventListener('popstate',afterProductHistory,{once:true});
+      window.closeOptionsModal?.();
+      setTimeout(showCart,900);
     };
     document.body.appendChild(float);return float;
   }
