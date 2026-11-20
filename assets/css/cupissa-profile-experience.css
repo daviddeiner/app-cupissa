@@ -28,6 +28,7 @@
 .cupissa-page-heading{display:flex;align-items:center;gap:13px;margin-bottom:16px}
 .cupissa-page-heading h2{font-size:22px;font-weight:900}
 .cupissa-back,.cupissa-info-back{padding:9px 11px;border-radius:11px;background:#fff0f6;color:#ba2b65;font-weight:800}
+.cupissa-back{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;font-size:12px}
 .cupissa-info-back{margin-bottom:14px}
 .cupissa-protection{display:flex;gap:13px;padding:20px 16px;background:#fff0f6;border:1px solid #f5c8da;border-radius:16px;margin-bottom:16px}
 .cupissa-protection>i{color:#b72e69;font-size:24px}
@@ -41,6 +42,8 @@
 .cupissa-static-list{background:#fff;border:1px solid #f6e1eb;border-radius:16px;overflow:hidden}
 .cupissa-static-list>div,.cupissa-static-list>a,.cupissa-static-list>p,.cupissa-static-list>small{display:block;border-bottom:1px solid #f4e2e9;padding:16px 18px;font-size:14px}
 .cupissa-static-list>a{color:#b32762;font-weight:750}
+.cupissa-payment-methods>div{display:flex;align-items:center;gap:14px;font-weight:800;min-height:58px}
+.cupissa-payment-methods>div i{color:#ce3273;font-size:18px;width:24px;text-align:center}
 .cupissa-static-list>small{color:#777;border:0}
 .cupissa-order-tabs{display:flex;overflow-x:auto;gap:6px;padding:5px 0 15px;margin-bottom:13px;scrollbar-width:thin;scroll-snap-type:x proximity}
 .cupissa-order-tabs button{flex:0 0 auto;padding:10px 11px;min-height:40px;border-bottom:3px solid transparent;font-weight:700;color:#777;font-size:13px;white-space:nowrap;scroll-snap-align:start}
@@ -93,5 +96,15 @@
 .cupissa-history-item small{color:#ca3774;font-weight:800;margin-top:9px;display:block}
 .cupissa-empty{background:#fff;border:1px solid #f5deea;border-radius:14px;padding:24px;text-align:center;color:#77636b;font-size:14px}
 .cupissa-inline-alert{font-size:13px;background:#fff5e7;border:1px solid #eac48b;padding:12px;border-radius:9px;margin-bottom:12px}
+.cupissa-pretty-backdrop{position:fixed;inset:0;z-index:99999;background:rgba(24,11,20,.62);backdrop-filter:blur(7px);display:grid;place-items:center;padding:20px}
+.cupissa-pretty-dialog{width:min(100%,420px);border:1px solid #fbd3e3;border-radius:25px;background:linear-gradient(160deg,#fff 45%,#fff2f8);box-shadow:0 22px 85px #21031348;text-align:center;padding:27px 22px 22px}
+.cupissa-pretty-icon{height:54px;width:54px;margin:0 auto 14px;display:grid;place-items:center;background:#f4699a;color:#fff;border-radius:18px;font-size:23px;box-shadow:0 7px 20px #f4699a59}
+.cupissa-pretty-dialog h3{font-size:21px;font-weight:950;line-height:1.25;color:#1c1018}
+.cupissa-pretty-dialog p{font-size:14px;line-height:1.65;color:#6b4b5a;margin:12px 0 21px}
+.cupissa-pretty-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cupissa-pretty-actions:has(>button:only-child){grid-template-columns:1fr}
+.cupissa-pretty-actions button{min-height:45px;border-radius:12px;font-size:13px;font-weight:850;padding:11px 12px}
+.cupissa-pretty-cancel{background:#fff;border:1px solid #f4ccdc;color:#ab326c}
+.cupissa-pretty-accept{background:#f4699a;color:#fff;box-shadow:0 5px 15px #f4699a3a}
 @media(min-width:720px){.cupissa-profile-products{grid-template-columns:repeat(4,minmax(0,1fr))}.cupissa-profile-links button{min-height:70px}}
 @media(max-width:480px){#profile-account-section #profile-heading-name{font-size:14px}.cupissa-order-actions>button{padding:9px}.cupissa-order-middle strong{font-size:14px}.cupissa-order-tile{padding:12px}}
