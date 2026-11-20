@@ -335,8 +335,8 @@
     let history=[];try {history=JSON.parse(localStorage.getItem('cupissa_product_history_v2:'+account?.id)||'[]');}catch(e){}
     if(!Array.isArray(history))history=[];
     const last=history[0];
-    const fields='id,nombre,fotos,precio_detal,mundo,categoria,subcategoria,oculto';
-    const queries=[db().from('productos').select(fields).eq('oculto',false).limit(75)];
+    const fields='id,nombre,fotos,precio_detal,mundo,categoria,subcategoria,temporada,oculto';
+    const queries=[db().from('productos').select(fields).eq('oculto',false).limit(1000)];
     if(last?.subcategoria) queries.push(db().from('productos').select(fields)
       .eq('oculto',false).eq('subcategoria',last.subcategoria).limit(45));
     if(last?.categoria) queries.push(db().from('productos').select(fields)
@@ -353,14 +353,35 @@
     });
     // Conservar la variedad del escaparate; el historial influye solo un poco.
     const similar=ranked.slice(0,4), selected=new Set(similar.map(p=>String(p.id)));
-    const varied=data.filter(p=>!selected.has(String(p.id))).slice(0,12);
+    const varied=data.filter(p=>!selected.has(String(p.id)))
+      .sort(()=>Math.random()-.5);
     const mixed=[];let j=0;
     varied.forEach((p,i)=>{mixed.push(p);if(i%4===3&&j<similar.length)mixed.push(similar[j++]);});
     while(j<similar.length)mixed.push(similar[j++]);
-    const html=mixed.slice(0,16).map(p=>`<a class="cupissa-mini-product" href="${catalogUrl(p.id)}">
-      <img src="${esc(p.fotos?.[0]||'')}" alt="${esc(p.nombre)}" loading="lazy">
-      <strong>${esc(p.nombre)}</strong><span>Desde ${cop(p.precio_detal)}</span></a>`).join('');
-    ['cupissa-profile-product-grid','cupissa-profile-page-products','cupissa-profile-order-products'].forEach(id=>{if($(id)) $(id).innerHTML=html;});
+    const card=p=>`<a class="cupissa-mini-product" href="${catalogUrl(p.id)}" aria-label="Ver ${esc(p.nombre)}">
+      <div class="cupissa-mini-photo"><img src="${esc(p.fotos?.[0]||'')}" alt="${esc(p.nombre)}" loading="lazy"></div>
+      <div class="cupissa-mini-details">
+        <small class="cupissa-mini-season">${esc(p.temporada||p.categoria||'Cupissa')}</small>
+        <strong>${esc(p.nombre)}</strong>
+        <span class="cupissa-mini-stars" aria-label="Calificación disponible al abrir producto">☆☆☆☆☆</span>
+        <div class="cupissa-mini-footer"><span><small>Desde</small>${cop(p.precio_detal)}</span><span class="cupissa-mini-cart" aria-hidden="true"><i class="fa-solid fa-cart-shopping"></i></span></div>
+      </div></a>`;
+    ['cupissa-profile-product-grid','cupissa-profile-page-products','cupissa-profile-order-products'].forEach(id=>{
+      const grid=$(id);if(!grid)return;
+      let count=0;
+      const section=grid.closest('.cupissa-profile-recommendations');
+      const existing=section?.querySelector('.cupissa-profile-load-more');
+      existing?.remove();grid.innerHTML='';
+      const append=()=>{
+        const next=mixed.slice(count,count+16);count+=next.length;
+        grid.insertAdjacentHTML('beforeend',next.map(card).join(''));
+        if(button)button.hidden=count>=mixed.length;
+      };
+      const button=document.createElement('button');
+      button.type='button';button.className='cupissa-profile-load-more';button.textContent='Ver más productos';
+      button.addEventListener('click',append);section?.appendChild(button);
+      append();
+    });
   }
   window.cupissaExperienceProfileUpdated=(currentProfile,currentAccount)=>{
     profile=currentProfile;account=currentAccount;orders=[];proofIds=new Set();navigationHistory=[];
