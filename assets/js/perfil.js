@@ -1750,9 +1750,9 @@
       ['Fecha de entrega', order.fecha_entrega],
       ['Estado', order.estado],
       ['Total', money(order.total)],
-      ['Domicilio / envío', money(order.envio ?? order.domicilio_envio)],
+      ['Domicilio / envío', money(order.domicilio_valor ?? order.valor_domicilio ?? order.costo_domicilio ?? order.envio ?? order.domicilio_envio)],
       ['Anticipo', money(order.anticipo)],
-      ['Restante', money(order.restante)],
+      ['Restante por pagar', money(typeof window.cupissaRemainingOrderV2==='function' ? window.cupissaRemainingOrderV2(order) : order.restante)],
       ['Contacto', order.telefono || order.contacto],
       [
         'Ubicación',

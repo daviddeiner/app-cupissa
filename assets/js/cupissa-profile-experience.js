@@ -19,7 +19,7 @@
     <section class="cupissa-profile-home" id="cupissa-profile-home">
       <nav class="cupissa-profile-links" aria-label="Mi cuenta">
         <button data-cupissa-page="pedidos"><i class="fa-solid fa-box"></i>Tus pedidos<i class="fa-solid fa-chevron-right"></i></button>
-        <button data-cupissa-page="mensajes"><i class="fa-regular fa-comment-dots"></i>Mensajes <span id="cupissa-message-badge"></span><i class="fa-solid fa-chevron-right"></i></button>
+        <button data-cupissa-page="mensajes"><i class="fa-regular fa-bell"></i>Notificaciones <span id="cupissa-message-badge"></span><i class="fa-solid fa-chevron-right"></i></button>
         <button data-cupissa-page="resenas"><i class="fa-regular fa-star"></i>Reseñas<i class="fa-solid fa-chevron-right"></i></button>
       </nav>
       <nav class="cupissa-profile-shortcuts" aria-label="Más opciones de cuenta">
@@ -203,8 +203,15 @@
     return images.map(v=>typeof v==='object'?v?.url||v?.imagen_url:v).filter(Boolean).slice(0,4);
   }
   function remaining(o) {
-    return o.restante != null ? Number(o.restante) : Math.max(0,Number(o.total||0)+Number(o.envio??o.domicilio_envio??0)-Number(o.anticipo||0));
+    const shipping=Number(o.domicilio_valor??o.valor_domicilio??o.costo_domicilio??o.envio??o.domicilio_envio??0)||0;
+    const subtotal=Number(o.total||0), advance=Number(o.anticipo||0);
+    // El campo restante del pedido suele contener solo los artículos.
+    // No sumar domicilio dos veces cuando el total ya lo incluye.
+    const base=o.restante!=null?Number(o.restante):Math.max(0,subtotal-advance);
+    const includesShipping=Number(o.total_con_domicilio||0)>0 && subtotal>=Number(o.total_con_domicilio);
+    return Math.max(0,base+(includesShipping?0:shipping));
   }
+  window.cupissaRemainingOrderV2=remaining;
   function paintOrders() {
     if (!$('profile-orders-list')) return;
     document.querySelectorAll('[data-order-filter]').forEach(el=>el.classList.toggle('active',el.dataset.orderFilter===activeFilter));
@@ -255,41 +262,77 @@
   }
   window.cupissaRenderOrdersV2=async (rows)=>{
     orders=rows||[]; $('profile-orders-count').textContent=orders.length+' pedidos';
+    recordObservedOrderStates();
     paintOrders();
     await verifyProofs();
     if(current==='resenas') renderPendingReviews();
     if(current==='mensajes') renderMessages();
     fetchMessages();
   };
+  function notificationKey(){return 'cupissa_order_notifications_v3:'+(profile?.id||account?.id||'sin-cuenta');}
+  function readNotifications(){
+    try{const rows=JSON.parse(localStorage.getItem(notificationKey())||'[]');return Array.isArray(rows)?rows:[];}catch(e){return [];}
+  }
+  function saveNotifications(rows){
+    try{localStorage.setItem(notificationKey(),JSON.stringify(rows));}catch(e){}
+  }
+  function mergeNotifications(rows){
+    const combined=new Map();
+    [...readNotifications(),...rows].forEach(r=>{
+      const key=r.source_id?('db:'+r.source_id):r.key||('pedido:'+r.pedido_id+':'+r.estado+':'+r.created_at);
+      combined.set(key,{...r,key});
+    });
+    const sorted=[...combined.values()].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+    saveNotifications(sorted);window.__cupissaMessages=sorted;
+    if(current==='mensajes')paintMessages();
+    return sorted;
+  }
+  function recordObservedOrderStates(){
+    const key=notificationKey()+':estados';
+    let prior={};try{prior=JSON.parse(localStorage.getItem(key)||'{}')||{};}catch(e){}
+    const additions=[];
+    orders.forEach(o=>{
+      if(!o?.id||!o.estado)return;
+      const id=String(o.id),estado=String(o.estado);
+      if(prior[id]!==estado){
+        additions.push({pedido_id:id,codigo:o.codigo||o.numero_pedido||('CUP'+id.slice(0,8)),
+          estado,created_at:new Date().toISOString(),key:'observado:'+id+':'+estado+':'+Date.now()});
+        prior[id]=estado;
+      }
+    });
+    try{localStorage.setItem(key,JSON.stringify(prior));}catch(e){}
+    if(additions.length)mergeNotifications(additions);
+  }
   async function fetchMessages() {
-    if(!orders.length) return [];
+    if(!orders.length)return mergeNotifications([]);
     const ids=orders.map(o=>o.id).filter(Boolean);
     const {data,error}=await db().from('cupissa_pedido_eventos')
       .select('pedido_id,codigo,estado,created_at,id').in('pedido_id',ids.slice(0,150))
-      .order('created_at',{ascending:false}).limit(120);
+      .order('created_at',{ascending:false}).limit(500);
     if(error) {
       // Si todavía no se instaló la migración, no inventar estados históricos.
       window.__cupissaMessagesError=error.message;
-      return [];
+      return mergeNotifications([]);
     }
     window.__cupissaMessagesError='';
-    window.__cupissaMessages=data||[];
+    const combined=mergeNotifications((data||[]).map(r=>({...r,source_id:r.id})));
     const badge=$('cupissa-message-badge');
-    if(badge) badge.textContent=(data||[]).length ? (data||[]).length+' novedades' : '';
+    if(badge) badge.textContent=combined.length ? combined.length+' novedades' : '';
     if(current==='mensajes') paintMessages();
-    return data;
+    return combined;
   }
   function renderMessages() {
-    page('Mensajes','<div id="cupissa-profile-events" class="cupissa-event-list"><div class="cupissa-empty">Cargando mensajes…</div></div>');
+    page('Notificaciones','<div id="cupissa-profile-events" class="cupissa-event-list"><div class="cupissa-empty">Cargando notificaciones…</div></div>');
     paintMessages();
     fetchMessages();
   }
   function paintMessages() {
     const el=$('cupissa-profile-events'); if(!el) return;
-    const messages=window.__cupissaMessages||[];
+    const messages=window.__cupissaMessages||readNotifications();
     el.innerHTML=messages.length?messages.map(m=>`<button data-open-order="${esc(m.pedido_id)}" class="cupissa-event-item">
       <i class="fa-solid fa-box-open"></i><span><strong>Tu pedido ${esc(m.codigo)} cambió a ${esc(label(m.estado))}</strong><small>${esc(date(m.created_at))}</small></span><i class="fa-solid fa-chevron-right"></i>
-    </button>`).join(''):`<div class="cupissa-empty">${window.__cupissaMessagesError?'Activa el historial de pedidos con el SQL incluido.':'Aún no hay notificaciones de tus pedidos.'}</div>`;
+    </button>`).join(''):`<div class="cupissa-empty">${window.__cupissaMessagesError?'Aún no pudimos sincronizar todas las notificaciones.':'Aún no hay notificaciones de tus pedidos.'}</div>`;
+    if(messages.length)el.lastElementChild?.scrollIntoView?.({block:'nearest'});
   }
   async function renderPendingReviews() {
     page('Reseñas','<div class="cupissa-empty">Cargando productos entregados…</div>');
@@ -365,9 +408,9 @@
       <div class="cupissa-mini-details">
         <small class="cupissa-mini-season">${esc(p.temporada||p.categoria||'Cupissa')}</small>
         <strong>${esc(p.nombre)}</strong>
-        <span class="cupissa-mini-stars" aria-label="Calificación disponible al abrir producto">${demo?'★★★★★':'☆☆☆☆☆'}</span>
+        <span class="cupissa-mini-stars ${demo?'is-rated':''}" aria-label="${demo?'Cinco estrellas en vista de presentación':'Calificación disponible al abrir producto'}">${demo?'★★★★★ · '+(10+demoHash(p.id)%9)+' opiniones':'☆☆☆☆☆'}</span>
         ${demo?`<small class="cupissa-mini-demo-tag">${demoHash(p.id)%2?'Último día':'🔥 Más vendido'}</small>`:''}
-        <div class="cupissa-mini-footer"><span>${demo?`<del class="cupissa-mini-old-price">${cop(Math.ceil(Number(p.precio_detal||0)*1.12/100)*100)}</del>`:'<small>Desde</small>'}${cop(p.precio_detal)}</span><span class="cupissa-mini-cart" aria-hidden="true"><i class="fa-solid fa-cart-shopping"></i></span></div>
+        <div class="cupissa-mini-footer"><span>${demo?`<del class="cupissa-mini-old-price">${cop(Math.ceil(Number(p.precio_detal||0)*(1.15+demoHash(p.id)%10/100)/100)*100)}</del>`:'<small>Desde</small>'}${cop(p.precio_detal)}</span><span class="cupissa-mini-cart" aria-hidden="true"><i class="fa-solid fa-cart-shopping"></i></span></div>
       </div></a>`;
     ['cupissa-profile-product-grid','cupissa-profile-page-products','cupissa-profile-order-products'].forEach(id=>{
       const grid=$(id);if(!grid)return;
@@ -393,7 +436,7 @@
     if(refreshInterval) clearInterval(refreshInterval);
     refreshInterval=setInterval(()=>{
       if(document.visibilityState!=='visible') return;
-      if(current==='pedidos'||current==='resenas') window.cupissaReloadOrders?.();
+      if(current==='pedidos'||current==='resenas'||current==='mensajes') window.cupissaReloadOrders?.();
       else fetchMessages();
     },25000);
     if(eventChannel) db().removeChannel(eventChannel);
@@ -402,7 +445,7 @@
         .on('postgres_changes',{event:'INSERT',schema:'public',table:'cupissa_pedido_eventos'},()=>{
           fetchMessages();
           // El listado se actualiza también si la cuenta está mirando pedidos.
-          if(current==='pedidos'||current==='resenas') window.cupissaReloadOrders?.();
+          if(current==='pedidos'||current==='resenas'||current==='mensajes') window.cupissaReloadOrders?.();
         }).subscribe();
     }
   };

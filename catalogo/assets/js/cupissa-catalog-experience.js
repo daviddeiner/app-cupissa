@@ -6,11 +6,54 @@
   const previewParam=new URLSearchParams(location.search).get('cupissa_demo');
   if(previewParam==='1')sessionStorage.setItem('cupissa_owner_preview','1');
   if(previewParam==='0')sessionStorage.setItem('cupissa_owner_preview','0');
+  if(previewParam===null)sessionStorage.setItem('cupissa_owner_preview','1');
   // Presentación integrada: funciona al abrir el catálogo normal sin URLs especiales.
   // Se puede desactivar para ver exclusivamente los datos publicados.
-  const ownerPreview=sessionStorage.getItem('cupissa_owner_preview')!=='0';
+  const ownerPreview=previewParam!=='0';
   const hashProduct=id=>[...String(id)].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,17);
-  const sampleComments=['Me gustó muchísimo, recomendado.','Excelente servicio, me encantó.','Muy bonito y de buena calidad.','Hermoso, justo como lo esperaba.','Todo llegó precioso, gracias.','Me encantó el resultado.','Lo recomiendo totalmente.','Quedó perfecto, muchas gracias.','Precioso, volvería a comprar.','Me gustó mucho, excelente atención.','Muy feliz con mi compra.','Divino, superó mis expectativas.'];
+  const sampleComments=[
+    'Me encantó el acabado, se nota el cuidado en cada detalle.',
+    'Quedé feliz con mi pedido, los colores se ven preciosos.',
+    'Excelente atención desde el primer momento, muchas gracias.',
+    'La calidad me sorprendió para bien. Muy recomendado.',
+    'Exactamente lo que buscaba, quedó hermoso.',
+    'Todo llegó muy bien presentado. Volvería a comprar.',
+    'Fue un regalo y les encantó. Gracias por todo.',
+    'La tela se siente muy bonita y el resultado es divino.',
+    'El diseño quedó mejor de lo que imaginaba.',
+    'Me gustó muchísimo, se nota la dedicación.',
+    'Muy buena experiencia, respondieron todas mis preguntas.',
+    'Hermoso producto, los detalles están muy bien terminados.',
+    'Quedó precioso para la ocasión, estoy encantada.',
+    'La presentación fue impecable y el producto es muy lindo.',
+    'Superó mis expectativas, definitivamente lo recomiendo.',
+    'Los acabados están muy bien hechos, volveré por más.',
+    'Gracias por la paciencia y el excelente servicio.',
+    'Me llegó tal cual lo esperaba, todo muy bonito.',
+    'Se ve elegante y la calidad está genial.',
+    'Muy feliz con el resultado, lo volvería a pedir.',
+    'Los colores combinan hermoso. Me fascinó.',
+    'Recomendadísimo, quedó con una terminación preciosa.',
+    'Me gustó la atención y la rapidez de la respuesta.',
+    'Fue todo un éxito, recibí muchos cumplidos.',
+    'Qué bonito trabajo, se ve muy delicado.',
+    'El tamaño y el diseño quedaron perfectos para mí.',
+    'Me encantó cómo cuidaron cada detalle del pedido.',
+    'Muy satisfecha, justo la calidad que esperaba.',
+    'Hermoso y práctico, lo recomiendo de corazón.',
+    'Mi familia quedó feliz con el resultado.',
+    'Muy buena compra, se siente resistente y bonito.',
+    'Llegó en muy buenas condiciones y bien empacado.',
+    'El diseño es precioso en persona, me gustó mucho.',
+    'Atención amable y producto muy lindo.',
+    'Todo salió excelente, muchísimas gracias.',
+    'Muy recomendado para regalar, fue un detalle especial.',
+    'La confección está hermosa, se nota la calidad.',
+    'Me encantó la combinación de tonos y materiales.',
+    'Un detalle hermoso que volvería a comprar.',
+    'Compraría otra vez, excelente experiencia en general.'
+  ];
+  const previewCount=p=>10+hashProduct(p.id)%9;
   const oldPrices=new Map(), ratings=new Map(), requestedRatingIds=new Set(), dynamicSignals=new Map();
   let pendingRatingTimer=0;
   const inCatalog=()=>typeof rawProducts!=='undefined'&&Array.isArray(rawProducts);
@@ -23,7 +66,7 @@
   function comparePrice(p) {
     if(ownerPreview){
       const current=Number(p?.precio_detal);
-      return current>0?Math.ceil(current*(1.08+(hashProduct(p.id)%9)/100)/100)*100:0;
+      return current>0?Math.ceil(current*(1.15+(hashProduct(p.id)%10)/100)/100)*100:0;
     }
     const before=Number(oldPrices.get(String(p?.id))??p?.precio_anterior);
     const current=Number(p?.precio_detal);
@@ -56,7 +99,7 @@
     }
     if(ratingEl) {
       const html=ownerPreview
-        ? '<span>★★★★★</span> <small>('+String(10+hashProduct(p.id)%87)+' opiniones)</small>'
+        ? '<span>★★★★★</span> <small>('+String(previewCount(p)+(rating?.count||0))+' opiniones)</small>'
         : rating?.count
         ? '<span>'+stars(rating.total/rating.count)+'</span> <small>('+rating.count+' reseñas de clientes)</small>'
         : '<span class="cupissa-unrated-stars">☆☆☆☆☆</span> <small>Sin calificaciones aún</small>';
@@ -225,7 +268,7 @@
     if(float)return float;
     float=document.createElement('button');float.type='button';float.id='cupissa-floating-cart';
     float.setAttribute('aria-label','Abrir carrito de compras');
-    float.innerHTML='<i class="fa-solid fa-bag-shopping"></i><span>Carrito</span>';
+    float.innerHTML='<i class="fa-solid fa-bag-shopping"></i><span>Carrito</span><small class="cupissa-floating-cart-count" hidden>0</small>';
     float.onclick=event=>{
       event.preventDefault();event.stopPropagation();
       // Cerrar la ficha modifica el historial del navegador de forma asíncrona.
@@ -241,15 +284,29 @@
       window.closeOptionsModal?.();
       setTimeout(showCart,900);
     };
-    document.body.appendChild(float);return float;
+    document.body.appendChild(float);window.cupissaSyncFloatingCartCount?.();return float;
   }
+  window.cupissaSyncFloatingCartCount=total=>{
+    const float=document.getElementById('cupissa-floating-cart');
+    if(!float)return;
+    const badge=float.querySelector('.cupissa-floating-cart-count');
+    if(!badge)return;
+    let quantity=Number(total);
+    if(!Number.isFinite(quantity)){
+      quantity=typeof cart!=='undefined'&&Array.isArray(cart)
+        ?cart.reduce((sum,item)=>sum+Number(item.cantidad||1),0):0;
+    }
+    badge.textContent=String(quantity);
+    badge.hidden=quantity<=0;
+    float.setAttribute('aria-label','Abrir carrito, '+quantity+' productos');
+  };
   function ensureReviewSection(){
     const inner=document.querySelector('#modal-product-options .product-modal-inner');
     if(!inner)return null;
     let section=document.getElementById('cupissa-product-reviews');
     if(!section){
       section=document.createElement('section');section.id='cupissa-product-reviews';
-      section.innerHTML='<div class="cupissa-review-head"><h3>Opiniones de nuestros clientes</h3><span>'+(ownerPreview?'Vista de presentación':'Compras verificadas')+'</span></div><div id="cupissa-product-review-list" aria-live="polite"></div><button type="button" id="cupissa-show-more-reviews" hidden>Ver más reseñas</button>';
+      section.innerHTML='<div class="cupissa-review-head"><h3>Opiniones de nuestros clientes</h3>'+(ownerPreview?'':'<span>Compras verificadas</span>')+'</div><div id="cupissa-product-review-list" aria-live="polite"></div><button type="button" id="cupissa-show-more-reviews" hidden>Ver más reseñas</button>';
     }
     const similar=document.getElementById('cupissa-related-products');
     const actions=inner.querySelector('.product-modal-actions');
@@ -263,7 +320,7 @@
     const token=++reviewToken,section=ensureReviewSection();
     if(!section)return;
     const list=section.querySelector('#cupissa-product-review-list'),more=section.querySelector('#cupissa-show-more-reviews');
-    list.innerHTML='<p class="cupissa-review-empty">Cargando reseñas verificadas…</p>';more.hidden=true;
+    list.innerHTML='<p class="cupissa-review-empty">Cargando reseñas…</p>';more.hidden=true;
     const {data,error}=await supabaseClient.from('cupissa_resenas_verificadas')
       .select('calificacion,comentario,created_at').eq('producto_id',String(p.id))
       .order('calificacion',{ascending:false}).order('created_at',{ascending:false}).limit(1000);
@@ -272,7 +329,7 @@
     const reviews=data||[];
     if(ownerPreview){
       const seed=hashProduct(p.id);
-      for(let i=0;i<10;i++)reviews.push({calificacion:5,comentario:sampleComments[(seed+i*5)%sampleComments.length],sample:true});
+      for(let i=0;i<previewCount(p);i++)reviews.push({calificacion:5,comentario:sampleComments[(seed+i)%sampleComments.length],sample:true});
     }
     if(!reviews.length) {list.innerHTML='<p class="cupissa-review-empty">Este producto todavía no tiene reseñas. Las primeras opiniones llegarán de compras entregadas.</p>';return;}
     const average=reviews.reduce((sum,r)=>sum+Number(r.calificacion||0),0)/reviews.length;
@@ -385,7 +442,9 @@
     if(ownerPreview){
       const banner=document.createElement('div');banner.className='cupissa-owner-preview-banner';
       banner.innerHTML='<strong>Vista de presentación</strong><span>Incluye opiniones y promociones ilustrativas.</span><a href="/catalogo/?cupissa_demo=0">Ver datos reales</a>';
-      document.body.appendChild(banner);
+      // El aviso ocupa su propio espacio antes del encabezado: jamás cubre
+      // el logo, el buscador, el perfil ni los nombres de producto.
+      document.body.prepend(banner);
     }
     ensureFloatingCart().hidden=true;
     observeCatalogCards();

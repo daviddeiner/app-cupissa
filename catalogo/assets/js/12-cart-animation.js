@@ -4,7 +4,9 @@
  */
 function animateProductToCart(imageUrl) {
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
-    const cartButton = document.getElementById(isMobile ? 'mobile-cart-trigger' : 'desktop-cart-trigger');
+    const floatingCart=document.getElementById('cupissa-floating-cart');
+    const floatingVisible=floatingCart && !floatingCart.hidden && getComputedStyle(floatingCart).display!=='none';
+    const cartButton = floatingVisible ? floatingCart : document.getElementById(isMobile ? 'mobile-cart-trigger' : 'desktop-cart-trigger');
     const sourceImage = document.getElementById('opt-modal-img');
 
     if (!cartButton || !sourceImage) return;

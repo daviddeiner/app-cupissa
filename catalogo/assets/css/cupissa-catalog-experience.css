@@ -2,6 +2,8 @@
 #cupissa-floating-cart[hidden]{display:none!important}
 #cupissa-floating-cart{position:fixed;z-index:1815;right:17px;bottom:calc(84px + env(safe-area-inset-bottom,0px));border:1px solid #f8a9c9;background:#f4699a;color:#fff;display:flex;align-items:center;gap:8px;padding:12px 15px;border-radius:99px;font-weight:900;font-size:13px;box-shadow:0 9px 30px #bd2c6970;cursor:pointer}
 #cupissa-floating-cart i{font-size:16px}
+.cupissa-floating-cart-count{position:absolute;top:-9px;right:-6px;min-width:21px;height:21px;padding:0 5px;display:grid;place-items:center;border:2px solid #fff;border-radius:99px;background:#191018;color:#fff;font-size:10px;font-weight:900;line-height:1}
+.cupissa-floating-cart-count[hidden]{display:none!important}
 #cupissa-product-reviews{display:block;min-width:0;width:100%;margin:20px 0 6px;padding:21px 14px;border-top:5px solid #fde4ed;background:#fff;color:#1a151a}
 .cupissa-review-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
 .cupissa-review-head h3{font-size:18px;line-height:1.3;font-weight:900}
@@ -18,7 +20,7 @@
 .cupissa-special-price{font-size:11px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 4px}
 .cupissa-special-price del{color:#9e8c93}
 .cupissa-special-price span{color:#b72160;font-weight:900}
-.cupissa-owner-preview-banner{position:fixed;z-index:99999;top:8px;left:50%;transform:translateX(-50%);max-width:calc(100vw - 16px);width:max-content;display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;background:#20131b;color:#fff;border:1px solid #efbad3;border-radius:12px;padding:9px 13px;box-shadow:0 8px 30px #0004;font-size:11px;line-height:1.2}
+.cupissa-owner-preview-banner{position:relative;z-index:1;inset:auto;transform:none;width:100%;max-width:none;flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;background:#20131b;color:#fff;border-bottom:1px solid #efbad3;border-radius:0;padding:8px 13px;box-shadow:none;font-size:11px;line-height:1.2}
 .cupissa-owner-preview-banner strong{color:#ffa2cb}
 .cupissa-owner-preview-banner a{color:#fff;text-decoration:underline;font-weight:800}
 .cupissa-card-rating{font-size:12px!important;margin:6px 0 0!important;line-height:1.3}
