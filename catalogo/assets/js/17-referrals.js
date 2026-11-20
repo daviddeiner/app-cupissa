@@ -89,7 +89,8 @@
     if (!tasksOpen) return;
     el('cupissa-tasks-view').hidden = true;
     tasksOpen = false;
-    window.setMobileNavSection?.('home');
+    if(typeof window.openProfileModal==='function')window.openProfileModal();
+    else window.setMobileNavSection?.('profile');
   };
   function inviteText() {
     const code = latest?.code || '';
