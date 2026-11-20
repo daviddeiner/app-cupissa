@@ -358,13 +358,16 @@
     const mixed=[];let j=0;
     varied.forEach((p,i)=>{mixed.push(p);if(i%4===3&&j<similar.length)mixed.push(similar[j++]);});
     while(j<similar.length)mixed.push(similar[j++]);
+    const demo=sessionStorage.getItem('cupissa_owner_preview')!=='0';
+    const demoHash=id=>[...String(id)].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,17);
     const card=p=>`<a class="cupissa-mini-product" href="${catalogUrl(p.id)}" aria-label="Ver ${esc(p.nombre)}">
       <div class="cupissa-mini-photo"><img src="${esc(p.fotos?.[0]||'')}" alt="${esc(p.nombre)}" loading="lazy"></div>
       <div class="cupissa-mini-details">
         <small class="cupissa-mini-season">${esc(p.temporada||p.categoria||'Cupissa')}</small>
         <strong>${esc(p.nombre)}</strong>
-        <span class="cupissa-mini-stars" aria-label="Calificación disponible al abrir producto">☆☆☆☆☆</span>
-        <div class="cupissa-mini-footer"><span><small>Desde</small>${cop(p.precio_detal)}</span><span class="cupissa-mini-cart" aria-hidden="true"><i class="fa-solid fa-cart-shopping"></i></span></div>
+        <span class="cupissa-mini-stars" aria-label="Calificación disponible al abrir producto">${demo?'★★★★★':'☆☆☆☆☆'}</span>
+        ${demo?`<small class="cupissa-mini-demo-tag">${demoHash(p.id)%2?'Último día':'🔥 Más vendido'}</small>`:''}
+        <div class="cupissa-mini-footer"><span>${demo?`<del class="cupissa-mini-old-price">${cop(Math.ceil(Number(p.precio_detal||0)*1.12/100)*100)}</del>`:'<small>Desde</small>'}${cop(p.precio_detal)}</span><span class="cupissa-mini-cart" aria-hidden="true"><i class="fa-solid fa-cart-shopping"></i></span></div>
       </div></a>`;
     ['cupissa-profile-product-grid','cupissa-profile-page-products','cupissa-profile-order-products'].forEach(id=>{
       const grid=$(id);if(!grid)return;
