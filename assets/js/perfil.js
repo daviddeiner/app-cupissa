@@ -435,6 +435,9 @@
     } catch (_) {}
     renderProfile();
     showAccount();
+    if (typeof window.cupissaExperienceProfileUpdated === 'function') {
+      window.cupissaExperienceProfileUpdated(currentProfile, currentClient);
+    }
 
     await loadOrders();
 
@@ -1519,6 +1522,11 @@
 
     window.__cupissaWebOrders = orders;
 
+    if (typeof window.cupissaRenderOrdersV2 === 'function') {
+      await window.cupissaRenderOrdersV2(orders, clientDb);
+      return;
+    }
+
     if (!orders.length) {
       if (errors.length) {
         console.warn('[CUPISSA PEDIDOS] Algunas búsquedas fallaron:', errors);
@@ -1715,6 +1723,8 @@
   /* ============================================================
      DETALLE DE PEDIDO
      ============================================================ */
+
+  window.cupissaReloadOrders = loadOrders;
 
   window.openProfileOrder = function (id) {
     const order = (window.__cupissaWebOrders || [])
