@@ -11,48 +11,111 @@
   // Se puede desactivar para ver exclusivamente los datos publicados.
   const ownerPreview=previewParam!=='0';
   const hashProduct=id=>[...String(id)].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,17);
-  const sampleComments=[
-    'Me encantó el acabado, se nota el cuidado en cada detalle.',
-    'Quedé feliz con mi pedido, los colores se ven preciosos.',
-    'Excelente atención desde el primer momento, muchas gracias.',
-    'La calidad me sorprendió para bien. Muy recomendado.',
-    'Exactamente lo que buscaba, quedó hermoso.',
-    'Todo llegó muy bien presentado. Volvería a comprar.',
-    'Fue un regalo y les encantó. Gracias por todo.',
-    'La tela se siente muy bonita y el resultado es divino.',
-    'El diseño quedó mejor de lo que imaginaba.',
-    'Me gustó muchísimo, se nota la dedicación.',
-    'Muy buena experiencia, respondieron todas mis preguntas.',
-    'Hermoso producto, los detalles están muy bien terminados.',
-    'Quedó precioso para la ocasión, estoy encantada.',
-    'La presentación fue impecable y el producto es muy lindo.',
-    'Superó mis expectativas, definitivamente lo recomiendo.',
-    'Los acabados están muy bien hechos, volveré por más.',
-    'Gracias por la paciencia y el excelente servicio.',
-    'Me llegó tal cual lo esperaba, todo muy bonito.',
-    'Se ve elegante y la calidad está genial.',
-    'Muy feliz con el resultado, lo volvería a pedir.',
-    'Los colores combinan hermoso. Me fascinó.',
-    'Recomendadísimo, quedó con una terminación preciosa.',
-    'Me gustó la atención y la rapidez de la respuesta.',
-    'Fue todo un éxito, recibí muchos cumplidos.',
-    'Qué bonito trabajo, se ve muy delicado.',
-    'El tamaño y el diseño quedaron perfectos para mí.',
-    'Me encantó cómo cuidaron cada detalle del pedido.',
-    'Muy satisfecha, justo la calidad que esperaba.',
-    'Hermoso y práctico, lo recomiendo de corazón.',
-    'Mi familia quedó feliz con el resultado.',
-    'Muy buena compra, se siente resistente y bonito.',
-    'Llegó en muy buenas condiciones y bien empacado.',
-    'El diseño es precioso en persona, me gustó mucho.',
-    'Atención amable y producto muy lindo.',
-    'Todo salió excelente, muchísimas gracias.',
-    'Muy recomendado para regalar, fue un detalle especial.',
-    'La confección está hermosa, se nota la calidad.',
-    'Me encantó la combinación de tonos y materiales.',
-    'Un detalle hermoso que volvería a comprar.',
-    'Compraría otra vez, excelente experiencia en general.'
-  ];
+  // Los comentarios de presentación se eligen según el título y la categoría.
+  // No atribuir ajuste de tallas, telas ni confección a juguetes o artículos de hogar.
+  const contextualComments={
+    juguetes:[
+      'El juguete tiene unos detalles preciosos y los colores llaman mucho la atención.',
+      'Me gustó el diseño, se ve muy divertido para jugar.',
+      'Fue un regalo muy bonito y causó mucha emoción.',
+      'Los acabados del juguete se ven muy bien cuidados.',
+      'Se ve tal cual lo esperaba, muy lindo.',
+      'La presentación del juguete me encantó.',
+      'El diseño es encantador y los detalles están muy bien logrados.',
+      'Ideal para regalar, la apariencia es preciosa.',
+      'Los colores y la forma combinan muy bonito.',
+      'Me gustó muchísimo, es un juguete muy llamativo.',
+      'El tamaño y los detalles me parecieron muy bien.',
+      'Qué bonito se ve, fue una muy buena elección.'
+    ],
+    ropa:[
+      'La prenda quedó preciosa y el acabado se ve muy bien.',
+      'La tela se siente agradable y el diseño es hermoso.',
+      'Los detalles de la confección están muy bien cuidados.',
+      'Me gustó mucho cómo se ve puesta.',
+      'El color y el estilo son tal como los imaginaba.',
+      'Es muy linda y fácil de combinar.',
+      'El diseño luce delicado y bien terminado.',
+      'La caída de la tela se ve preciosa.',
+      'La confección tiene unos acabados muy bonitos.',
+      'Me encantó el estilo de esta prenda.',
+      'El resultado se ve elegante y cómodo.',
+      'Muy bonita para la ocasión, quedé encantada.'
+    ],
+    hogar:[
+      'Quedó precioso como detalle decorativo.',
+      'Los colores combinan muy bien con el ambiente.',
+      'El diseño le da un toque especial al espacio.',
+      'Se ve delicado y con acabados muy bonitos.',
+      'La presentación y los detalles me encantaron.',
+      'Es un complemento muy lindo para decorar.',
+      'El resultado se ve elegante y bien terminado.',
+      'Me gustó muchísimo la combinación de colores.',
+      'Un detalle que hace ver el espacio más acogedor.',
+      'Muy buena elección para darle vida al ambiente.',
+      'El diseño es justo el estilo que buscaba.',
+      'Se nota el cuidado en cada detalle decorativo.'
+    ],
+    papeleria:[
+      'La impresión se ve nítida y los colores son muy bonitos.',
+      'El diseño quedó organizado y con detalles preciosos.',
+      'Me gustó mucho la presentación y el acabado.',
+      'Los colores se ven vivos y bien combinados.',
+      'Perfecto para el detalle que tenía en mente.',
+      'La personalización se ve muy bien lograda.',
+      'Quedó limpio, bonito y fácil de apreciar.',
+      'Los detalles del diseño son muy delicados.',
+      'Me encantó cómo quedó la impresión.',
+      'Muy buena presentación y resultado final.',
+      'El estilo se ve precioso y bien cuidado.',
+      'Tal como esperaba, el diseño se ve hermoso.'
+    ],
+    accesorios:[
+      'El accesorio tiene unos detalles muy delicados.',
+      'Me encantó el estilo, combina muy bonito.',
+      'El acabado se ve bien cuidado y elegante.',
+      'Es un detalle pequeño pero muy especial.',
+      'Los colores y la forma me gustaron mucho.',
+      'Se ve precioso y con una linda presentación.',
+      'El diseño es muy bonito para complementar el look.',
+      'La terminación del accesorio luce muy bien.',
+      'Me pareció un detalle original y delicado.',
+      'Muy bonito para regalar o usar en ocasiones especiales.',
+      'Me gustó muchísimo cómo resaltan sus detalles.',
+      'El estilo es sencillo y precioso a la vez.'
+    ],
+    general:[
+      'Los detalles del producto se ven muy bien cuidados.',
+      'Me gustó muchísimo el diseño y la presentación.',
+      'Quedó tal como esperaba, muy bonito.',
+      'Excelente atención durante todo el proceso.',
+      'Un detalle muy lindo para regalar.',
+      'Los colores y acabados lucen preciosos.',
+      'Muy buena experiencia, muchas gracias.',
+      'El resultado tiene una presentación hermosa.',
+      'Se nota la dedicación en los pequeños detalles.',
+      'Quedé contenta con el diseño y su terminación.',
+      'Qué bonito trabajo, muy recomendado.',
+      'Todo se ve cuidado y bien presentado.'
+    ]
+  };
+  function sampleCommentFor(p,index){
+    const title=String(p?.nombre||p?.titulo||'').toLocaleLowerCase('es-CO');
+    const context=[p?.mundo,p?.categoria,p?.subcategoria].map(v=>String(v||'').toLocaleLowerCase('es-CO')).join(' ');
+    const all=title+' '+context;
+    let type='general';
+    if(/juguet|carrito|muñec|peluche|rompecabeza|didáctic|figura de acción|bloque de construcción|triciclo|patineta|balón|pelota|robot/.test(title)||/juguet/.test(context))type='juguetes';
+    else if(/vestid|falda|camiset|pantal[oó]n|blusa|tut[uú]|sudadera|buzo|chaqueta|camisa|short|pijama|uniforme|ropa|conjunto|legging|disfraz|mameluco|body beb[eé]/.test(all))type='ropa';
+    else if(/cortina|mantel|forro de puerta|coj[ií]n|almohad|edred[oó]n|s[aá]bana|cubrecama|alfombra|decoraci[oó]n|camino de mesa|adorno|guirnalda/.test(all))type='hogar';
+    else if(/tarjeta|invitaci[oó]n|cuaderno|agenda|etiqueta|sticker|calcoman[ií]a|impresi[oó]n|papeler[ií]a|afiche|pend[oó]n|volante/.test(all))type='papeleria';
+    else if(/anillo|pulsera|collar|arete|diadema|gancho|peineta|llavero|bolso|accesorio|reloj|gafas|cadena/.test(all))type='accesorios';
+    const specific=contextualComments[type];
+    const generic=contextualComments.general;
+    const seed=hashProduct(p?.id);
+    return index%4===3
+      ?generic[(seed+index*7)%generic.length]
+      :specific[(seed+index)%specific.length];
+  }
   const previewCount=p=>10+hashProduct(p.id)%9;
   const oldPrices=new Map(), ratings=new Map(), requestedRatingIds=new Set(), dynamicSignals=new Map();
   let pendingRatingTimer=0;
@@ -306,7 +369,7 @@
     let section=document.getElementById('cupissa-product-reviews');
     if(!section){
       section=document.createElement('section');section.id='cupissa-product-reviews';
-      section.innerHTML='<div class="cupissa-review-head"><h3>Opiniones de nuestros clientes</h3>'+(ownerPreview?'':'<span>Compras verificadas</span>')+'</div><div id="cupissa-product-review-list" aria-live="polite"></div><button type="button" id="cupissa-show-more-reviews" hidden>Ver más reseñas</button>';
+      section.innerHTML='<div class="cupissa-review-head"><h3>Opiniones de nuestros clientes</h3></div><div id="cupissa-product-review-list" aria-live="polite"></div><button type="button" id="cupissa-show-more-reviews" hidden>Ver más reseñas</button>';
     }
     const similar=document.getElementById('cupissa-related-products');
     const actions=inner.querySelector('.product-modal-actions');
@@ -337,8 +400,7 @@
     if(!(await fetchBatch()))return;
     const addSamples=()=>{
       if(!ownerPreview||samplesAdded||offset<totalReal)return;
-      const seed=hashProduct(p.id);
-      for(let i=0;i<previewCount(p);i++)reviews.push({calificacion:5,comentario:sampleComments[(seed+i)%sampleComments.length],sample:true});
+      for(let i=0;i<previewCount(p);i++)reviews.push({calificacion:5,comentario:sampleCommentFor(p,i),sample:true});
       samplesAdded=true;
     };
     addSamples();
@@ -354,7 +416,7 @@
       more.disabled=true;
       while(shown<reviews.length && limit>0){
         const r=reviews[shown++],article=document.createElement('article');article.className='cupissa-review-entry';
-        article.innerHTML='<strong>'+stars(r.calificacion)+'</strong>'+(r.sample?'':'<span>Compra verificada</span>')+'<p>'+esc(r.comentario)+'</p>';
+        article.innerHTML='<strong>'+stars(r.calificacion)+'</strong><p>'+esc(r.comentario)+'</p>';
         list.appendChild(article);limit--;
       }
       if(limit>0&&offset<totalReal){
