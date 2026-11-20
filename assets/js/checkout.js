@@ -742,6 +742,8 @@
         customText: item.customText || '',
         precioInicial: initialUnit,
         precioUnitario: initialUnit,
+        precioAnterior: !rental && Number(product.precio_anterior || 0) > Number(product.precio_detal || 0)
+          ? Number(product.precio_anterior) : 0,
         total: Math.round(initialUnit * quantity),
         porcentajeAnticipo: Math.max(
           0,
@@ -1645,6 +1647,7 @@
                   <p class="text-xs font-black text-slate-800 mt-1">
                     ${money(item.precioUnitario)} c/u · ${money(item.total)}
                   </p>
+                  ${item.precioAnterior ? `<p class="text-[11px] text-pink-700 font-bold"><del>Antes desde ${money(item.precioAnterior)}</del> · Descuento especial aplicado</p>` : ''}
                 </div>
               </div>
             `).join('')}
