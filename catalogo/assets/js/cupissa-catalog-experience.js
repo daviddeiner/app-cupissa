@@ -460,13 +460,6 @@
     });
   }
   document.addEventListener('DOMContentLoaded',()=>{
-    if(ownerPreview){
-      const banner=document.createElement('div');banner.className='cupissa-owner-preview-banner';
-      banner.innerHTML='<strong>Vista de presentación</strong><span>Incluye opiniones y promociones ilustrativas.</span><a href="/catalogo/?cupissa_demo=0">Ver datos reales</a>';
-      // El aviso ocupa su propio espacio antes del encabezado: jamás cubre
-      // el logo, el buscador, el perfil ni los nombres de producto.
-      document.body.prepend(banner);
-    }
     ensureFloatingCart().hidden=true;
     observeCatalogCards();
     scheduleVerifiedRatings();loadReferencePrices();loadSeasonEndDate();tryOpenDeepLink();restoreReorder();
