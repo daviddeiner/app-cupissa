@@ -52,7 +52,7 @@ grant execute on function public.cupissa_mis_resenas(text[]) to authenticated;
 create or replace function public.cupissa_publicar_resena(
   p_pedido_id uuid, p_producto_id text, p_calificacion integer, p_comentario text
 ) returns uuid language plpgsql security definer set search_path=public,pg_temp as $$
-declare v_pedido public.pedidos_web%rowtype; v_id uuid;
+declare v_pedido public.pedidos_web%rowtype; v_id uuid; v_pertenece boolean:=false;
 begin
   if auth.uid() is null then raise exception 'Inicia sesión para reseñar.'; end if;
   if p_calificacion not between 1 and 5 or
@@ -60,13 +60,32 @@ begin
     raise exception 'Completa las estrellas y un comentario de 3 a 400 caracteres.';
   end if;
   select p.* into v_pedido from public.pedidos_web p
-  join public.clientes_web c on c.id=p.cliente_id
-  where p.id=p_pedido_id and c.auth_user_id=auth.uid()
+  join public.clientes_web c on c.auth_user_id=auth.uid()
+    and (c.id::text = coalesce(to_jsonb(p)->>'cliente_web_id','')
+      or c.id::text = coalesce(to_jsonb(p)->>'cliente_id',''))
+  where p.id=p_pedido_id
     and upper(trim(p.estado))='ENTREGADO';
   if not found then raise exception 'Solo puedes reseñar pedidos tuyos entregados.'; end if;
-  if not exists (select 1 from jsonb_array_elements(coalesce(v_pedido.productos,'[]'::jsonb)) item
-    where coalesce(item->>'productId',item->>'producto_id',item->>'product_id',item->>'id','')=p_producto_id)
-  then raise exception 'Este producto no pertenece a tu pedido entregado.'; end if;
+  select exists (
+    select 1 from jsonb_array_elements(
+      case when jsonb_typeof(to_jsonb(v_pedido)->'productos')='array'
+        then to_jsonb(v_pedido)->'productos' else '[]'::jsonb end
+    ) as item(value)
+    where coalesce(item.value->>'productId',item.value->>'producto_id',
+      item.value->>'product_id',item.value->>'id','')=p_producto_id
+  ) into v_pertenece;
+  -- Algunas versiones de CUPISSA guardan los artículos en tabla separada.
+  if not v_pertenece and to_regclass('public.pedidos_web_productos') is not null then
+    execute $q$
+      select exists(select 1 from public.pedidos_web_productos item
+        where coalesce(to_jsonb(item)->>'pedido_id',to_jsonb(item)->>'pedido_web_id','')=$1
+        and coalesce(to_jsonb(item)->>'producto_id',to_jsonb(item)->>'productId',
+          to_jsonb(item)->>'product_id','')=$2)
+    $q$ into v_pertenece using p_pedido_id::text,p_producto_id;
+  end if;
+  if not v_pertenece then
+    raise exception 'Este producto no pertenece a tu pedido entregado.';
+  end if;
   insert into public.cupissa_resenas_verificadas
     (auth_user_id,pedido_id,producto_id,calificacion,comentario)
   values (auth.uid(),p_pedido_id,p_producto_id,p_calificacion,trim(p_comentario))
@@ -91,8 +110,11 @@ alter table public.cupissa_pedido_eventos enable row level security;
 drop policy if exists cupissa_pedido_eventos_cliente on public.cupissa_pedido_eventos;
 create policy cupissa_pedido_eventos_cliente on public.cupissa_pedido_eventos
   for select to authenticated using (exists (
-    select 1 from public.pedidos_web p join public.clientes_web c on c.id=p.cliente_id
-    where p.id=pedido_id and c.auth_user_id=auth.uid()
+    select 1 from public.pedidos_web p join public.clientes_web c
+      on c.auth_user_id=auth.uid()
+      and (c.id::text = coalesce(to_jsonb(p)->>'cliente_web_id','')
+        or c.id::text = coalesce(to_jsonb(p)->>'cliente_id',''))
+    where p.id=pedido_id
   ));
 grant select on public.cupissa_pedido_eventos to authenticated;
 revoke insert, update, delete on public.cupissa_pedido_eventos from anon, authenticated;
@@ -100,9 +122,22 @@ revoke insert, update, delete on public.cupissa_pedido_eventos from anon, authen
 create or replace function public.cupissa_registrar_cambio_pedido()
 returns trigger language plpgsql security definer set search_path=public,pg_temp as $$
 begin
-  if tg_op='INSERT' or new.estado is distinct from old.estado then
+  if tg_op='INSERT' then
     insert into public.cupissa_pedido_eventos(pedido_id,codigo,estado,created_at)
-    values (new.id,new.codigo,new.estado,now());
+    values (new.id, coalesce(
+      nullif(to_jsonb(new)->>'codigo',''),
+      nullif(to_jsonb(new)->>'numero_pedido',''),
+      nullif(to_jsonb(new)->>'referencia',''),
+      'CUP' || left(new.id::text,8)
+    ),new.estado,now());
+  elsif new.estado is distinct from old.estado then
+    insert into public.cupissa_pedido_eventos(pedido_id,codigo,estado,created_at)
+    values (new.id, coalesce(
+      nullif(to_jsonb(new)->>'codigo',''),
+      nullif(to_jsonb(new)->>'numero_pedido',''),
+      nullif(to_jsonb(new)->>'referencia',''),
+      'CUP' || left(new.id::text,8)
+    ),new.estado,now());
   end if;
   return new;
 end $$;
@@ -112,7 +147,14 @@ after insert or update of estado on public.pedidos_web
 for each row execute function public.cupissa_registrar_cambio_pedido();
 -- Registrar solo el estado observado de pedidos anteriores; no inventar transiciones.
 insert into public.cupissa_pedido_eventos (pedido_id,codigo,estado,created_at)
-select p.id,p.codigo,p.estado,coalesce(p.updated_at,p.created_at,now())
+select p.id,
+  coalesce(nullif(to_jsonb(p)->>'codigo',''),
+    nullif(to_jsonb(p)->>'numero_pedido',''),
+    nullif(to_jsonb(p)->>'referencia',''),
+    'CUP' || left(p.id::text,8)),
+  p.estado,
+  coalesce(nullif(to_jsonb(p)->>'updated_at','')::timestamptz,
+    nullif(to_jsonb(p)->>'created_at','')::timestamptz,now())
 from public.pedidos_web p
 where not exists (select 1 from public.cupissa_pedido_eventos e where e.pedido_id=p.id);
 
@@ -122,10 +164,12 @@ declare v_pedido public.pedidos_web%rowtype;
 begin
   if auth.uid() is null then raise exception 'Inicia sesión para continuar.'; end if;
   select p.* into v_pedido from public.pedidos_web p
-  join public.clientes_web c on c.id=p.cliente_id
-  where p.id=p_pedido_id and c.auth_user_id=auth.uid() for update of p;
+  join public.clientes_web c on c.auth_user_id=auth.uid()
+    and (c.id::text=coalesce(to_jsonb(p)->>'cliente_web_id','')
+      or c.id::text=coalesce(to_jsonb(p)->>'cliente_id',''))
+  where p.id=p_pedido_id for update of p;
   if not found then raise exception 'Pedido no encontrado en tu cuenta.'; end if;
-  if upper(trim(v_pedido.estado)) <> 'AGENDADO' then
+  if upper(trim(v_pedido.estado)) not in ('AGENDADO','PENDIENTE') then
     raise exception 'Ya comenzó la fabricación o este pedido no se puede cancelar.';
   end if;
   update public.pedidos_web set estado='CANCELADO' where id=p_pedido_id;
