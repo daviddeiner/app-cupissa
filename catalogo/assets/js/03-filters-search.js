@@ -166,9 +166,23 @@ function filterBySubcategoria(subcat) {
                 .trim();
         }
 
+        // Normalizar el vocabulario para que plural, singular y denominaciones
+        // comerciales equivalentes coincidan sin perder el significado buscado.
+        const CUPISSA_SEARCH_STOP_WORDS = new Set(['de','del','la','las','el','los','un','una','para','por','con','y','en','a','al']);
+        function canonicalSearchWord(word) {
+            const normalized = normalizeSearchText(word);
+            if (/^naviden[oa]s?$/.test(normalized) || normalized === 'navidad' || normalized === 'christmas') return 'navidad';
+            if (/^tutus?$/.test(normalized)) return 'tutu';
+            if (/^conjuntos?$/.test(normalized) || /^sets?$/.test(normalized)) return 'conjunto';
+            if (normalized.length > 4 && normalized.endsWith('es') && !normalized.endsWith('ces')) return normalized.slice(0, -2);
+            if (normalized.length > 4 && normalized.endsWith('s') && !normalized.endsWith('ss')) return normalized.slice(0, -1);
+            return normalized;
+        }
+
         function searchTokens(value) {
-            const stopWords = new Set(['de','del','la','las','el','los','un','una','para','por','con','y','en','a','al']);
-            return normalizeSearchText(value).split(/\s+/).filter(word => word.length > 1 && !stopWords.has(word));
+            return normalizeSearchText(value).split(/\s+/)
+                .filter(word => word.length > 1 && !CUPISSA_SEARCH_STOP_WORDS.has(word))
+                .map(canonicalSearchWord).filter(Boolean);
         }
 
         function boundedEditDistance(a, b, maxDistance) {
@@ -245,43 +259,72 @@ function filterBySubcategoria(subcat) {
         }
 
         function calculateProductRelevance(product, query) {
-            // La referencia pública utiliza los últimos cuatro caracteres del ID.
-            // Admitir CUP-1234, CUP1234 y 1234, sin alterar el buscador por nombre.
+            // Búsqueda exacta por referencia, con prioridad absoluta.
             const reference = String(product.id || '').slice(-4).toLowerCase();
             const requestedRef = String(query || '').trim().toLowerCase().replace(/^ref(?:erencia)?\s*[:#-]?\s*/, '').replace(/^cup\s*[- ]?\s*/, '');
-            if (reference && /^[a-z0-9]{4}$/.test(requestedRef) && requestedRef === reference) return 10000;
+            if (reference && /^[a-z0-9]{4}$/.test(requestedRef) && requestedRef === reference) return 100000;
+
             const phrase = normalizeSearchText(query);
-            const queryWords = searchTokens(query);
+            const queryWords = [...new Set(searchTokens(query))];
             if (!phrase || !queryWords.length) return 0;
             const fields = getIndexedProductFields(product);
+            const name = fields[0];
+            const categories = fields.slice(1, 3);
+            const matches = queryWords.map(word => {
+                let best = 0, nameMatch = 0, categoryMatch = 0;
+                for (let fieldIndex = 0; fieldIndex < fields.length; fieldIndex++) {
+                    const field = fields[fieldIndex];
+                    let quality = 0;
+                    for (const candidate of field.words) {
+                        quality = Math.max(quality, tokenSimilarity(word, candidate));
+                        if (quality === 100) break;
+                    }
+                    // Nunca confundir una coincidencia vaga de una palabra con
+                    // una coincidencia completa de la intención del cliente.
+                    const weighted = quality * field.weight;
+                    best = Math.max(best, weighted);
+                    if (fieldIndex === 0) nameMatch = quality;
+                    if (fieldIndex === 1 || fieldIndex === 2) categoryMatch = Math.max(categoryMatch, quality);
+                }
+                return { best, nameMatch, categoryMatch };
+            });
 
-            let score = 0;
-            const nameText = fields[0].text;
-            if (nameText === phrase) score += 1000;
-            else if (nameText.startsWith(phrase)) score += 760;
-            else if (nameText.includes(phrase)) score += 620;
+            // La cobertura de TODOS los conceptos gobierna el orden. Una ficha
+            // "conjunto con tutú navideño" siempre supera una ficha "tutú"
+            // aunque esta última repita la misma palabra muchas veces.
+            const reliable = matches.filter(match => match.best >= 35).length;
+            const strong = matches.filter(match => match.best >= 55).length;
+            const full = strong === queryWords.length;
+            const mean = matches.reduce((sum, match) => sum + match.best, 0) / queryWords.length;
+            const weakest = Math.min(...matches.map(match => match.best));
+            let score = (full ? 12000 : 0)
+                + reliable * 1600 + strong * 650
+                + (reliable / queryWords.length) * 2000
+                + mean * 6 + weakest * 3;
 
-            for (const queryWord of queryWords) {
-                let bestForWord = 0;
-                fields.forEach((field, fieldIndex) => {
-                    const fieldFactor = field.weight;
-                    let fieldBest = 0;
-                    field.words.forEach(candidate => {
-                        fieldBest = Math.max(fieldBest, tokenSimilarity(queryWord, candidate));
-                    });
-                    if (field.text.includes(queryWord)) fieldBest = Math.max(fieldBest, fieldIndex === 0 ? 90 : 62);
-                    bestForWord = Math.max(bestForWord, fieldBest * fieldFactor);
-                });
-                score += bestForWord;
-            }
+            // La primera palabra suele ser el tipo de artículo solicitado:
+            // "conjuntos con tutús" no debe priorizar solo tutús sueltos.
+            const head = matches[0];
+            if (head.nameMatch >= 65) score += 1400;
+            else if (head.categoryMatch >= 65) score += 850;
+            if (name.text === phrase) score += 1700;
+            else if (name.text.startsWith(phrase)) score += 1100;
+            else if (name.text.includes(phrase)) score += 800;
 
-            // Bonificación moderada para nombres que cubren todos los términos.
-            if (queryWords.length > 1) {
-                const matchedNameWords = queryWords.filter(word =>
-                    fields[0].words.some(candidate => tokenSimilarity(word, candidate) >= 42)
-                ).length;
-                score += (matchedNameWords / queryWords.length) * 55;
-            }
+            const nameCoverage = matches.filter(match => match.nameMatch >= 65).length;
+            score += nameCoverage * 280;
+            if (nameCoverage === queryWords.length) score += 1250;
+            // Contigüidad semántica después de eliminar preposiciones; tolera
+            // "conjunto de tutú de navidad" y "conjuntos con tutús navideños".
+            const nameTokens = name.words;
+            let previousIndex = -1;
+            const ordered = queryWords.every(word => {
+                const at = nameTokens.findIndex((candidate, i) => i > previousIndex && tokenSimilarity(word, candidate) >= 65);
+                if (at < 0) return false;
+                previousIndex = at;
+                return true;
+            });
+            if (ordered && nameCoverage === queryWords.length) score += 100;
             return Math.round(score);
         }
 
