@@ -1,4 +1,16 @@
-/** CUPISSA | Autenticación compartida por OTP/Google. */
+/** CUPISSA | Autenticación compartida con Perfil (mismo Supabase Auth, OTP y plantilla SMTP). */
+function portalOtpError(error) {
+    const original = error?.originalError || error;
+    const raw = String(original?.message || error?.message || '').trim();
+    const code = String(original?.code || '').trim();
+    // Un rebote del proveedor no significa que el cliente no exista en CUPISSA.
+    if (/address not found|recipient.*not found|mailbox.*unavailable|user unknown|no such user|5\.1\.1|direcci[oó]n.*no encontrada/i.test(raw)) {
+        console.warn('[CUPISSA PORTAL OTP] Destinatario rechazado por correo, no por base de clientes:', {code, detail:raw});
+        return 'El servidor de correo rechazó la entrega a esa dirección. Esto no significa que tu cuenta CUPISSA no exista. Comprueba el correo escrito y solicita ayuda si el problema continúa.';
+    }
+    return error?.message || 'No fue posible enviar el código. Intenta de nuevo.';
+}
+
 let pendingPortalLoginEmail = '';
 
 async function resolveCreditClientByEmail(email, authUserId = null) {
@@ -44,12 +56,13 @@ async function handleClientLogin(e) {
         await window.CUPISSAAuth.sendEmailLoginOtp(email, new URL('/portal-pagos/', window.location.origin).toString());
         pendingPortalLoginEmail = email;
         document.getElementById('client-login-otp-email').textContent = email;
+        document.getElementById('client-login-otp-code').value = '';
         document.getElementById('client-login-otp-panel').classList.remove('hidden');
         document.getElementById('client-login-form').classList.add('hidden');
         errorDiv.classList.add('hidden');
     } catch (error) {
         console.error('[CUPISSA PORTAL] Error enviando OTP:', error);
-        errorText.textContent = error?.message || 'No fue posible enviar el código de acceso.';
+        errorText.textContent = portalOtpError(error);
         errorDiv.classList.remove('hidden');
     }
 }
@@ -78,7 +91,7 @@ async function resendClientLoginOtp() {
         errorText.textContent = 'Enviamos un nuevo código a tu correo.';
         errorDiv.classList.remove('hidden');
     } catch (error) {
-        errorText.textContent = error?.message || 'No fue posible enviar otro código.';
+        errorText.textContent = portalOtpError(error);
         errorDiv.classList.remove('hidden');
     }
 }
