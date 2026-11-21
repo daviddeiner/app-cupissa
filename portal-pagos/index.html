@@ -21,10 +21,10 @@
     </script>
     <title>Portal de Pagos | Crédito Cupissa</title>
     
-    <link rel="shortcut icon" href="/catalogo/assets/images/favicon.png" type="image/png">
-    <link rel="icon" href="/catalogo/assets/images/logo.png" type="image/x-icon">
-    <link rel="icon" href="/catalogo/assets/images/favicon.png" type="image/png">
-    <link rel="apple-touch-icon" href="/catalogo/assets/images/favicon.png">
+    <link rel="shortcut icon" href="/catalogo/assets/images/favicon-espaciado.png" type="image/png">
+    <link rel="icon" href="/catalogo/assets/images/favicon-espaciado.png" type="image/png">
+    <link rel="icon" href="/catalogo/assets/images/favicon-espaciado.png" type="image/png">
+    <link rel="apple-touch-icon" href="/catalogo/assets/images/favicon-espaciado.png">
     
     <script src="/portal-pagos/assets/js/00-tailwind-setup.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -46,6 +46,8 @@
   }
 })();
 </script>
+<link rel="stylesheet" href="/catalogo/assets/css/cupissa-resilient.css?v=20261121">
+<script defer src="/shared/js/cupissa-network-resilience.js?v=20261121"></script>
 </head>
 <body class="h-full flex flex-col bg-slate-50 text-slate-800 font-sans relative">
 
@@ -74,14 +76,27 @@
 
     <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8">
 
-        <!-- Acceso unificado: el Portal solo consulta la sesión iniciada desde Perfil. -->
+        <!-- Acceso directo por OTP o Google, comparte la sesión segura de Perfil. -->
         <section id="client-login-card" class="cupissa-portal-access-card" aria-live="polite">
-          <div class="cupissa-portal-access-icon"><i class="fa-solid fa-lock"></i></div>
-          <p class="cupissa-portal-access-kicker">Mi portal</p>
-          <h2>Tu información, en un solo lugar</h2>
-          <p>Inicia sesión desde <strong>Perfil</strong> para consultar aquí tus créditos, cuotas y pagos de forma segura.</p>
-          <button type="button" id="cupissa-portal-open-profile" class="cupissa-portal-profile-action"><i class="fa-regular fa-user"></i> Ir a Perfil</button>
-          <p class="cupissa-portal-access-help">Una vez ingreses a tu cuenta, vuelve al Portal para ver tu información.</p>
+          <div class="cupissa-portal-access-icon"><i class="fa-regular fa-user"></i></div>
+          <p class="cupissa-portal-access-kicker">MI PORTAL</p>
+          <h2>Inicia sesión en CUPISSA</h2>
+          <p>Accede directamente a tus créditos y pagos con el mismo correo de tu perfil.</p>
+          <form id="client-login-form" onsubmit="handleClientLogin(event)">
+            <label for="login-email" class="cupissa-portal-field-label">Correo electrónico</label>
+            <input id="login-email" type="email" autocomplete="email" required placeholder="correo@ejemplo.com" class="cupissa-portal-email">
+            <button type="submit" class="cupissa-portal-profile-action">Enviar código de acceso</button>
+            <button type="button" onclick="handleClientGoogleLogin()" class="cupissa-portal-google"><i class="fa-brands fa-google"></i> Continuar con Google</button>
+          </form>
+          <div id="client-login-otp-panel" class="hidden">
+            <p>Código enviado a <strong id="client-login-otp-email"></strong></p>
+            <label for="client-login-otp-code" class="cupissa-portal-field-label">Código de 6 dígitos</label>
+            <input id="client-login-otp-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" class="cupissa-portal-email" placeholder="000000">
+            <button type="button" onclick="handleClientOtpVerify()" class="cupissa-portal-profile-action">Entrar al portal</button>
+            <button type="button" onclick="resendClientLoginOtp()" class="cupissa-portal-link">Reenviar código</button>
+            <button type="button" onclick="backToClientEmailLogin()" class="cupissa-portal-link">Cambiar correo</button>
+          </div>
+          <div id="login-error" class="hidden cupissa-portal-error" role="alert"><span></span></div>
         </section>
         <style>
           .cupissa-portal-access-card{width:min(100%,430px);margin:clamp(24px,6vh,65px) auto;padding:35px 23px;text-align:center;background:#fff;border:1px solid #f8d7e7;border-radius:28px;box-shadow:0 14px 32px #9f447010;box-sizing:border-box;color:#161225}
@@ -104,6 +119,15 @@
         });
         </script>
 
+        <style>
+          .cupissa-portal-field-label{display:block;text-align:left;font-size:12px;font-weight:800;color:#43364c;margin:12px 0 7px}
+          .cupissa-portal-email{display:block;width:100%;min-height:49px;box-sizing:border-box;padding:12px 14px;border:1px solid #e8c9d7;border-radius:12px;background:white;color:#17121a;font:inherit;font-size:15px;margin-bottom:12px}
+          .cupissa-portal-access-card .cupissa-portal-profile-action{width:100%;margin:5px 0 10px}
+          .cupissa-portal-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px;border-radius:13px;background:white;color:#241924;border:1px solid #ddd0d7;font-size:14px;font-weight:800;cursor:pointer}
+          .cupissa-portal-link{background:none;border:0;color:#bd266b;font-weight:800;padding:10px;cursor:pointer}
+          .cupissa-portal-error{padding:12px;margin-top:12px;border-radius:10px;background:#fff0f0;color:#9e1734;font-size:12px}
+          #client-login-otp-panel.hidden,#client-login-form.hidden,#login-error.hidden{display:none!important}
+        </style>
         <!-- DASHBOARD CLIENTE -->
         <div id="client-dashboard" class="hidden space-y-6">
             
@@ -232,7 +256,7 @@
     <!-- Funcionalidades del portal -->
     <script src="/portal-pagos/assets/js/03-notifications.js"></script>
     <script src="/portal-pagos/assets/js/04-session.js?v=20261107-portal-restauracion-simple-v4"></script>
-    <script src="/portal-pagos/assets/js/05-authentication.js?v=20261107-portal-login-error-guard-v5"></script>
+    <script src="/portal-pagos/assets/js/05-authentication.js?v=20261121-direct-login"></script>
     <script src="/portal-pagos/assets/js/06-client-dashboard.js?v=20261107-cuotas-v3"></script>
     <script src="/portal-pagos/assets/js/07-payment-options.js"></script>
     <script src="/portal-pagos/assets/js/08-payment-gateway.js?v=20261106-2"></script>

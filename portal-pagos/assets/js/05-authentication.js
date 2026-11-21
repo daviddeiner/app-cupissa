@@ -41,7 +41,7 @@ async function handleClientLogin(e) {
     const errorDiv = document.getElementById('login-error');
     const errorText = errorDiv.querySelector('span');
     try {
-        await window.CUPISSAAuth.sendEmailLoginOtp(email, new URL('/perfil/', window.location.origin).toString());
+        await window.CUPISSAAuth.sendEmailLoginOtp(email, new URL('/portal-pagos/', window.location.origin).toString());
         pendingPortalLoginEmail = email;
         document.getElementById('client-login-otp-email').textContent = email;
         document.getElementById('client-login-otp-panel').classList.remove('hidden');
@@ -74,7 +74,7 @@ async function resendClientLoginOtp() {
     const errorDiv = document.getElementById('login-error');
     const errorText = errorDiv.querySelector('span');
     try {
-        await window.CUPISSAAuth.sendEmailLoginOtp(pendingPortalLoginEmail, new URL('/perfil/', window.location.origin).toString());
+        await window.CUPISSAAuth.sendEmailLoginOtp(pendingPortalLoginEmail, new URL('/portal-pagos/', window.location.origin).toString());
         errorText.textContent = 'Enviamos un nuevo código a tu correo.';
         errorDiv.classList.remove('hidden');
     } catch (error) {
@@ -131,7 +131,7 @@ async function handleLogout() {
     document.getElementById('client-dashboard').classList.add('hidden');
     document.getElementById('client-login-card').classList.remove('hidden');
     document.getElementById('client-login-form')?.reset();
-    // El acceso se gestiona únicamente desde Perfil.
+    // Se permite ingresar otra vez directamente desde este portal.
 }
 
 // Continuación de Google en navegación principal (nunca dentro del iframe).

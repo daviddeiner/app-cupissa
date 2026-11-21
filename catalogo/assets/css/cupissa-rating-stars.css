@@ -1,0 +1,5 @@
+.cupissa-rating-native{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+.cupissa-rating-input{display:flex;align-items:center;gap:5px;margin:8px 0}
+.cupissa-rating-star{appearance:none;border:0;background:transparent;color:#b5a4ae;font-size:clamp(29px,5vw,38px);line-height:1.2;padding:4px;cursor:pointer;transition:transform .16s,color .16s}
+.cupissa-rating-star.active{color:#f4aa22}.cupissa-rating-star:hover,.cupissa-rating-star:focus-visible{transform:scale(1.15);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.cupissa-rating-star{transition:none}}

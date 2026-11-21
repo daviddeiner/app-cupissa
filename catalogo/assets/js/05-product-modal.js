@@ -609,6 +609,29 @@ function cupissaSelectedAccessories() {
             recalculateProductPrice();
         }
 
+        // Animación numérica: el valor tachado permanece fijo; el precio efectivo cuenta hacia abajo.
+        const cupissaPriceAnimations = new WeakMap();
+        function cupissaAnimatePrice(element, before, final) {
+            if (!element) return;
+            const previous = cupissaPriceAnimations.get(element);
+            if (previous) cancelAnimationFrame(previous);
+            const end = Math.max(0, Math.round(Number(final) || 0));
+            const start = Math.max(end, Math.round(Number(before) || 0));
+            const noMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+            element.textContent = formatCOP(end);
+            if (start <= end || noMotion || document.hidden) return;
+            const duration = 700;
+            const startTime = performance.now();
+            function tick(now) {
+                const progress = Math.min(1, (now - startTime) / duration);
+                const ease = 1 - Math.pow(1 - progress, 3);
+                element.textContent = formatCOP(Math.round(start + (end - start) * ease));
+                if (progress < 1) cupissaPriceAnimations.set(element, requestAnimationFrame(tick));
+                else cupissaPriceAnimations.delete(element);
+            }
+            element.textContent = formatCOP(start);
+            cupissaPriceAnimations.set(element, requestAnimationFrame(tick));
+        }
         function recalculateProductPrice() {
             if (!selectedProductModal) return;
             const p = selectedProductModal;
@@ -645,7 +668,17 @@ function cupissaSelectedAccessories() {
             if (priceLabel) priceLabel.innerText = selectedModalidad === 'alquiler' ? (Number(p.valor_deposito || 0) > 0 ? 'Alquiler + depósito reembolsable' : 'Precio Alquiler') : (isMayorista ? 'Precio Mayorista' : 'Precio Detal');
             const refundableDeposit = selectedModalidad === 'alquiler'
                 ? Math.max(0, Number(p.valor_deposito || 0)) * totalQty : 0;
-            document.getElementById('opt-modal-total-price').innerText = formatCOP(totalProduct + refundableDeposit);
+            const actualTotal = totalProduct + refundableDeposit;
+            // Animate only the existing displayed price. Never change any struck-through value.
+            const registeredBefore = Number(typeof window.cupissaGetComparePrice === 'function'
+                ? window.cupissaGetComparePrice(p) : p.precio_anterior || 0);
+            const beforeBase = selectedModalidad === 'venta'
+                ? Math.max(registeredBefore, isMayorista ? basePrice : 0)
+                : 0;
+            const beforeTotal = beforeBase > baseUnitPrice
+                ? actualTotal + (beforeBase - baseUnitPrice) * totalQty
+                : actualTotal;
+            cupissaAnimatePrice(document.getElementById('opt-modal-total-price'), beforeTotal, actualTotal);
             document.getElementById('opt-anticipo-pct').innerText = pctAnticipo;
             const anticipoValue=document.getElementById('opt-anticipo-val');
             anticipoValue.innerText=contraEntrega?'':formatCOP(valAnticipo);

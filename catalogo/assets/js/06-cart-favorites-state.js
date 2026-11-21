@@ -144,8 +144,78 @@ function addModalProductToCart() {
                     updateBadges(); syncCupissaFavoriteButtons();
                 }
             } catch (error) { console.warn('[CUPISSA] Estado local disponible:',error); }
+            if(cupissaAccountId)setTimeout(()=>cupissaReconcileSavedProducts(true),700);
             return {cart,favorites};
         }
+        // Reconcilia los guardados con el catálogo REAL, no con la copia local ni un lote parcial.
+        // Ante errores de red no se borra nada: se reintenta al recuperar conectividad.
+        let cupissaReconcileRunning=null;
+        let cupissaLastReconcile=0;
+        async function cupissaReconcileSavedProducts(force=false){
+            if(!cupissaAccountId||!cupissaAccountReady||!navigator.onLine)return;
+            if(cupissaReconcileRunning)return cupissaReconcileRunning;
+            if(!force&&Date.now()-cupissaLastReconcile<45000)return;
+            const owner=cupissaAccountId;
+            cupissaReconcileRunning=(async()=>{
+              const ids=[...new Set([...cart.map(x=>x.productId),...favorites.map(x=>x.id)].filter(x=>x!==null&&x!==undefined).map(String))];
+              if(!ids.length)return;
+              const fresh=new Map();
+              // Solo cambiar estados cuando cada consulta completó correctamente.
+              for(let n=0;n<ids.length;n+=80){
+                const {data,error}=await supabaseClient.from('productos').select('*').in('id',ids.slice(n,n+80));
+                if(error)throw error;
+                (data||[]).forEach(p=>{if(p&&p.oculto!==true)fresh.set(String(p.id),typeof normalizeProduct==='function'?normalizeProduct(p):p);});
+              }
+              if(owner!==cupissaAccountId)return;
+              let changed=false;
+              const nextFav=favorites.filter(x=>fresh.has(String(x.id))).map(x=>{
+                const updated=fresh.get(String(x.id));
+                if(JSON.stringify(x)!==JSON.stringify(updated))changed=true;
+                return updated;
+              });
+              if(nextFav.length!==favorites.length)changed=true;
+              const nextCart=cart.filter(x=>fresh.has(String(x.productId))).map(x=>{
+                const p=fresh.get(String(x.productId));
+                const rental=String(x.modalidad||'').toUpperCase()==='ALQUILER';
+                const totalForProduct=cart.filter(y=>String(y.productId)===String(x.productId)&&String(y.modalidad)===String(x.modalidad)).reduce((a,y)=>a+Number(y.cantidad||1),0);
+                const wholesale=!rental&&Number(p.cant_min_mayorista||0)>0&&totalForProduct>=Number(p.cant_min_mayorista)&&Number(p.precio_mayorista||0)>0;
+                const base=rental?Number(p.precio_alquiler||0):Number(wholesale?p.precio_mayorista:p.precio_detal||0);
+                const size=Array.isArray(p.tallas)?p.tallas.find(t=>String(t.nombre||'').trim()===String(x.talla||'').trim()):null;
+                const sizeInc=rental?0:Number(size?.incremento||0);
+                const color=Array.isArray(p.colores)?p.colores.find(c=>String(typeof c==='string'?c:c.nombre)===String(x.color||'')):null;
+                const colorInc=Number(typeof color==='object'?color?.incremento||0:0);
+                const accessories=Array.isArray(p.accesorios)?p.accesorios:[];
+                const selected=Array.isArray(x.accesorios)?x.accesorios:[];
+                const addon=selected.reduce((sum,a)=>{const latest=accessories.find(option=>String(option.nombre||'')===String(a.nombre||''));return sum+Number(latest?.incremento||0);},0);
+                const qty=Math.max(1,Number(x.cantidad||1));
+                const unit=base+sizeInc+colorInc+addon;
+                const newLine={...x,nombre:p.nombre,foto:x.fotoColor||p.fotos?.[0]||x.foto,
+                  precioUnitario:unit,total:unit*qty,deposito:rental?Number(p.valor_deposito||0)*qty:0,
+                  porcentajeAnticipo:Number(p.porcentaje_anticipo??20),
+                  valorAnticipo:Math.round(unit*qty*Number(p.porcentaje_anticipo??20)/100),
+                  cantidadMinimaMayorista:Number(p.cant_min_mayorista||6),
+                  pagoContraentrega:p.pago_contraentrega===true};
+                if(JSON.stringify(x)!==JSON.stringify(newLine))changed=true;
+                return newLine;
+              });
+              if(nextCart.length!==cart.length)changed=true;
+              if(changed){
+                cart=nextCart;favorites=nextFav;
+                cupissaPersistState('reconcile');updateBadges();
+                if(typeof syncCupissaFavoriteButtons==='function')syncCupissaFavoriteButtons();
+                if(!document.getElementById('modal-cart')?.classList.contains('hidden')&&typeof renderCartItems==='function')renderCartItems();
+                if(!document.getElementById('modal-favorites')?.classList.contains('hidden')&&typeof openFavoritesModal==='function')openFavoritesModal();
+              }
+              cupissaLastReconcile=Date.now();
+            })().catch(error=>{console.warn('[CUPISSA] Datos guardados sin alterar por falla de conexión:',error);})
+              .finally(()=>{cupissaReconcileRunning=null;});
+            return cupissaReconcileRunning;
+        }
+        window.cupissaReconcileSavedProducts=cupissaReconcileSavedProducts;
+        window.addEventListener('online',()=>cupissaReconcileSavedProducts(true));
+        window.addEventListener('focus',()=>cupissaReconcileSavedProducts());
+        document.addEventListener('visibilitychange',()=>{if(!document.hidden)cupissaReconcileSavedProducts();});
+        setInterval(()=>{if(!document.hidden)cupissaReconcileSavedProducts();},180000);
         supabaseClient.auth.onAuthStateChange((event, session) => {
             const nextId = session?.user?.id || null;
             if (nextId === cupissaAccountId && cupissaAccountReady) return;

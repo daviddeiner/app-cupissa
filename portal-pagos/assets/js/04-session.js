@@ -14,8 +14,8 @@ function cupissaPortalShowSignInNotice() {
   if (!card) return;
   const heading = card.querySelector('h2');
   const description = card.querySelector('h2 + p');
-  if (heading) heading.textContent = 'Tu información, en un solo lugar';
-  if (description) description.innerHTML = 'Inicia sesión desde <strong>Perfil</strong> para consultar aquí tus créditos, cuotas y pagos de forma segura.';
+  if (heading) heading.textContent = 'Inicia sesión en CUPISSA';
+  if (description) description.innerHTML = 'Ingresa con tu correo y código, o continúa con Google.';
   card.classList.remove('hidden');
 }
 

@@ -127,3 +127,7 @@
 .cupissa-pretty-accept{background:#f4699a;color:#fff;box-shadow:0 5px 15px #f4699a3a}
 @media(min-width:720px){.cupissa-profile-products{grid-template-columns:repeat(4,minmax(0,1fr))}.cupissa-profile-links button{min-height:70px}}
 @media(max-width:480px){#profile-account-section #profile-heading-name{font-size:14px}.cupissa-order-actions>button{padding:9px}.cupissa-order-middle strong{font-size:14px}.cupissa-order-tile{padding:12px}}
+
+.cupissa-review-form .cupissa-rating-input{display:flex;gap:4px;margin-top:9px;margin-bottom:6px}
+.cupissa-review-form .cupissa-rating-star{background:transparent!important;border:0!important;box-shadow:none!important;color:#b9aab2!important;font-size:34px!important;padding:3px 5px!important;border-radius:8px}
+.cupissa-review-form .cupissa-rating-star.active{color:#e9a21a!important}

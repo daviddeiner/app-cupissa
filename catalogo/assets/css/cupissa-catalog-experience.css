@@ -56,3 +56,12 @@
   body:not(.cupissa-product-open) #cupissa-floating-cart{display:none}
   .cupissa-review-head h3{font-size:17px}
 }
+
+/* Transiciones discretas; accesibles con movimiento reducido. */
+.cupissa-price-drop{animation:cupissaPriceSettle .48s cubic-bezier(.2,.8,.2,1) both}
+@keyframes cupissaPriceSettle{from{transform:translateY(-9px);opacity:.5}to{transform:translateY(0);opacity:1}}
+@media(prefers-reduced-motion:reduce){.cupissa-price-drop{animation:none}}
+
+.cupissa-size-before{display:block;color:#a18491;font-size:11px;margin-top:4px}
+.cupissa-size-before[hidden]{display:none!important}
+.cupissa-size-before del{color:#9d7e8e}

@@ -1,0 +1,6 @@
+/* CSS crítico local incluso si Tailwind o tipografías CDN tardan en cargar. */
+html{background:#f8fafc}body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;color:#1f2937}
+img{max-width:100%}button,input,textarea,select{font:inherit}button{cursor:pointer}
+#cupissa-network-status{position:fixed;left:12px;bottom:16px;z-index:9999;max-width:min(370px,calc(100vw - 24px));background:#fff;color:#473345;border:1px solid #e4b9d0;border-radius:13px;padding:11px 14px;box-shadow:0 8px 25px #2222;font-size:12px;font-weight:700}
+#cupissa-network-status[hidden]{display:none!important}
+@media(min-width:768px){#cupissa-network-status{left:auto;right:20px}}

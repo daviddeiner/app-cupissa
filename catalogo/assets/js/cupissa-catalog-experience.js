@@ -135,6 +135,7 @@
     const current=Number(p?.precio_detal);
     return before>current&&current>0?before:0;
   }
+  window.cupissaGetComparePrice = comparePrice;
   function stars(score) {
     const round=Math.max(0,Math.min(5,Math.round(Number(score)||0)));
     return '★'.repeat(round)+'☆'.repeat(5-round);
@@ -150,7 +151,7 @@
       priceBox.before(node);
     } else if(price&&priceBox) {
       const node=card.querySelector('.cupissa-special-price');
-      if(node && !node.querySelector('del'))node.innerHTML='<del>'+cash(price)+'</del><span>Descuento especial</span>';
+      if(node)node.innerHTML='<del>'+cash(price)+'</del><span>Descuento especial</span>';
     }
     let ratingEl=card.querySelector('.cupissa-card-rating');
     if(!ratingEl) {
@@ -162,7 +163,7 @@
     }
     if(ratingEl) {
       const html=ownerPreview
-        ? '<span>★★★★★</span> <small>('+String(previewCount(p)+(rating?.count||0))+' opiniones)</small>'
+        ? '<span>'+stars(rating?.count?rating.total/rating.count:5)+'</span> <small>('+String(Math.max(previewCount(p),rating?.count||0))+' opiniones)</small>'
         : rating?.count
         ? '<span>'+stars(rating.total/rating.count)+'</span> <small>('+rating.count+' reseñas de clientes)</small>'
         : '<span class="cupissa-unrated-stars">☆☆☆☆☆</span> <small>Sin calificaciones aún</small>';
@@ -400,7 +401,7 @@
     if(!(await fetchBatch()))return;
     const addSamples=()=>{
       if(!ownerPreview||samplesAdded||offset<totalReal)return;
-      for(let i=0;i<previewCount(p);i++)reviews.push({calificacion:5,comentario:sampleCommentFor(p,i),sample:true});
+      for(let i=0;i<Math.max(0,previewCount(p)-totalReal);i++)reviews.push({calificacion:5,comentario:sampleCommentFor(p,i),sample:true});
       samplesAdded=true;
     };
     addSamples();
@@ -409,7 +410,7 @@
     const loadedAverage=reviews.filter(r=>!r.sample).reduce((sum,r)=>sum+Number(r.calificacion||0),0)/Math.max(1,reviews.filter(r=>!r.sample).length);
     const average=realRating?.count?realRating.total/realRating.count:loadedAverage;
     const summary=document.createElement('p');summary.className='cupissa-review-summary';
-    summary.textContent=(ownerPreview?'★★★★★  5.0/5':stars(average)+'  '+average.toFixed(1)+'/5')+' · '+(totalReal+(ownerPreview?previewCount(p):0))+' opiniones';
+    summary.textContent=(stars(totalReal?average:5)+'  '+(totalReal?average:5).toFixed(1)+'/5')+' · '+(ownerPreview?Math.max(totalReal,previewCount(p)):totalReal)+' opiniones';
     list.replaceChildren(summary);
     const append=async(limit)=>{
       if(token!==reviewToken)return;
@@ -424,7 +425,7 @@
       }
       addSamples();
       more.disabled=false;
-      const remaining=Math.max(0,totalReal+(ownerPreview?previewCount(p):0)-shown);
+      const remaining=Math.max(0,(ownerPreview?Math.max(totalReal,previewCount(p)):totalReal)-shown);
       more.hidden=remaining===0;more.textContent='Ver más reseñas ('+remaining+')';
     };
     more.onclick=()=>append(10);
@@ -437,27 +438,57 @@
       document.getElementById('opt-modal-total-price')?.parentElement?.after(el);
     }
     const value=comparePrice(p);
-    el.hidden=!value; el.innerHTML=value?'<del>Antes: '+cash(value)+'</del> <strong>Descuento especial aplicado</strong>':'';
-  }
-  function renderCartReferences(){
-    const container=document.getElementById('cart-items-container');
-    if(!container||typeof cart==='undefined'||!Array.isArray(cart))return;
-    const cards=container.children;
-    cart.forEach((line,index)=>{
-      const product=productById(line.productId); const previous=comparePrice(product);
-      if(!previous||String(line.modalidad).toUpperCase()==='ALQUILER')return;
-      const box=cards[index]?.querySelector('.fuchsia-text');
-      if(box&&!box.querySelector('.cupissa-special-cart')){
-        const note=document.createElement('small');note.className='cupissa-special-cart';
-        note.textContent='Descuento especial · Antes desde '+cash(previous)+' por unidad';
-        box.appendChild(note);
+    const sizes=typeof cupissaGetSelectedSizeItems==='function'?cupissaGetSelectedSizeItems():[];
+    const qty=sizes.length?sizes.reduce((sum,item)=>sum+Number(item.cantidad||0),0):Math.max(1,Number(typeof selectedQtyModal!=='undefined'?selectedQtyModal:1));
+    const extra=sizes.length?sizes.reduce((sum,item)=>sum+Number(item.incremento||0)*Number(item.cantidad||0),0):0;
+    const extraColor=Number(document.getElementById('opt-select-color')?.selectedOptions?.[0]?.dataset.inc||0)*qty;
+    const extraAccessories=typeof cupissaSelectedAccessories==='function'?cupissaSelectedAccessories().reduce((sum,a)=>sum+Number(a.incremento||0),0)*qty:0;
+    const before=(value*qty)+extra+extraColor+extraAccessories;
+    const rental=typeof selectedModalidad!=='undefined'&&selectedModalidad==='alquiler';
+    // Las tarjetitas de talla también muestran su precio anterior actualizado.
+    document.querySelectorAll('#opt-size-quantities .cupissa-size-select-row').forEach(row=>{
+      const item=(Array.isArray(p.tallas)?p.tallas:[]).find(t=>String(t.nombre||'').trim()===String(row.dataset.size||''));
+      const increment=Number(item?.incremento||0);
+      let beforeEl=row.querySelector('.cupissa-size-before');
+      if(!beforeEl){beforeEl=document.createElement('small');beforeEl.className='cupissa-size-before';row.querySelector('.cupissa-size-select-info')?.appendChild(beforeEl);}
+      if(beforeEl){
+        beforeEl.hidden=!value||rental;
+        if(value&&!rental){
+          const next=cash(value+increment);
+          if(beforeEl.dataset.value!==next){beforeEl.innerHTML='<del>Antes '+next+'</del>';
+            beforeEl.dataset.value=next;beforeEl.classList.remove('cupissa-price-drop');void beforeEl.offsetWidth;beforeEl.classList.add('cupissa-price-drop');}
+        }
       }
     });
+    el.hidden=!value||rental;
+    if(value&&!rental){
+      const old=el.querySelector('del');
+      const previous=Number(el.dataset.currentPrice||0);
+      if(!old){el.innerHTML='<del></del> <strong>Descuento especial aplicado</strong>';}
+      const target=el.querySelector('del');
+      el.dataset.currentPrice=String(before);
+      // Animación de caída de precio, sin alterar los valores del carrito ni del pago.
+      if(el.dataset.productId!==String(p.id)||previous!==before){
+        el.dataset.productId=String(p.id);
+        const start=previous>0&&el.dataset.productId===String(p.id)?previous:before*1.15;
+        const begun=performance.now(),duration=480;
+        const tick=now=>{if(el.dataset.currentPrice!==String(before))return;
+          const t=Math.min(1,(now-begun)/duration),ease=1-Math.pow(1-t,3);
+          target.textContent='Antes: '+cash(start+(before-start)*ease);
+          if(t<1)requestAnimationFrame(tick);
+        };requestAnimationFrame(tick);
+        el.classList.remove('cupissa-price-drop');void el.offsetWidth;el.classList.add('cupissa-price-drop');
+      }else target.textContent='Antes: '+cash(before);
+    }
   }
-  const oldRenderCart=window.renderCartItems;
-  if(typeof oldRenderCart==='function')window.renderCartItems=function(){
-    const result=oldRenderCart.apply(this,arguments);renderCartReferences();return result;
-  };
+  document.addEventListener('change',event=>{
+    if(event.target.closest('#modal-product-options') && typeof selectedProductModal!=='undefined'&&selectedProductModal)
+      requestAnimationFrame(()=>renderReferenceInModal(selectedProductModal));
+  });
+  document.addEventListener('click',event=>{
+    if(event.target.closest('#modal-product-options button')&&typeof selectedProductModal!=='undefined'&&selectedProductModal)
+      setTimeout(()=>renderReferenceInModal(selectedProductModal),30);
+  });
   const oldOpen=window.openOptionsModal;
   if(typeof oldOpen==='function')window.openOptionsModal=function(id){
     const result=oldOpen.apply(this,arguments);
